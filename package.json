@@ -1,0 +1,20 @@
+{
+  "name": "agents-n-arbiters",
+  "version": "1.0.0",
+  "description": "",
+  "author": "Guy Royse <guy@guy.dev>",
+  "license": "MIT",
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "devDependencies": {
+    "npm-run-all": "^4.1.5"
+  },
+  "scripts": {
+    "dev": "npm-run-all --sequential build --parallel dev:*",
+    "build": "npm-run-all --parallel build:*",
+    "dev:web": "npm run dev:azure --workspace=web-app",
+    "build:web": "npm run build --workspace=web-app"
+  }
+}
