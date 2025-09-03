@@ -15,9 +15,9 @@
   },
   "scripts": {
     "dev": "npm-run-all --sequential build --parallel dev:web",
-    "dev:web": "npm run dev --workspace=web-app",
+    "dev:web": "npm run dev --workspace=ana-web",
     "build": "npm-run-all --parallel build:*",
-    "build:web": "npm run build --workspace=web-app",
-    "build:functions": "npm run build --workspace=functions"
+    "build:web": "npm run build --workspace=ana-web",
+    "build:api": "npm run build --workspace=ana-api"
   }
 }

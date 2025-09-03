@@ -6,8 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a TypeScript monorepo for an Azure JAMstack application using npm workspaces. The architecture consists of:
 
-- **`packages/web-app/`** - Svelte 5 frontend with Tailwind CSS v4, served via Azure Static Web Apps
-- **`packages/functions/`** - Azure Functions v4 serverless API backend 
+- **`packages/ana-web/`** - Svelte 5 frontend with Tailwind CSS v4, served via Azure Static Web Apps
+- **`packages/ana-api/`** - Azure Functions v4 serverless API backend 
 - **`packages/shared/`** - Common TypeScript types and utilities (placeholder)
 - **`packages/agent-memory-server/`** - Redis-based Agent Memory Server integration (placeholder)
 
@@ -22,20 +22,20 @@ npm run dev           # Build all packages, then start SWA + Functions in parall
 
 ### Individual Package Development  
 ```bash
-npm run dev --workspace=web-app      # Vite dev server with hot reload
-npm run dev --workspace=functions    # Azure Functions Core Tools
+npm run dev --workspace=ana-web      # SWA CLI with Functions integration
+npm run dev --workspace=ana-api      # Azure Functions Core Tools (standalone)
 ```
 
 ### Build Commands
 ```bash
 npm run build         # Build all packages in parallel
-npm run build --workspace=web-app    # Vite production build
-npm run build --workspace=functions  # TypeScript compilation to dist/
+npm run build --workspace=ana-web    # Vite production build
+npm run build --workspace=ana-api    # TypeScript compilation to dist/
 ```
 
 ### Type Checking
 ```bash
-npm run check --workspace=web-app    # Svelte + TypeScript checking
+npm run check --workspace=ana-web    # Svelte + TypeScript checking
 ```
 
 ## Architecture Details
@@ -47,8 +47,8 @@ npm run check --workspace=web-app    # Svelte + TypeScript checking
 
 ### TypeScript Configuration Strategy
 Both packages share aligned linting standards but different compilation targets:
-- **web-app**: Bundler mode (`moduleResolution: "bundler"`) with Vite, no emit
-- **functions**: Node.js mode (`moduleResolution: "node"`) with compilation to `dist/`
+- **ana-web**: Bundler mode (`moduleResolution: "bundler"`) with Vite, no emit
+- **ana-api**: Node.js mode (`moduleResolution: "node"`) with compilation to `dist/`
 - **Shared settings**: ES2022 target, strict linting, isolated modules, verbatim module syntax
 
 ### Azure Static Web Apps Integration
@@ -69,7 +69,7 @@ Both packages share aligned linting standards but different compilation targets:
 - Required for Azure Functions v4 compatibility
 
 ### Azure Functions Local Development
-- Copy `packages/functions/local.settings.example.json` to `packages/functions/local.settings.json`
+- Copy `packages/ana-api/local.settings.example.json` to `packages/ana-api/local.settings.json`
 - Environment variables accessible via `process.env.NODE_ENV`
 
 ### Static Web App Environment Variables

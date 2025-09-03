@@ -1,9 +1,9 @@
 {
-  "name": "web-app",
+  "name": "ana-web",
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "swa start dist --port 4280 --api-location ../functions",
+    "dev": "swa start dist --port 4280 --api-location ../ana-api",
     "build": "vite build",
     "check": "svelte-check --tsconfig ./tsconfig.json"
   },
