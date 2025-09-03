@@ -1,4 +1,4 @@
-import { app, HttpRequest, type HttpResponseInit, InvocationContext } from '@azure/functions'
+import type { HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions'
 
 interface VersionResponse {
   name: string
@@ -25,10 +25,3 @@ export async function version(_request: HttpRequest, context: InvocationContext)
     jsonBody: versionInfo
   }
 }
-
-app.http('version', {
-  methods: ['GET'],
-  authLevel: 'anonymous',
-  route: 'version',
-  handler: version
-})

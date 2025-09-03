@@ -2,9 +2,8 @@
   "name": "functions",
   "version": "1.0.0",
   "type": "module",
+  "main": "dist/main.js",
   "scripts": {
-    "dev": "npm run dev:azure",
-    "dev:azure": "func start",
     "build": "tsc"
   },
   "devDependencies": {

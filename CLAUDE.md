@@ -63,9 +63,13 @@ Both packages share aligned linting standards but different compilation targets:
 
 ## Environment Configuration
 
+### Node.js Version Management
+- Project uses Node.js v20.x (specified in `.nvmrc`)
+- Run `nvm use` to switch to the correct version before development
+- Required for Azure Functions v4 compatibility
+
 ### Azure Functions Local Development
 - Copy `packages/functions/local.settings.example.json` to `packages/functions/local.settings.json`
-- Required Node.js: v18.x or v20.x (Azure Functions v4 compatibility)
 - Environment variables accessible via `process.env.NODE_ENV`
 
 ### Static Web App Environment Variables

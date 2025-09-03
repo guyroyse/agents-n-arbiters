@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "dev:azure": "swa start dist --port 4280",
+    "dev": "swa start dist --port 4280 --api-location ../functions",
     "build": "vite build",
     "check": "svelte-check --tsconfig ./tsconfig.json"
   },
