@@ -22,7 +22,12 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+
+    /* Path mapping */
+    "paths": {
+      "@components/*": ["./src/components/*"]
+    }
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"]

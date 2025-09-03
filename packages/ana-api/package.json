@@ -11,6 +11,7 @@
     "typescript": "^5.9.2"
   },
   "dependencies": {
+    "@ana/shared": "*",
     "@azure/functions": "^4.7.2-preview"
   }
 }

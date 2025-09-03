@@ -15,7 +15,7 @@
     "allowSyntheticDefaultImports": true,
 
     /* Build output */
-    "outDir": "./dist",
+    "outDir": "dist",
     "rootDir": "./src",
     "declaration": true,
     "declarationMap": true,

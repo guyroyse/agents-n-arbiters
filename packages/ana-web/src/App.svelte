@@ -1,4 +1,6 @@
 <script lang="ts">
+  import AppInfo from '@components/AppInfo.svelte'
+  
   let name = 'World'
 </script>
 
@@ -10,10 +12,12 @@
     <p class="text-redis-dusk-30 text-center mb-6">
       Welcome to your Azure Static Web App
     </p>
-    <div class="flex justify-center">
+    <div class="flex justify-center mb-6">
       <div class="bg-redis-hyper hover:bg-redis-deep-hyper text-redis-white font-semibold py-2 px-4 rounded-lg transition-colors">
         🚀 Ready for Azure
       </div>
     </div>
+    
+    <AppInfo />
   </div>
 </main>
