@@ -15,10 +15,10 @@
   },
   "scripts": {
     "dev": "npm-run-all --sequential build --parallel dev:web",
-    "dev:web": "npm run dev --workspace=ana-web",
+    "dev:web": "npm run dev --workspace=@ana/web",
     "build": "npm-run-all --sequential build:shared --parallel build:web build:api",
     "build:shared": "npm run build --workspace=@ana/shared",
-    "build:web": "npm run build --workspace=ana-web",
-    "build:api": "npm run build --workspace=ana-api"
+    "build:web": "npm run build --workspace=@ana/web",
+    "build:api": "npm run build --workspace=@ana/api"
   }
 }
