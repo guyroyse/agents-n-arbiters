@@ -1,13 +1,11 @@
 {
   "name": "web-app",
   "version": "1.0.0",
-  "description": "Azure Static Web App built with Svelte 5 and Tailwind CSS",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "dev:azure": "swa start dist --port 4280",
     "build": "vite build",
-    "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json"
   },
   "devDependencies": {

@@ -16,6 +16,8 @@
     "dev": "npm-run-all --sequential build --parallel dev:*",
     "build": "npm-run-all --parallel build:*",
     "dev:web": "npm run dev:azure --workspace=web-app",
-    "build:web": "npm run build --workspace=web-app"
+    "dev:functions": "npm run dev:azure --workspace=functions",
+    "build:web": "npm run build --workspace=web-app",
+    "build:functions": "npm run build --workspace=functions"
   }
 }

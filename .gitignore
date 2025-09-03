@@ -9,3 +9,6 @@ npm-debug.log*
 
 # OS files
 .DS_Store
+
+# Azure Functions local settings
+packages/functions/local.settings.json
