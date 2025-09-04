@@ -5,9 +5,8 @@ export async function version(_request: HttpRequest, context: InvocationContext)
   context.log('HTTP trigger function processed a version request.')
 
   const versionInfo: VersionInfo = {
-    name: 'agents-n-arbiters-api',
+    name: 'Agents & Arbiters',
     version: '1.0.0',
-    timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development'
   }
 
