@@ -4,14 +4,30 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a TypeScript monorepo for an Azure JAMstack application using npm workspaces. The architecture consists of:
+**Agents & Arbiters** is a multi-agent text adventure game built as a TypeScript monorepo using npm workspaces. The concept uses multiple AI agents (location, items, NPCs) to react to player input, with an arbiter synthesizing responses into a coherent game experience. Redis will store game state for persistence.
 
-- **`packages/ana-web/`** (@ana/web) - Svelte 5 frontend with Tailwind CSS v4, served via Azure Static Web Apps
-- **`packages/ana-api/`** (@ana/api) - Azure Functions v4 serverless API backend 
-- **`packages/shared/`** - Common TypeScript types and utilities (placeholder)
-- **`packages/agent-memory-server/`** - Redis-based Agent Memory Server integration (placeholder)
+Current architecture:
 
-The project targets agent/AI tooling with Redis integration and LangGraph.js support planned.
+- **`packages/ana-web/`** (@ana/web) - Svelte 5 frontend with terminal-style game interface
+- **`packages/ana-api/`** (@ana/api) - Azure Functions v4 API with game loop endpoints
+- **`packages/shared/`** - Shared TypeScript types and interfaces
+- **`packages/agent-memory-server/`** - Redis-based Agent Memory Server integration (planned)
+
+## Current Implementation Status
+
+### ✅ Completed
+- **Basic game loop**: Terminal UI with command input and history display
+- **API endpoints**: `/api/version` and `/api/take-turn` (currently echoes input)
+- **Component architecture**: Modular Svelte 5 components with proper semantic HTML
+- **Data access layer**: Centralized API functions in `@lib/api`
+- **Game state management**: History loading with mock data simulation
+- **UI/UX features**: Auto-scrolling history, focus management, loading states
+
+### 🚧 Next Steps
+- Replace echo functionality with actual AI agent integration
+- Implement game state persistence with Redis
+- Add session management (create/load saved games)
+- Build multi-agent system with LangGraph.js
 
 ## Development Commands
 
@@ -54,7 +70,7 @@ Both packages share aligned linting standards but different compilation targets:
 ### Azure Static Web Apps Integration
 - **Local development**: SWA CLI proxies `/api/*` requests to Azure Functions on port 7071
 - **Production routing**: Configured via `staticwebapp.config.json` with asset exclusions
-- **API access**: Functions available at `/api/version` through SWA, direct access via Functions host
+- **API access**: Functions available at `/api/version` and `/api/take-turn` through SWA
 
 ### Styling System
 - **Tailwind CSS v4** with custom Redis-themed color palette
