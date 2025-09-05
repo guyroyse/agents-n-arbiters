@@ -1,5 +1,5 @@
 import type { GameHistoryEntry, TakeTurnResponse, TakeTurnRequest } from '@ana/shared'
-import { takeTurn, fetchGameHistory } from '@api/index'
+import { takeTurn, fetchGameHistory } from '@services/api'
 
 export default class GameViewModel {
   #history = $state<GameHistoryEntry[]>([])

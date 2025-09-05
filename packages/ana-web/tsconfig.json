@@ -26,9 +26,10 @@
 
     /* Path mapping */
     "paths": {
-      "@components/*": ["./src/components/*"],
+      "@app/*": ["./src/app/*"],
       "@views/*": ["./src/views/*"],
-      "@api/*": ["./src/api/*"]
+      "@components/*": ["./src/components/*"],
+      "@services/*": ["./src/services/*"]
     }
   },
   "include": ["src"],

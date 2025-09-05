@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type GameViewModel from './GameViewModel.svelte.ts'
+  import type GameViewModel from './game-view-model.svelte.ts'
   import GameHistoryListItem from './GameHistoryListItem.svelte'
 
   interface Props {

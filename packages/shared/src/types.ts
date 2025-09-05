@@ -19,3 +19,9 @@ export interface GameHistoryEntry {
   command: string
   response: string
 }
+
+export interface SavedGame {
+  savedGameId: string
+  gameName: string
+  lastPlayed: string // ISO date string
+}

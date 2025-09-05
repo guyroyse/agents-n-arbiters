@@ -16,14 +16,24 @@ Current architecture:
 ## Current Implementation Status
 
 ### ✅ Completed
+
 - **Basic game loop**: Terminal UI with command input and history display
 - **API endpoints**: `/api/version` and `/api/take-turn` (currently echoes input)
-- **Component architecture**: Modular Svelte 5 components with proper semantic HTML
-- **Data access layer**: Centralized API functions in `@lib/api`
+- **Feature-based architecture**: Organized by views/features instead of component types
+- **View-model pattern**: Centralized state management with proper encapsulation
+- **Law of Demeter compliance**: Clean public interfaces hiding implementation details
+- **Data access layer**: Centralized API functions in `@api/` directory
 - **Game state management**: History loading with mock data simulation
 - **UI/UX features**: Auto-scrolling history, focus management, loading states
+- **Modern JavaScript**: Private fields (#) and clean getter/setter patterns
+- **Navigation system**: Complete routing between Welcome, NewGame, LoadGame, and Game views
+- **Load game functionality**: List saved games with delete confirmation dialogs
+- **Component architecture**: Modular components organized in folders with proper separation of concerns
+- **Svelte 5 implementation**: Using runes ($state, $derived, $effect) throughout
+- **Native dialog elements**: Semantic HTML with proper accessibility and form integration
 
 ### 🚧 Next Steps
+
 - Replace echo functionality with actual AI agent integration
 - Implement game state persistence with Redis
 - Add session management (create/load saved games)
@@ -32,17 +42,20 @@ Current architecture:
 ## Development Commands
 
 ### Full-stack Development
+
 ```bash
 npm run dev           # Build all packages, then start SWA + Functions in parallel
 ```
 
-### Individual Package Development  
+### Individual Package Development
+
 ```bash
 npm run dev --workspace=@ana/web      # SWA CLI with Functions integration
 npm run dev --workspace=@ana/api      # Azure Functions Core Tools (standalone)
 ```
 
 ### Build Commands
+
 ```bash
 npm run build         # Build all packages in parallel
 npm run build --workspace=@ana/web    # Vite production build
@@ -50,6 +63,7 @@ npm run build --workspace=@ana/api    # TypeScript compilation to dist/
 ```
 
 ### Type Checking
+
 ```bash
 npm run check --workspace=@ana/web    # Svelte + TypeScript checking
 ```
@@ -57,22 +71,38 @@ npm run check --workspace=@ana/web    # Svelte + TypeScript checking
 ## Architecture Details
 
 ### Monorepo Structure
+
 - **Root level tooling**: Azure SWA CLI, Azure Functions Core Tools, npm-run-all orchestration
 - **Package isolation**: Each package has independent dependencies and build processes
 - **Workspace scripts**: Root orchestrates via `npm-run-all --parallel/--sequential`
 
+### Frontend Architecture (@ana/web)
+
+- **Feature-based organization**: `views/game/`, `views/load-game/`, etc. contain related components and ViewModels
+- **Shared components**: `components/` organized in folders (confirmation-dialog/, footer/, header/) for reusable UI elements
+- **API layer**: `services/api.ts` for centralized external service calls and data access
+- **Path aliases**: `@views/`, `@components/`, `@services/`, `@app/` for clean imports
+- **ViewModel pattern**: Centralized state management with Svelte 5 runes and private fields
+- **Law of Demeter**: Components interact only with ViewModel public interfaces
+- **Autonomous components**: LoadGameCard, LoadGameEmpty handle their own navigation without prop drilling
+- **Component extraction**: Complex views broken down into focused, reusable sub-components
+
 ### TypeScript Configuration Strategy
+
 Both packages share aligned linting standards but different compilation targets:
+
 - **@ana/web**: Bundler mode (`moduleResolution: "bundler"`) with Vite, no emit
 - **@ana/api**: Node.js mode (`moduleResolution: "node"`) with compilation to `dist/`
 - **Shared settings**: ES2022 target, strict linting, isolated modules, verbatim module syntax
 
 ### Azure Static Web Apps Integration
+
 - **Local development**: SWA CLI proxies `/api/*` requests to Azure Functions on port 7071
 - **Production routing**: Configured via `staticwebapp.config.json` with asset exclusions
 - **API access**: Functions available at `/api/version` and `/api/take-turn` through SWA
 
 ### Styling System
+
 - **Tailwind CSS v4** with custom Redis-themed color palette
 - **Custom fonts**: Space Grotesk (sans) and Space Mono (mono) via Google Fonts
 - **CSS variables**: Extensive Redis brand colors (redis-midnight, redis-hyper, etc.)
@@ -80,15 +110,18 @@ Both packages share aligned linting standards but different compilation targets:
 ## Environment Configuration
 
 ### Node.js Version Management
+
 - Project uses Node.js v20.x (specified in `.nvmrc`)
 - Run `nvm use` to switch to the correct version before development
 - Required for Azure Functions v4 compatibility
 
 ### Azure Functions Local Development
+
 - Copy `packages/ana-api/local.settings.example.json` to `packages/ana-api/local.settings.json`
 - Environment variables accessible via `process.env.NODE_ENV`
 
 ### Static Web App Environment Variables
+
 - Build-time only via Vite: `import.meta.env.VITE_*`
 - No runtime server-side variables (static files served from CDN)
 
