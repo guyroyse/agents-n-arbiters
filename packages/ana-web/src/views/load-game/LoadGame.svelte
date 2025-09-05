@@ -4,6 +4,7 @@
   import LoadGameViewModel from './load-game-view-model.svelte.ts'
   import LoadGameEmpty from './LoadGameEmpty.svelte'
   import LoadGameList from './LoadGameList.svelte'
+  import ErrorDialog from '@components/dialogs/ErrorDialog.svelte'
 
   const appRouter = AppRouter.instance
   const viewModel = new LoadGameViewModel()
@@ -13,6 +14,14 @@
   })
 
   function handleBack() {
+    appRouter.routeToWelcome()
+  }
+
+  function handleRetry() {
+    viewModel.loadSavedGames()
+  }
+
+  function handleCancel() {
     appRouter.routeToWelcome()
   }
 </script>
@@ -28,16 +37,6 @@
       <div class="flex-1 flex items-center justify-center">
         <div class="text-redis-dusk-30">Loading saved games...</div>
       </div>
-    {:else if viewModel.error}
-      <div class="flex-1 flex items-center justify-center flex-col space-y-4">
-        <div class="text-red-400">Error: {viewModel.error}</div>
-        <button
-          onclick={() => viewModel.loadSavedGames()}
-          class="bg-redis-dusk hover:bg-redis-dusk-70 text-redis-white px-4 py-2 rounded-lg transition-colors"
-        >
-          Retry
-        </button>
-      </div>
     {:else if !viewModel.hasSavedGames}
       <LoadGameEmpty />
     {:else}
@@ -45,3 +44,11 @@
     {/if}
   </div>
 </section>
+
+<ErrorDialog
+  show={!!viewModel.error}
+  title="Error Loading Games"
+  message={viewModel.error || 'An unexpected error occurred'}
+  onRetry={handleRetry}
+  onCancel={handleCancel}
+/>
