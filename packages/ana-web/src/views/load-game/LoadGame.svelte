@@ -4,7 +4,8 @@
   import LoadGameViewModel from './load-game-view-model.svelte.ts'
   import LoadGameEmpty from './LoadGameEmpty.svelte'
   import LoadGameList from './LoadGameList.svelte'
-  import ErrorDialog from '@components/dialogs/ErrorDialog.svelte'
+  import ErrorDialog from '@components/ErrorDialog.svelte'
+  import LoadingOverlay from '@components/LoadingOverlay.svelte'
 
   const appRouter = AppRouter.instance
   const viewModel = new LoadGameViewModel()
@@ -34,9 +35,7 @@
 
   <div class="bg-redis-midnight border border-redis-dusk-10 rounded-lg flex-1 flex flex-col overflow-hidden">
     {#if viewModel.isLoading}
-      <div class="flex-1 flex items-center justify-center">
-        <div class="text-redis-dusk-30">Loading saved games...</div>
-      </div>
+      <LoadingOverlay message="Loading saved games..." />
     {:else if !viewModel.hasSavedGames}
       <LoadGameEmpty />
     {:else}

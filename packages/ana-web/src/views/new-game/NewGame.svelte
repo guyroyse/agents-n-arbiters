@@ -3,6 +3,7 @@
   import AppRouter from '@app/app-router.svelte.ts'
   import AppState from '@app/app-state.svelte.ts'
   import NewGameViewModel from './new-game-view-model.svelte.ts'
+  import ErrorDialog from '@components/ErrorDialog.svelte'
 
   const appRouter = AppRouter.instance
   const appState = AppState.instance
@@ -27,6 +28,14 @@
 
   function handleBack() {
     appRouter.routeToWelcome()
+  }
+
+  function handleRetry() {
+    handleStartGame()
+  }
+
+  function handleCancel() {
+    viewModel.clearError()
   }
 </script>
 
@@ -59,10 +68,12 @@
       Back
     </button>
   </div>
-
-  {#if viewModel.error}
-    <div class="text-red-400 text-center">
-      {viewModel.error}
-    </div>
-  {/if}
 </section>
+
+<ErrorDialog
+  show={!!viewModel.error}
+  title="Error Creating Game"
+  message={viewModel.error || 'An unexpected error occurred'}
+  onRetry={handleRetry}
+  onCancel={handleCancel}
+/>

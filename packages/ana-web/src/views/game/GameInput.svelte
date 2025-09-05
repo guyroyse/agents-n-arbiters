@@ -8,6 +8,17 @@
   let { viewModel }: Props = $props()
 
   let inputElement: HTMLInputElement
+  let thinkingMessage = $state('Thinking...')
+
+  const thinkingMessages = [
+    'Thinking...',
+    'Pondering...',
+    'Analyzing...',
+    'Considering...',
+    'Processing...',
+    'Evaluating...',
+    'Contemplating...'
+  ]
 
   function handleSubmit(event: Event) {
     event.preventDefault()
@@ -16,6 +27,12 @@
 
   $effect(() => {
     if (!viewModel.isLoading && inputElement) inputElement.focus()
+  })
+
+  $effect(() => {
+    if (viewModel.isProcessingCommand) {
+      thinkingMessage = thinkingMessages[Math.floor(Math.random() * thinkingMessages.length)]
+    }
   })
 </script>
 
@@ -26,7 +43,7 @@
     bind:this={inputElement}
     bind:value={viewModel.currentCommand}
     disabled={viewModel.isLoading}
-    placeholder="Enter command..."
+    placeholder={viewModel.isProcessingCommand ? thinkingMessage : "Enter command..."}
     class="flex-1 bg-transparent text-redis-white outline-none placeholder-redis-dusk-30 disabled:opacity-50"
   />
 </form>

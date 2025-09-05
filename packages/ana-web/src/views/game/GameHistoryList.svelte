@@ -23,8 +23,4 @@
   {#each viewModel.history as entry}
     <GameHistoryListItem {entry} />
   {/each}
-
-  {#if viewModel.isLoading}
-    <div class="text-redis-dusk-30 pl-2">Processing...</div>
-  {/if}
 </div>

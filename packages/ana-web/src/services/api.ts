@@ -8,6 +8,9 @@ export async function fetchVersionInfo(): Promise<VersionInfo> {
 }
 
 export async function takeTurn(request: TakeTurnRequest): Promise<TakeTurnResponse> {
+  // Simulate processing delay for better loading state demonstration
+  await new Promise(resolve => setTimeout(resolve, 1500))
+
   const response = await fetch('/api/take-turn', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -18,7 +21,7 @@ export async function takeTurn(request: TakeTurnRequest): Promise<TakeTurnRespon
 }
 
 // Simulate loading game history (will be replaced with real API call)
-export async function fetchGameHistory(savedGameId: string): Promise<GameHistoryEntry[]> {
+export async function fetchGameHistory(_savedGameId: string): Promise<GameHistoryEntry[]> {
   // Simulate network delay
   await new Promise(resolve => setTimeout(resolve, 2000))
 
@@ -60,7 +63,7 @@ export async function fetchSavedGames(): Promise<SavedGame[]> {
       lastPlayed: '2025-01-14T15:30:00Z'
     },
     {
-      savedGameId: 'demo-game-002', 
+      savedGameId: 'demo-game-002',
       gameName: 'Mysterious Adventure',
       lastPlayed: '2025-01-12T09:15:00Z'
     },

@@ -4,15 +4,24 @@ import { takeTurn, fetchGameHistory } from '@services/api'
 export default class GameViewModel {
   #history = $state<GameHistoryEntry[]>([])
   #currentCommand = $state('')
-  #isLoading = $state(false)
+  #isLoadingHistory = $state(false)
+  #isProcessingCommand = $state(false)
   #savedGameId: string
 
   constructor(savedGameId: string) {
     this.#savedGameId = savedGameId
   }
 
+  get isLoadingHistory() {
+    return this.#isLoadingHistory
+  }
+
+  get isProcessingCommand() {
+    return this.#isProcessingCommand
+  }
+
   get isLoading() {
-    return this.#isLoading
+    return this.#isLoadingHistory || this.#isProcessingCommand
   }
 
   get currentCommand() {
@@ -35,27 +44,27 @@ export default class GameViewModel {
     if (this.canSubmit()) {
       const command = this.trimmedCommand()
       this.clearInput()
-      this.#isLoading = true
+      this.#isProcessingCommand = true
 
       try {
         await this.takeTurn(command)
       } catch (error) {
         this.displayError(command, error)
       } finally {
-        this.#isLoading = false
+        this.#isProcessingCommand = false
       }
     }
   }
 
   async loadGameHistory() {
-    this.#isLoading = true
+    this.#isLoadingHistory = true
     try {
       this.#history = await fetchGameHistory(this.#savedGameId)
     } catch (error) {
       console.error('Failed to load game history:', error)
       this.#history = []
     } finally {
-      this.#isLoading = false
+      this.#isLoadingHistory = false
     }
   }
 
@@ -71,7 +80,7 @@ export default class GameViewModel {
   }
 
   private canSubmit() {
-    return !this.#isLoading && this.trimmedCommand().length > 0
+    return !this.isLoading && this.trimmedCommand().length > 0
   }
 
   private trimmedCommand() {

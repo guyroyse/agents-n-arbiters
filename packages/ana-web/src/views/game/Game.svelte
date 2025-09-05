@@ -6,6 +6,7 @@
   import GameViewModel from './game-view-model.svelte.ts'
   import AppRouter from '@app/app-router.svelte.ts'
   import AppState from '@app/app-state.svelte.ts'
+  import LoadingOverlay from '@components/LoadingOverlay.svelte'
 
   const appRouter = AppRouter.instance
   const appState = AppState.instance
@@ -16,7 +17,7 @@
   })
 </script>
 
-<section class="bg-redis-midnight border border-redis-dusk-10 rounded-lg p-4 font-mono text-sm h-96 flex flex-col">
+<section class="bg-redis-midnight border border-redis-dusk-10 rounded-lg p-4 font-mono text-sm h-96 flex flex-col relative">
   <header class="flex justify-between items-center mb-2">
     <h3 class="text-redis-white font-semibold">Game Terminal</h3>
     <button
@@ -28,4 +29,8 @@
   </header>
   <GameHistoryList {viewModel} />
   <GameInput {viewModel} />
+  
+  {#if viewModel.isLoadingHistory}
+    <LoadingOverlay message="Loading game history..." />
+  {/if}
 </section>

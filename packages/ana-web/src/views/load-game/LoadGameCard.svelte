@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { SavedGame } from '@ana/shared'
   import LoadGameViewModel from './load-game-view-model.svelte.ts'
-  import ConfirmationDialog from '@components/dialogs/ConfirmationDialog.svelte'
+  import ConfirmationDialog from '@components/ConfirmationDialog.svelte'
   import AppRouter from '@app/app-router.svelte.ts'
   import AppState from '@app/app-state.svelte.ts'
 

@@ -1,6 +1,6 @@
 <script lang="ts">
-  import Dialog from './Dialog.svelte'
-  import { DialogAction, type ConfirmationDialogProps } from './dialogs.ts'
+  import Dialog from './dialogs/Dialog.svelte'
+  import { DialogAction, type ConfirmationDialogProps } from './dialogs/dialogs.ts'
 
   let { show, title, message, onConfirm, onCancel }: ConfirmationDialogProps = $props()
 

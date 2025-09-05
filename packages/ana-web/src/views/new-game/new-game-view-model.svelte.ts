@@ -39,6 +39,10 @@ export default class NewGameViewModel {
     }
   }
 
+  clearError() {
+    this.#error = null
+  }
+
   private generateDefaultName() {
     const adjectives = ['Epic', 'Mysterious', 'Ancient', 'Forbidden', 'Lost', 'Dark', 'Golden', 'Secret']
     const nouns = ['Quest', 'Adventure', 'Journey', 'Expedition', 'Mission', 'Tale', 'Saga', 'Chronicle']
