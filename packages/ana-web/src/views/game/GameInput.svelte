@@ -1,25 +1,21 @@
 <script lang="ts">
-  import { onMount } from 'svelte'
+  import GameViewModel from './GameViewModel.svelte.ts'
 
   interface Props {
-    currentCommand?: string
-    isLoading: boolean
-    onSubmit: (command: string) => void
+    viewModel: GameViewModel
   }
 
-  let { currentCommand = $bindable(''), isLoading, onSubmit }: Props = $props()
+  let { viewModel }: Props = $props()
+
   let inputElement: HTMLInputElement
 
   function handleSubmit(event: Event) {
     event.preventDefault()
-
-    if (!currentCommand.trim() || isLoading) return
-
-    onSubmit(currentCommand.trim())
+    viewModel.submitCommand()
   }
 
   $effect(() => {
-    if (!isLoading && inputElement) inputElement.focus()
+    if (!viewModel.isLoading && inputElement) inputElement.focus()
   })
 </script>
 
@@ -28,8 +24,8 @@
   <input
     id="command-input"
     bind:this={inputElement}
-    bind:value={currentCommand}
-    disabled={isLoading}
+    bind:value={viewModel.currentCommand}
+    disabled={viewModel.isLoading}
     placeholder="Enter command..."
     class="flex-1 bg-transparent text-redis-white outline-none placeholder-redis-dusk-30 disabled:opacity-50"
   />

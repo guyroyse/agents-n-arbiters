@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import type { VersionInfo } from '@ana/shared'
-  import { fetchVersionInfo as fetchVersionInfoAPI } from '@lib/api'
+  import { fetchVersionInfo as fetchVersionInfoAPI } from '@api/index'
 
   let versionInfo: VersionInfo | null = $state(null)
   let loading: boolean = $state(true)

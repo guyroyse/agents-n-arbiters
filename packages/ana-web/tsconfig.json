@@ -27,7 +27,8 @@
     /* Path mapping */
     "paths": {
       "@components/*": ["./src/components/*"],
-      "@lib/*": ["./src/lib/*"]
+      "@views/*": ["./src/views/*"],
+      "@api/*": ["./src/api/*"]
     }
   },
   "include": ["src"],
