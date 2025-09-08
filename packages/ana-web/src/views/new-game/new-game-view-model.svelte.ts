@@ -30,7 +30,8 @@ export default class NewGameViewModel {
     this.#error = null
 
     try {
-      return await createNewGame(this.#gameName.trim())
+      const game = await createNewGame(this.#gameName.trim())
+      return game.gameId
     } catch (error) {
       this.#error = error instanceof Error ? error.message : 'Failed to create new game'
       return null

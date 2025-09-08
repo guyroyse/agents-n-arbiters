@@ -18,19 +18,27 @@ Current architecture:
 ### ✅ Completed
 
 - **Basic game loop**: Terminal UI with command input and history display
-- **API endpoints**: `/api/version` and `/api/take-turn` (currently echoes input)
+- **API endpoints**: `/api/version` and `/api/take-turn` (currently echoes input with 1.5s delay)
 - **Feature-based architecture**: Organized by views/features instead of component types
 - **View-model pattern**: Centralized state management with proper encapsulation
 - **Law of Demeter compliance**: Clean public interfaces hiding implementation details
-- **Data access layer**: Centralized API functions in `@api/` directory
+- **Data access layer**: Centralized API functions in `services/api.ts`
 - **Game state management**: History loading with mock data simulation
-- **UI/UX features**: Auto-scrolling history, focus management, loading states
+- **UI/UX features**: Auto-scrolling history, focus management, dual loading states
 - **Modern JavaScript**: Private fields (#) and clean getter/setter patterns
 - **Navigation system**: Complete routing between Welcome, NewGame, LoadGame, and Game views
 - **Load game functionality**: List saved games with delete confirmation dialogs
 - **Component architecture**: Modular components organized in folders with proper separation of concerns
 - **Svelte 5 implementation**: Using runes ($state, $derived, $effect) throughout
 - **Native dialog elements**: Semantic HTML with proper accessibility and form integration
+- **Unified dialog system**: Consolidated Dialog, ConfirmationDialog, ErrorDialog with shared styling
+- **Enhanced loading UX**: LoadingOverlay for initial loads, randomized thinking messages for command processing
+- **Error handling**: Comprehensive ErrorDialog integration across views with retry functionality
+- **Complete REST API**: Full Azure Functions backend with all CRUD operations for game management
+- **HTTP response helpers**: Centralized response utilities eliminating boilerplate across all endpoints
+- **Type-safe API layer**: Comprehensive request/response types with proper error handling using ApiError
+- **Consistent naming**: Unified `gameId` naming convention throughout frontend and backend
+- **Optimized API client**: Generic `apiCall` helper reducing code duplication by ~80%
 
 ### 🚧 Next Steps
 
@@ -79,10 +87,12 @@ npm run check --workspace=@ana/web    # Svelte + TypeScript checking
 ### Frontend Architecture (@ana/web)
 
 - **Feature-based organization**: `views/game/`, `views/load-game/`, etc. contain related components and ViewModels
-- **Shared components**: `components/` organized in folders (confirmation-dialog/, footer/, header/) for reusable UI elements
+- **Shared components**: `components/` with dialogs, LoadingOverlay, Header, Footer for reusable UI elements
+- **Dialog system**: Unified base Dialog component with ConfirmationDialog and ErrorDialog specializations
 - **API layer**: `services/api.ts` for centralized external service calls and data access
 - **Path aliases**: `@views/`, `@components/`, `@services/`, `@app/` for clean imports
 - **ViewModel pattern**: Centralized state management with Svelte 5 runes and private fields
+- **Dual loading states**: Separate tracking for history loading vs command processing with distinct UX
 - **Law of Demeter**: Components interact only with ViewModel public interfaces
 - **Autonomous components**: LoadGameCard, LoadGameEmpty handle their own navigation without prop drilling
 - **Component extraction**: Complex views broken down into focused, reusable sub-components

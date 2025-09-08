@@ -1,15 +1,15 @@
-import type { GameHistoryEntry, TakeTurnResponse, TakeTurnRequest } from '@ana/shared'
-import { takeTurn, fetchGameHistory } from '@services/api'
+import type { GameTurn } from '@ana/shared'
+import { takeTurn, fetchGameTurns } from '@services/api'
 
 export default class GameViewModel {
-  #history = $state<GameHistoryEntry[]>([])
+  #history = $state<GameTurn[]>([])
   #currentCommand = $state('')
   #isLoadingHistory = $state(false)
   #isProcessingCommand = $state(false)
-  #savedGameId: string
+  #gameId: string
 
-  constructor(savedGameId: string) {
-    this.#savedGameId = savedGameId
+  constructor(gameId: string) {
+    this.#gameId = gameId
   }
 
   get isLoadingHistory() {
@@ -59,7 +59,7 @@ export default class GameViewModel {
   async loadGameHistory() {
     this.#isLoadingHistory = true
     try {
-      this.#history = await fetchGameHistory(this.#savedGameId)
+      this.#history = await fetchGameTurns(this.#gameId)
     } catch (error) {
       console.error('Failed to load game history:', error)
       this.#history = []
@@ -69,14 +69,13 @@ export default class GameViewModel {
   }
 
   private async takeTurn(command: string) {
-    const request: TakeTurnRequest = { savedGameId: this.#savedGameId, command }
-    const response: TakeTurnResponse = await takeTurn(request)
-    this.appendHistory(command, response.result)
+    const gameTurn: GameTurn = await takeTurn(this.#gameId, command)
+    this.#history.push(gameTurn)
   }
 
   private displayError(command: string, error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-    this.appendHistory(command, `Error: ${errorMessage}`)
+    this.#history.push({ command, reply: `Error: ${errorMessage}` })
   }
 
   private canSubmit() {
@@ -91,7 +90,4 @@ export default class GameViewModel {
     this.#currentCommand = ''
   }
 
-  private appendHistory(command: string, response: string) {
-    this.#history.push({ command, response })
-  }
 }

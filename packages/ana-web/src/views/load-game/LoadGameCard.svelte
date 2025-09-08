@@ -16,7 +16,7 @@
   const appState = AppState.instance
 
   function handleSelectGame() {
-    appState.currentGameId = game.savedGameId
+    appState.currentGameId = game.gameId
     appRouter.routeToGame()
   }
 
@@ -28,14 +28,14 @@
 
   async function confirmDelete() {
     showDeleteConfirmation = false
-    await viewModel.deleteGame(game.savedGameId)
+    await viewModel.deleteGame(game.gameId)
   }
 
   function cancelDelete() {
     showDeleteConfirmation = false
   }
 
-  const isDeleting = $derived(viewModel.deletingGameId === game.savedGameId)
+  const isDeleting = $derived(viewModel.deletingGameId === game.gameId)
 
   function formatLastPlayed(isoString: string): string {
     const date = new Date(isoString)
@@ -77,8 +77,6 @@
   show={showDeleteConfirmation}
   title="Delete Game?"
   message={`Are you sure you want to delete <strong>\"${game.gameName}\"</strong>? This action cannot be undone.`}
-  confirmText="Delete"
-  cancelText="Cancel"
   onConfirm={confirmDelete}
   onCancel={cancelDelete}
 />

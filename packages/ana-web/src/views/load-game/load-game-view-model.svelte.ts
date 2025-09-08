@@ -60,15 +60,15 @@ export default class LoadGameViewModel {
     this.#showDeleteConfirmation = false
   }
 
-  async deleteGame(savedGameId: string) {
-    this.#deletingGameId = savedGameId
+  async deleteGame(gameId: string) {
+    this.#deletingGameId = gameId
 
     try {
-      await deleteGame(savedGameId)
+      await deleteGame(gameId)
       
       // Remove from local array
       this.#savedGames = this.#savedGames.filter(
-        game => game.savedGameId !== savedGameId
+        game => game.gameId !== gameId
       )
     } catch (error) {
       this.#error = error instanceof Error ? error.message : 'Failed to delete game'
@@ -80,15 +80,15 @@ export default class LoadGameViewModel {
   async deleteConfirmedGame() {
     if (!this.#gameToDelete) return
 
-    this.#deletingGameId = this.#gameToDelete.savedGameId
+    this.#deletingGameId = this.#gameToDelete.gameId
     this.#showDeleteConfirmation = false
 
     try {
-      await deleteGame(this.#gameToDelete.savedGameId)
+      await deleteGame(this.#gameToDelete.gameId)
       
       // Remove from local array
       this.#savedGames = this.#savedGames.filter(
-        game => game.savedGameId !== this.#gameToDelete!.savedGameId
+        game => game.gameId !== this.#gameToDelete!.gameId
       )
     } catch (error) {
       this.#error = error instanceof Error ? error.message : 'Failed to delete game'

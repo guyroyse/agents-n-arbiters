@@ -1,88 +1,67 @@
-import type { VersionInfo, TakeTurnRequest, TakeTurnResponse, GameHistoryEntry, SavedGame } from '@ana/shared'
-import { ulid } from 'ulid'
+import type {
+  VersionInfo,
+  GameTurn,
+  SavedGame,
+  ApiError,
+  TakeGameTurnRequest,
+  CreateGameRequest,
+  FetchVersionResponse,
+  TakeGameTurnResponse,
+  FetchGameTurnsResponse,
+  CreateGameResponse,
+  FetchGamesResponse
+} from '@ana/shared'
 
 export async function fetchVersionInfo(): Promise<VersionInfo> {
-  const response = await fetch('/api/version')
-  if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
-  return await response.json()
+  const response: FetchVersionResponse = await apiCall('/api/version')
+  return response as VersionInfo
 }
 
-export async function takeTurn(request: TakeTurnRequest): Promise<TakeTurnResponse> {
-  // Simulate processing delay for better loading state demonstration
-  await new Promise(resolve => setTimeout(resolve, 1500))
-
-  const response = await fetch('/api/take-turn', {
+export async function takeTurn(gameId: string, command: string): Promise<GameTurn> {
+  const request: TakeGameTurnRequest = { command }
+  const response: TakeGameTurnResponse = await apiCall(`/api/games/${gameId}/take-turn`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(request)
   })
-  if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
-  return await response.json()
+  return response as GameTurn
 }
 
-// Simulate loading game history (will be replaced with real API call)
-export async function fetchGameHistory(_savedGameId: string): Promise<GameHistoryEntry[]> {
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 2000))
-
-  // Return some mock history for demo-game-001
-  return [
-    {
-      command: 'look around',
-      response: 'You are in a dimly lit room. There is a door to the north and a chest in the corner.'
-    },
-    { command: 'examine chest', response: 'The chest is old and weathered. It appears to be unlocked.' }
-  ]
-
-  // In a real implementation, fetch from API:
-  return []
+export async function fetchGameTurns(gameId: string): Promise<GameTurn[]> {
+  const response: FetchGameTurnsResponse = await apiCall(`/api/games/${gameId}/turns`)
+  return response as GameTurn[]
 }
 
-export async function createNewGame(gameName: string): Promise<string> {
-  // For now, simulate network delay and return a generated ID
-  // In the real implementation, the API would store the gameName with the savedGameId
-  await new Promise(resolve => setTimeout(resolve, 500))
-  console.log(`Creating new game: "${gameName}"`) // Temporary logging
-  return ulid()
+export async function createNewGame(gameName: string): Promise<SavedGame> {
+  const request: CreateGameRequest = { gameName }
+  const response: CreateGameResponse = await apiCall('/api/games', {
+    method: 'POST',
+    body: JSON.stringify(request)
+  })
+  return response as SavedGame
 }
 
 export async function fetchSavedGames(): Promise<SavedGame[]> {
-  // TODO: Replace with actual API call
-  // const response = await fetch('/api/saved-games')
-  // if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
-  // return await response.json()
-
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 800))
-
-  // Return mock saved games
-  return [
-    {
-      savedGameId: 'demo-game-001',
-      gameName: 'Ancient Quest',
-      lastPlayed: '2025-01-14T15:30:00Z'
-    },
-    {
-      savedGameId: 'demo-game-002',
-      gameName: 'Mysterious Adventure',
-      lastPlayed: '2025-01-12T09:15:00Z'
-    },
-    {
-      savedGameId: 'demo-game-003',
-      gameName: 'Epic Journey',
-      lastPlayed: '2025-01-10T14:45:00Z'
-    }
-  ]
+  const response: FetchGamesResponse = await apiCall('/api/games')
+  return response as SavedGame[]
 }
 
-export async function deleteGame(savedGameId: string): Promise<void> {
-  // TODO: Replace with actual API call
-  // const response = await fetch(`/api/saved-games/${savedGameId}`, {
-  //   method: 'DELETE'
-  // })
-  // if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
+export async function deleteGame(gameId: string): Promise<void> {
+  const result: void = await apiCall(`/api/games/${gameId}`, {
+    method: 'DELETE'
+  })
+  return result
+}
 
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 300))
-  console.log(`Deleting game: ${savedGameId}`) // Temporary logging
+async function apiCall<T>(url: string, options?: RequestInit): Promise<T> {
+  const response = await fetch(url, {
+    headers: { 'Content-Type': 'application/json' },
+    ...options
+  })
+
+  if (!response.ok) {
+    const errorData: ApiError = await response.json()
+    throw new Error(errorData.error)
+  }
+
+  return response.status === 204 ? (undefined as T) : await response.json()
 }

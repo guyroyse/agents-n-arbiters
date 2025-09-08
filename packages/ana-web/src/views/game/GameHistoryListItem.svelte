@@ -1,8 +1,8 @@
 <script lang="ts">
-  import type { GameHistoryEntry } from '@ana/shared'
+  import type { GameTurn } from '@ana/shared'
 
   interface Props {
-    entry: GameHistoryEntry
+    entry: GameTurn
   }
 
   let { entry }: Props = $props()
@@ -13,6 +13,6 @@
     &gt; {entry.command}
   </p>
   <p class="text-redis-dusk-30 pl-2">
-    {entry.response}
+    {entry.reply}
   </p>
 </div>
