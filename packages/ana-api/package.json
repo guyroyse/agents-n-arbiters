@@ -12,6 +12,9 @@
   },
   "dependencies": {
     "@ana/shared": "*",
-    "@azure/functions": "^4.7.2-preview"
+    "@azure/functions": "^4.7.2-preview",
+    "@azure/identity": "^4.11.1",
+    "@redis/entraid": "^5.8.2",
+    "redis": "^5.8.2"
   }
 }
