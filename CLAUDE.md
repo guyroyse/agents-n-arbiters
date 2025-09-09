@@ -11,7 +11,9 @@ Current architecture:
 - **`packages/ana-web/`** (@ana/web) - Svelte 5 frontend with terminal-style game interface
 - **`packages/ana-api/`** (@ana/api) - Azure Functions v4 API with game loop endpoints
 - **`packages/shared/`** - Shared TypeScript types and interfaces
-- **`packages/agent-memory-server/`** - Redis-based Agent Memory Server integration (planned)
+- **`packages/agent-memory-server/`** - Containerized Agent Memory Server (Python-based placeholder)
+- **`data/redis/`** - Persistent Redis data storage for local development
+- **`infrastructure/`** - Infrastructure as Code (Bicep templates for Azure deployment)
 
 ## Current Implementation Status
 
@@ -39,6 +41,9 @@ Current architecture:
 - **Type-safe API layer**: Comprehensive request/response types with proper error handling using ApiError
 - **Consistent naming**: Unified `gameId` naming convention throughout frontend and backend
 - **Optimized API client**: Generic `apiCall` helper reducing code duplication by ~80%
+- **Docker containerization**: Redis and Agent Memory Server configured for local development
+- **Persistent data storage**: Redis data persists in `data/redis/` with proper .gitignore setup
+- **Project documentation**: Comprehensive README.md with setup instructions and multi-agent collaboration overview
 
 ### 🚧 Next Steps
 
@@ -52,6 +57,7 @@ Current architecture:
 ### Full-stack Development
 
 ```bash
+docker compose up     # Start Redis + Agent Memory Server containers
 npm run dev           # Build all packages, then start SWA + Functions in parallel
 ```
 
@@ -116,6 +122,13 @@ Both packages share aligned linting standards but different compilation targets:
 - **Tailwind CSS v4** with custom Redis-themed color palette
 - **Custom fonts**: Space Grotesk (sans) and Space Mono (mono) via Google Fonts
 - **CSS variables**: Extensive Redis brand colors (redis-midnight, redis-hyper, etc.)
+
+### Container Architecture
+
+- **Redis**: Latest Redis image with persistence to `./data/redis` volume
+- **Agent Memory Server**: Python 3.12-based container (placeholder HTTP server on port 8000)
+- **Local development**: `docker-compose.yml` orchestrates both services with health checks
+- **Future deployment**: Azure Container Apps for AMS, Azure Managed Redis for production
 
 ## Environment Configuration
 

@@ -12,3 +12,6 @@ npm-debug.log*
 
 # Azure Functions local settings
 local.settings.json
+
+# Redis runtime data (keep seed.rdb for dev data)
+/data/redis/appendonly.aof

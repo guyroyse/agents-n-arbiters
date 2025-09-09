@@ -1,0 +1,28 @@
+services:
+  redis:
+    image: redis:latest
+    container_name: ana-redis
+    ports:
+      - '6379:6379'
+    volumes:
+      - ./data/redis:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+  agent-memory-server:
+    build: ./packages/agent-memory-server
+    container_name: ana-ams
+    ports:
+      - '8000:8000'
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - DISABLE_AUTH=true
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped

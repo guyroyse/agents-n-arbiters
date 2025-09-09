@@ -1,0 +1,2 @@
+# This file ensures the data/redis directory is tracked in git
+# Redis database files (dump.rdb) will be stored here but gitignored
