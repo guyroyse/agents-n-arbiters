@@ -44,13 +44,21 @@ Current architecture:
 - **Docker containerization**: Redis and Agent Memory Server configured for local development
 - **Persistent data storage**: Redis data persists in `data/redis/` with proper .gitignore setup
 - **Project documentation**: Comprehensive README.md with setup instructions and multi-agent collaboration overview
+- **Redis integration**: Complete Redis client abstraction with local Docker and Azure Managed Redis support
+- **Azure authentication**: Entra ID integration for passwordless AMR authentication in production
+- **Environment configuration**: Unified REDIS_URL environment variable for both local and cloud deployments
+- **Redis persistence**: Full game state persistence with RedisJSON and RediSearch
+- **Game service architecture**: Class-based GameService with static factory pattern and private Redis client
+- **Function organization**: Domain-based function organization with separate files and registration
+- **Type safety**: Complete type definitions for Redis operations eliminating any types
+- **Search optimization**: RediSearch index with 100-item limit and date-based sorting
+- **Date handling**: Utility functions for ISO string ↔ Unix timestamp conversion
 
 ### 🚧 Next Steps
 
 - Replace echo functionality with actual AI agent integration
-- Implement game state persistence with Redis
-- Add session management (create/load saved games)
 - Build multi-agent system with LangGraph.js
+- Deploy to Azure with AMR and Azure Container Apps
 
 ## Development Commands
 

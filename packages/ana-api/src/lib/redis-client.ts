@@ -6,7 +6,7 @@ export type RedisClient = ReturnType<typeof createClient>
 
 let redisClient: RedisClient | null = null
 
-export async function getRedisClient(): Promise<RedisClient> {
+export async function fetchRedisClient(): Promise<RedisClient> {
   if (!redisClient) {
     const client = await createRedisClient()
     redisClient = client
