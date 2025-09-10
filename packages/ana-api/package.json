@@ -19,6 +19,8 @@
     "@langchain/langgraph": "^0.4.9",
     "@langchain/openai": "^0.6.11",
     "@redis/entraid": "^5.8.2",
-    "redis": "^5.8.2"
+    "dedent": "^1.7.0",
+    "redis": "^5.8.2",
+    "zod": "^3.25.76"
   }
 }

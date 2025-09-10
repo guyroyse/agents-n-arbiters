@@ -3,8 +3,8 @@ import type { HttpRequest, HttpResponseInit, InvocationContext } from '@azure/fu
 import type { TakeGameTurnRequest, TakeGameTurnResponse } from '@ana/shared'
 
 import responses from '@functions/http-responses.js'
-import gameService from '@services/game-service.js'
-import { processCommand } from '@services/agent-service.js'
+import gameService from '@services/game/game-service.js'
+import { processCommand } from '@services/agent/agent-service.js'
 
 export async function takeGameTurn(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
   context.log('HTTP trigger function processed a take game turn request.')

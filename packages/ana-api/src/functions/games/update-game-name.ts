@@ -3,7 +3,7 @@ import type { HttpRequest, HttpResponseInit, InvocationContext } from '@azure/fu
 import type { UpdateGameNameRequest } from '@ana/shared'
 
 import responses from '@functions/http-responses.js'
-import gameService from '@services/game-service.js'
+import gameService from '@services/game/game-service.js'
 
 export async function updateGameName(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
   context.log('HTTP trigger function processed an update game name request.')

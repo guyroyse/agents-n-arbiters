@@ -4,7 +4,7 @@ import { ulid } from 'ulid'
 import type { SavedGame, CreateGameRequest } from '@ana/shared'
 
 import responses from '@functions/http-responses.js'
-import gameService from '@services/game-service.js'
+import gameService from '@services/game/game-service.js'
 
 export async function createGame(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
   context.log('HTTP trigger function processed a create saved game request.')
