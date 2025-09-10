@@ -14,6 +14,9 @@
     "@ana/shared": "*",
     "@azure/functions": "^4.7.2-preview",
     "@azure/identity": "^4.11.1",
+    "@langchain/core": "^0.3.75",
+    "@langchain/langgraph": "^0.4.9",
+    "@langchain/openai": "^0.6.11",
     "@redis/entraid": "^5.8.2",
     "redis": "^5.8.2"
   }
