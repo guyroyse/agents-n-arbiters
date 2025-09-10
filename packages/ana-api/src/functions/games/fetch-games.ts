@@ -1,7 +1,7 @@
 import type { HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions'
 
-import responses from '../../lib/http-responses.js'
-import gameService from '../../lib/game-service.js'
+import responses from '@functions/http-responses.js'
+import gameService from '@services/game-service.js'
 
 export async function fetchGames(_request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
   context.log('HTTP trigger function processed a get saved games request.')

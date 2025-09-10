@@ -1,6 +1,6 @@
 import type { HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions'
 import type { VersionInfo } from '@ana/shared'
-import responses from '../../lib/http-responses.js'
+import responses from '@functions/http-responses.js'
 
 export async function version(_request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
   context.log('HTTP trigger function processed a version request.')

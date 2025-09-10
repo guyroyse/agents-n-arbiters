@@ -1,6 +1,6 @@
 import { StateGraph, MessagesAnnotation, START, END } from '@langchain/langgraph'
 import { HumanMessage, SystemMessage } from '@langchain/core/messages'
-import { fetchLLMClient } from './llm-client.js'
+import { fetchLLMClient } from '@clients/llm-client.js'
 
 // Simple function to process a command
 export async function processCommand(command: string): Promise<string> {

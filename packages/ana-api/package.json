@@ -4,10 +4,11 @@
   "type": "module",
   "main": "dist/main.js",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc && tsc-alias"
   },
   "devDependencies": {
     "@types/node": "^24.3.0",
+    "tsc-alias": "^1.8.16",
     "typescript": "^5.9.2"
   },
   "dependencies": {
