@@ -53,11 +53,17 @@ Current architecture:
 - **Type safety**: Complete type definitions for Redis operations eliminating any types
 - **Search optimization**: RediSearch index with 100-item limit and date-based sorting
 - **Date handling**: Utility functions for ISO string ↔ Unix timestamp conversion
+- **Multi-agent system**: Complete LangGraph.js implementation with classifier and agent routing
+- **LLM integration**: OpenAI client with structured input/output using Zod schemas
+- **Agent architecture**: Location and item agents with hardcoded domain data
+- **Intelligent routing**: LLM-powered classifier for agent selection with reasoning
+- **Clean organization**: Domain-based service folders (agent/, game/) with proper separation
 
 ### 🚧 Next Steps
 
-- Replace echo functionality with actual AI agent integration
-- Build multi-agent system with LangGraph.js
+- Implement parallel agent execution (currently routes to first agent only)
+- Add arbiter functionality to synthesize multiple agent responses  
+- Replace stubbed agent data with Redis integration
 - Deploy to Azure with AMR and Azure Container Apps
 
 ## Development Commands
