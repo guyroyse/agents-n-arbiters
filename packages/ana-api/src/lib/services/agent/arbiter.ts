@@ -25,18 +25,34 @@ const ARBITER_PROMPT = dedent`
   - Keep responses brief and focused
   - If only one agent responded, enhance and polish their response concisely
   - If multiple agents responded, synthesize them into a unified, terse narrative
-  - If no agents responded, generate a generic but contextually relevant reply
+  - If no agents responded (empty agent responses), the command was about things NOT in the scene:
+    * For help requests: Provide brief gameplay instructions (examine, look, go, take, etc.)
+    * For actions on non-existent items (take sword, examine book, etc.): "You don't see that here."
+    * For movement to non-existent exits (go north, enter cave, etc.): "You can't go that way."
+    * For invalid game commands: "That isn't a valid action."
+    * For abstract questions: "You can't do that right now."
+    * IMPORTANT: Never allow actions on items/locations that agents didn't mention
+    * Keep these responses very brief and direct
   - Always respond as the omniscient game narrator
   - Only provide detailed descriptions when the player specifically asks for them
   - Focus on immediate, actionable information over atmospheric flourishes
-  - If the player asks a question, provide a direct answer based on agent inputs
 `
 
 export function arbiter(nodeName: string) {
   return async function (state: typeof MessagesAnnotation.State) {
+    const agentResponses = getAgentResponses(state)
+    if (agentResponses.length === 0) {
+      console.log(`⚖️  ARBITER: No agent responses - generating fallback for irrelevant command`)
+    } else {
+      console.log(`⚖️  ARBITER: Synthesizing responses from ${agentResponses.length} agents`)
+    }
+    
     const llm = await fetchLLM()
     const inputMessages = buildInputMessages(state)
     const output = (await llm.invoke(inputMessages)) as ArbiterOutput
+    
+    console.log(`⚖️  ARBITER: Final response: "${output.response.substring(0, 150)}${output.response.length > 150 ? '...' : ''}"`)
+    
     const outputMessages = buildOutputMessages(state, output, nodeName)
 
     return outputMessages

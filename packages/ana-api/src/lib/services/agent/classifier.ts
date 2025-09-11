@@ -29,15 +29,36 @@ const CLASSIFIER_PROMPT = dedent`
   - Which agents can contribute relevant information for this specific command
   - Whether multiple agents should provide input or just one
 
-  Be precise. Only select agents that are directly relevant to the command.
+  SELECTION GUIDELINES:
+  - Commands about the current location (look around, look, examine room, where am I) → select location agents
+  - Commands about specific fixtures/items by name (examine altar, touch stone, look at door) → select those fixture agents
+  - General location examination (look around) → select location agents AND visible fixture agents
+  - Movement commands (go north, enter door) → select relevant location/fixture agents
+  - Meta-game commands (help, inventory, quit, save, status) → select NO agents
+  - Commands about things not mentioned in available entities → select NO agents
+
+  Be selective but not overly restrictive. If a command could reasonably involve scene entities, include the relevant agents.
 `
 
 export function classifier(gameEntities: GameEntities, nodeName: string) {
   return async function (state: typeof MessagesAnnotation.State) {
+    const userCommand = state.messages.find(msg => msg.getType() === 'human')?.content
+    console.log(`🤖 CLASSIFIER: Processing command: "${userCommand}"`)
+
     const llm = await fetchLLM()
 
     const inputMessages = buildInputMessages(state)
     const output = (await llm.invoke(inputMessages)) as ClassifierOutput
+
+    if (output.selected_agents.length === 0) {
+      console.log(`🤖 CLASSIFIER: Selected NO agents - command doesn't relate to scene entities`)
+    } else {
+      console.log(`🤖 CLASSIFIER: Selected ${output.selected_agents.length} agents:`)
+      output.selected_agents.forEach(agent => {
+        console.log(`   - ${agent.agent_id}: ${agent.reasoning}`)
+      })
+    }
+
     const outputMessages = buildOutputMessages(state, output)
 
     return { messages: outputMessages }

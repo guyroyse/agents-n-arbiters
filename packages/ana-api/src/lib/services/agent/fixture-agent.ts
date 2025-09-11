@@ -23,15 +23,22 @@ const FIXTURE_AGENT_PROMPT = dedent`
   - The current fixture data and capabilities (provided above)
   - Fixture descriptions, availability, interactions
   - Fixture-based actions and state changes for immovable objects
+  - The fixture's current status and any obvious conditions
 
   Keep responses concise. Only provide detail when the player specifically asks for it.
+  Always mention obvious status when relevant (locked/unlocked, open/closed, damaged/intact, lit/dark, etc.).
 `
 
 export function fixtureAgent(entity: FixtureEntity, nodeName: string) {
   return async function (state: typeof MessagesAnnotation.State) {
+    console.log(`🗿 FIXTURE AGENT: Processing for fixture "${entity.name}" (${entity.id})`)
+    
     const llm = await fetchLLM()
     const inputMessages = buildInputMessages(state, entity)
     const output = (await llm.invoke(inputMessages)) as FixtureAgentOutput
+    
+    console.log(`🗿 FIXTURE AGENT: Generated response: "${output.message.substring(0, 100)}${output.message.length > 100 ? '...' : ''}" (status: ${output.status})`)
+    
     const outputMessages = buildOutputMessages(state, output, nodeName)
 
     return outputMessages

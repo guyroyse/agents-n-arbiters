@@ -21,15 +21,22 @@ const LOCATION_AGENT_PROMPT = dedent`
   - The current location data and capabilities (provided above)
   - Location descriptions, movement possibilities, environmental details
   - Spatial interactions and navigation options
+  - Any obvious location status or conditions that would be immediately apparent
 
   Keep responses concise. Only provide detail when the player specifically asks for it.
+  Include obvious status information when relevant (lighting, accessibility, atmosphere, etc.).
 `
 
 export function locationAgent(entity: LocationEntity, nodeName: string) {
   return async function (state: typeof MessagesAnnotation.State) {
+    console.log(`🏛️  LOCATION AGENT: Processing for location "${entity.name}" (${entity.id})`)
+    
     const llm = await fetchLLM()
     const inputMessages = buildInputMessages(state, entity)
     const output = (await llm.invoke(inputMessages)) as LocationAgentOutput
+    
+    console.log(`🏛️  LOCATION AGENT: Generated response: "${output.message.substring(0, 100)}${output.message.length > 100 ? '...' : ''}"`)
+    
     const outputMessages = buildOutputMessages(state, output, nodeName)
 
     return outputMessages
