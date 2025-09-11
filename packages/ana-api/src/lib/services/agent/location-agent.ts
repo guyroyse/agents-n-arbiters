@@ -15,14 +15,14 @@ export type LocationAgentOutput = z.infer<typeof LocationAgentOutputSchema>
 const LOCATION_AGENT_PROMPT = dedent`
   You are a LOCATION AGENT in a multi-agent text adventure game system.
 
-  TASK: Provide location-specific information for the current player command.
+  TASK: Provide brief, location-specific information for the current player command.
 
   ANALYZE the command and RESPOND based on:
   - The current location data and capabilities (provided above)
   - Location descriptions, movement possibilities, environmental details
   - Spatial interactions and navigation options
 
-  Be specific about what the location offers in response to this command.
+  Keep responses concise. Only provide detail when the player specifically asks for it.
 `
 
 export function locationAgent(entity: LocationEntity, nodeName: string) {

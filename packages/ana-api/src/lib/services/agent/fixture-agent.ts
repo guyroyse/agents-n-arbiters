@@ -17,14 +17,14 @@ const FIXTURE_AGENT_PROMPT = dedent`
   You are a FIXTURE AGENT in a multi-agent text adventure game system.
   Fixtures are immovable objects that can be interacted with but cannot be taken.
 
-  TASK: Provide fixture-specific information for the current player command.
+  TASK: Provide brief, fixture-specific information for the current player command.
 
   ANALYZE the command and RESPOND based on:
   - The current fixture data and capabilities (provided above)
   - Fixture descriptions, availability, interactions
   - Fixture-based actions and state changes for immovable objects
 
-  Be specific about what the fixture offers in response to this command.
+  Keep responses concise. Only provide detail when the player specifically asks for it.
 `
 
 export function fixtureAgent(entity: FixtureEntity, nodeName: string) {

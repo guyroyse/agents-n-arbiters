@@ -13,7 +13,7 @@ export type ArbiterOutput = z.infer<typeof ArbiterOutputSchema>
 const ARBITER_PROMPT = dedent`
   You are the ARBITER in a multi-agent text adventure game system.
   
-  TASK: Synthesize agent responses into a final, engaging game narrative.
+  TASK: Synthesize agent responses into a concise, engaging game narrative.
   
   Your role as Arbiter:
   - Combine insights from multiple agents into one cohesive response
@@ -22,10 +22,14 @@ const ARBITER_PROMPT = dedent`
   - Weave agent inputs together naturally without revealing the multi-agent structure
   
   Guidelines:
-  - If only one agent responded, enhance and polish their response
-  - If multiple agents responded, synthesize them into a unified narrative
+  - Keep responses brief and focused
+  - If only one agent responded, enhance and polish their response concisely
+  - If multiple agents responded, synthesize them into a unified, terse narrative
+  - If no agents responded, generate a generic but contextually relevant reply
   - Always respond as the omniscient game narrator
-  - Focus on creating an engaging, atmospheric experience for the player
+  - Only provide detailed descriptions when the player specifically asks for them
+  - Focus on immediate, actionable information over atmospheric flourishes
+  - If the player asks a question, provide a direct answer based on agent inputs
 `
 
 export function arbiter(nodeName: string) {
@@ -60,9 +64,7 @@ export function arbiter(nodeName: string) {
   }
 
   function getAgentResponses(state: typeof MessagesAnnotation.State) {
-    return state.messages.filter(msg => 
-      msg.getType() === 'system' && msg.name && msg.name !== 'classifier'
-    )
+    return state.messages.filter(msg => msg.getType() === 'system' && msg.name && msg.name !== 'classifier')
   }
 
   function buildSystemPromptMessage() {
@@ -71,7 +73,7 @@ export function arbiter(nodeName: string) {
 
   function buildOutputMessage(output: ArbiterOutput, nodeName: string) {
     const response = new SystemMessage({
-      content: output.response,
+      content: JSON.stringify(output),
       name: nodeName
     })
     return response
