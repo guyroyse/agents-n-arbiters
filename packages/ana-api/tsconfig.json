@@ -33,7 +33,8 @@
       "@clients/*": ["./src/lib/clients/*"],
       "@services/*": ["./src/lib/services/*"],
       "@utils/*": ["./src/lib/utils/*"],
-      "@functions/*": ["./src/functions/*"]
+      "@functions/*": ["./src/functions/*"],
+      "@domain/*": ["./src/lib/domain/*"]
     }
 
   },

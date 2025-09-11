@@ -1,0 +1,92 @@
+import dedent from 'dedent'
+
+export abstract class GameEntity {
+  id = ''
+  name = ''
+  description = ''
+
+  withId(id: string) {
+    this.id = id
+    return this
+  }
+
+  withName(name: string) {
+    this.name = name
+    return this
+  }
+
+  withDescription(description: string) {
+    this.description = description
+    return this
+  }
+}
+
+export class LocationEntity extends GameEntity {
+  static create() {
+    return new LocationEntity()
+  }
+}
+
+export class FixtureEntity extends GameEntity {
+  location = ''
+  status = ''
+
+  static create() {
+    return new FixtureEntity()
+  }
+
+  withLocation(locationId: string) {
+    this.location = locationId
+    return this
+  }
+
+  withStatus(status: string) {
+    this.status = status
+    return this
+  }
+}
+
+export type GameEntities = GameEntity[]
+
+export async function fetchGameEntities(): Promise<GameEntities> {
+  const locationEntity = LocationEntity.create().withId('ruined_shrine').withName('The Shrine of Forgotten Whispers')
+    .withDescription(dedent`
+      Ancient moss-covered stones form a crumbling circular shrine in the heart of a sun-dappled forest glade. 
+      Wildflowers push through cracks in the weathered flagstones, while shafts of golden light pierce the 
+      emerald canopy above. The air hums with an otherworldly tranquility, as if time itself moves slower in 
+      this sacred space. Carved symbols, worn smooth by centuries of wind and rain, hint at rituals long 
+      abandoned to memory.
+    `)
+
+  const statueFixture = FixtureEntity.create()
+    .withId('ancient_statue')
+    .withName('The Weeping Guardian')
+    .withDescription(
+      dedent`
+      A towering figure carved from midnight-black stone stands sentinel at the shrine's center. Once-proud 
+      features have been softened by ages of weathering, giving the mysterious deity an expression of eternal 
+      sorrow. Intricate robes flow down the statue's form like frozen waterfalls, their folds deep enough to 
+      hide secrets. Strange runes spiral around the base, pulsing faintly with an inner light when shadows 
+      fall just right.
+    `
+    )
+    .withLocation(locationEntity.id)
+    .withStatus('covered in vine, intact')
+
+  const altarFixture = FixtureEntity.create()
+    .withId('crumbling_altar')
+    .withName('The Altar of Echoes')
+    .withDescription(
+      dedent`
+      A weathered stone altar sits before the guardian statue, its surface carved with intricate spirals and 
+      celestial patterns. The top is stained dark with age, and shallow channels carved into the stone suggest 
+      it once held offerings of some kind. Crystal formations have grown from cracks in the base, catching and 
+      reflecting the filtered sunlight in prismatic rainbows. When the wind blows just right, the altar seems 
+      to emit a low, haunting hum.
+    `
+    )
+    .withLocation(locationEntity.id)
+    .withStatus('intact')
+
+  return [locationEntity, statueFixture, altarFixture]
+}

@@ -4,9 +4,9 @@ import { SystemMessage } from '@langchain/core/messages'
 import { z } from 'zod'
 
 import { fetchLLMClient } from '@clients/llm-client.js'
-import { fetchAvailableAgents } from './available-agents.js'
+import type { GameEntities } from '@domain/entities.js'
 
-export const ClassifierOutputSchema = z.object({
+const ClassifierOutputSchema = z.object({
   selected_agents: z
     .array(
       z.object({
@@ -19,39 +19,60 @@ export const ClassifierOutputSchema = z.object({
 
 export type ClassifierOutput = z.infer<typeof ClassifierOutputSchema>
 
-export async function classifier(state: typeof MessagesAnnotation.State) {
-  const llm = await fetchLLMClient()
-  const structuredLLM = llm.withStructuredOutput(ClassifierOutputSchema)
+const CLASSIFIER_PROMPT = dedent`
+  You are a CLASSIFIER in a multi-agent text adventure game system.
 
-  const availableAgents = await fetchAvailableAgents()
+  TASK: Route player commands to appropriate game agents.
 
-  const classifierMessages = [
-    new SystemMessage({
-      content: JSON.stringify(availableAgents)
-    }),
-    new SystemMessage({
-      content: dedent`
-        TASK: Route player commands to appropriate game agents.
+  ANALYZE the command and SELECT which agent(s) should handle it based on:
+  - The available agents and their capabilities (provided above)
+  - Which agents can contribute relevant information for this specific command
+  - Whether multiple agents should provide input or just one
 
-        ANALYZE the command and SELECT which agent(s) should handle it based on:
-        - The available agents and their capabilities (provided above)
-        - Which agents can contribute relevant information for this specific command
-        - Whether multiple agents should provide input or just one
+  Be precise. Only select agents that are directly relevant to the command.
+`
 
-        Be precise. Only select agents that are directly relevant to the command.
-      `
-    }),
-    ...state.messages
-  ]
+export function classifier(gameEntities: GameEntities, nodeName: string) {
+  return async function (state: typeof MessagesAnnotation.State) {
+    const llm = await fetchLLM()
 
-  const classifierOutput = (await structuredLLM.invoke(classifierMessages)) as ClassifierOutput
+    const inputMessages = buildInputMessages(state)
+    const output = (await llm.invoke(inputMessages)) as ClassifierOutput
+    const outputMessages = buildOutputMessages(state, output)
 
-  const response = new SystemMessage({
-    content: JSON.stringify(classifierOutput),
-    name: 'classifier'
-  })
+    return { messages: outputMessages }
+  }
 
-  return {
-    messages: [...state.messages, response]
+  async function fetchLLM() {
+    const llm = await fetchLLMClient()
+    return llm.withStructuredOutput(ClassifierOutputSchema)
+  }
+
+  function buildInputMessages(state: typeof MessagesAnnotation.State) {
+    const gameEntitiesMessage = buildGameEntityMessage()
+    const systemPromptMessage = buildSystemPromptMessage()
+    return [gameEntitiesMessage, systemPromptMessage, ...state.messages]
+  }
+
+  function buildOutputMessages(state: typeof MessagesAnnotation.State, output: ClassifierOutput) {
+    const outputMessage = buildOutputMessage(output)
+    return [...state.messages, outputMessage]
+  }
+
+  function buildGameEntityMessage() {
+    const gameEntitiesJson = JSON.stringify(gameEntities)
+    const gameEntitiesMessage = new SystemMessage({ content: gameEntitiesJson })
+    return gameEntitiesMessage
+  }
+
+  function buildSystemPromptMessage() {
+    const systemPromptMessage = new SystemMessage({ content: CLASSIFIER_PROMPT })
+    return systemPromptMessage
+  }
+
+  function buildOutputMessage(output: ClassifierOutput) {
+    const outputJson = JSON.stringify(output)
+    const outputMessage = new SystemMessage({ content: outputJson, name: nodeName })
+    return outputMessage
   }
 }

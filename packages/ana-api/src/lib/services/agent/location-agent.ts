@@ -1,39 +1,74 @@
 import { SystemMessage } from '@langchain/core/messages'
 import { MessagesAnnotation } from '@langchain/langgraph'
+import { z } from 'zod'
 import dedent from 'dedent'
 import { fetchLLMClient } from '@clients/llm-client.js'
+import type { LocationEntity } from '@domain/entities.js'
 
-export async function locationAgent(state: typeof MessagesAnnotation.State) {
-  const llm = await fetchLLMClient()
+const LocationAgentOutputSchema = z.object({
+  entity_id: z.string().describe('ID of the location entity this response is from'),
+  message: z.string().describe('Message from the location agent to the arbiter about the current command')
+})
 
-  const locationMessages = [
-    new SystemMessage({
-      content: dedent`
-        You are a location agent in a multi-agent text adventure game system.
+export type LocationAgentOutput = z.infer<typeof LocationAgentOutputSchema>
 
-        Your role: Represent the current location and respond to location-related player commands.
-        Your purpose: Provide location-specific information to the arbiter so it can update game state and respond to the player.
+const LOCATION_AGENT_PROMPT = dedent`
+  You are a LOCATION AGENT in a multi-agent text adventure game system.
 
-        The system flow: Classifier → You (Location Agent) → Arbiter → Final Response
-        Focus on: Location descriptions, movement possibilities, environmental details, and spatial interactions.
-      `
-    }),
-    new SystemMessage({
-      content: dedent`
-        Current Location Data:
-        Name: Stone Chamber
-        Description: A dimly lit stone chamber with ancient markings carved into the walls. The air is musty and cool.
-        Exits: North (leads to unknown corridor), East (leads to unknown passage)
-        Atmosphere: Dark, mysterious, ancient
-        Features: Ancient markings on walls, stone construction, poor lighting
-      `
-    }),
-    ...state.messages
-  ]
+  TASK: Provide location-specific information for the current player command.
 
-  const response = await llm.invoke(locationMessages)
+  ANALYZE the command and RESPOND based on:
+  - The current location data and capabilities (provided above)
+  - Location descriptions, movement possibilities, environmental details
+  - Spatial interactions and navigation options
 
-  return {
-    messages: [...state.messages, response]
+  Be specific about what the location offers in response to this command.
+`
+
+export function locationAgent(entity: LocationEntity, nodeName: string) {
+  return async function (state: typeof MessagesAnnotation.State) {
+    const llm = await fetchLLM()
+    const inputMessages = buildInputMessages(state, entity)
+    const output = (await llm.invoke(inputMessages)) as LocationAgentOutput
+    const outputMessages = buildOutputMessages(state, output, nodeName)
+
+    return outputMessages
+  }
+
+  async function fetchLLM() {
+    const llm = await fetchLLMClient()
+    return llm.withStructuredOutput(LocationAgentOutputSchema)
+  }
+
+  function buildInputMessages(state: typeof MessagesAnnotation.State, entity: LocationEntity) {
+    const entityDataMessage = buildEntityDataMessage(entity)
+    const systemPromptMessage = buildSystemPromptMessage()
+    return [entityDataMessage, systemPromptMessage, ...state.messages]
+  }
+
+  function buildOutputMessages(state: typeof MessagesAnnotation.State, output: LocationAgentOutput, nodeName: string) {
+    const outputMessage = buildOutputMessage(output, nodeName)
+    return { messages: [...state.messages, outputMessage] }
+  }
+
+  function buildEntityDataMessage(entity: LocationEntity) {
+    const entityDataText = JSON.stringify({
+      id: entity.id,
+      name: entity.name,
+      description: entity.description
+    })
+    return new SystemMessage({ content: entityDataText })
+  }
+
+  function buildSystemPromptMessage() {
+    return new SystemMessage({ content: LOCATION_AGENT_PROMPT })
+  }
+
+  function buildOutputMessage(output: LocationAgentOutput, nodeName: string) {
+    const response = new SystemMessage({
+      content: JSON.stringify(output),
+      name: nodeName
+    })
+    return response
   }
 }

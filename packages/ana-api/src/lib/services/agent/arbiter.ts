@@ -1,43 +1,79 @@
 import { MessagesAnnotation } from '@langchain/langgraph'
 import { SystemMessage } from '@langchain/core/messages'
+import { z } from 'zod'
 import dedent from 'dedent'
 import { fetchLLMClient } from '@clients/llm-client.js'
 
-export async function arbiter(state: typeof MessagesAnnotation.State) {
-  const llm = await fetchLLMClient()
+const ArbiterOutputSchema = z.object({
+  response: z.string().describe('The final game narrative response to show the player')
+})
 
-  // Get the original human message and agent responses
-  const humanMessages = state.messages.filter(msg => msg._getType() === 'human')
-  const agentResponses = state.messages.filter(msg => 
-    msg._getType() === 'ai' && msg.name !== 'classifier'
-  )
+export type ArbiterOutput = z.infer<typeof ArbiterOutputSchema>
 
-  const arbiterMessages = [
-    new SystemMessage({
-      content: dedent`
-        You are the arbiter in a multi-agent text adventure game system.
-        
-        Your role: Synthesize responses from multiple agents into a coherent, engaging game response.
-        Your purpose: Create the final response that the player will see.
-        
-        The system flow: Classifier → Agents (parallel) → You (Arbiter) → Player
-        Focus on: Combining agent insights into a single, natural narrative response.
-        
-        Guidelines:
-        - Synthesize all agent responses into one cohesive response
-        - Maintain the text adventure game tone and style
-        - If only one agent responded, enhance and polish their response
-        - If multiple agents responded, weave their inputs together naturally
-        - Always respond as the game narrator, not as individual agents
-      `
-    }),
-    ...humanMessages,
-    ...agentResponses
-  ]
+const ARBITER_PROMPT = dedent`
+  You are the ARBITER in a multi-agent text adventure game system.
+  
+  TASK: Synthesize agent responses into a final, engaging game narrative.
+  
+  Your role as Arbiter:
+  - Combine insights from multiple agents into one cohesive response
+  - Create the final response that the player will see
+  - Maintain text adventure game tone and immersive storytelling
+  - Weave agent inputs together naturally without revealing the multi-agent structure
+  
+  Guidelines:
+  - If only one agent responded, enhance and polish their response
+  - If multiple agents responded, synthesize them into a unified narrative
+  - Always respond as the omniscient game narrator
+  - Focus on creating an engaging, atmospheric experience for the player
+`
 
-  const response = await llm.invoke(arbiterMessages)
+export function arbiter(nodeName: string) {
+  return async function (state: typeof MessagesAnnotation.State) {
+    const llm = await fetchLLM()
+    const inputMessages = buildInputMessages(state)
+    const output = (await llm.invoke(inputMessages)) as ArbiterOutput
+    const outputMessages = buildOutputMessages(state, output, nodeName)
 
-  return {
-    messages: [...state.messages, response]
+    return outputMessages
+  }
+
+  async function fetchLLM() {
+    const llm = await fetchLLMClient()
+    return llm.withStructuredOutput(ArbiterOutputSchema)
+  }
+
+  function buildInputMessages(state: typeof MessagesAnnotation.State) {
+    const humanMessages = getHumanMessages(state)
+    const agentResponses = getAgentResponses(state)
+    const systemPromptMessage = buildSystemPromptMessage()
+    return [systemPromptMessage, ...humanMessages, ...agentResponses]
+  }
+
+  function buildOutputMessages(state: typeof MessagesAnnotation.State, output: ArbiterOutput, nodeName: string) {
+    const outputMessage = buildOutputMessage(output, nodeName)
+    return { messages: [...state.messages, outputMessage] }
+  }
+
+  function getHumanMessages(state: typeof MessagesAnnotation.State) {
+    return state.messages.filter(msg => msg.getType() === 'human')
+  }
+
+  function getAgentResponses(state: typeof MessagesAnnotation.State) {
+    return state.messages.filter(msg => 
+      msg.getType() === 'system' && msg.name && msg.name !== 'classifier'
+    )
+  }
+
+  function buildSystemPromptMessage() {
+    return new SystemMessage({ content: ARBITER_PROMPT })
+  }
+
+  function buildOutputMessage(output: ArbiterOutput, nodeName: string) {
+    const response = new SystemMessage({
+      content: output.response,
+      name: nodeName
+    })
+    return response
   }
 }

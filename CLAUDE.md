@@ -53,17 +53,23 @@ Current architecture:
 - **Type safety**: Complete type definitions for Redis operations eliminating any types
 - **Search optimization**: RediSearch index with 100-item limit and date-based sorting
 - **Date handling**: Utility functions for ISO string ↔ Unix timestamp conversion
-- **Multi-agent system**: Complete LangGraph.js implementation with classifier and agent routing
+- **Multi-agent system**: Complete LangGraph.js implementation with dynamic graph construction
 - **LLM integration**: OpenAI client with structured input/output using Zod schemas
-- **Agent architecture**: Location and item agents with hardcoded domain data
+- **Domain entities**: Class-based GameEntity, LocationEntity, and FixtureEntity with builder pattern
+- **Rich game world**: Atmospheric descriptions for "The Shrine of Forgotten Whispers" with detailed fixtures
 - **Intelligent routing**: LLM-powered classifier for agent selection with reasoning
-- **Clean organization**: Domain-based service folders (agent/, game/) with proper separation
+- **Parallel execution**: Conditional fan-out supporting single or multiple agent execution
+- **Agent input filtering**: Factory pattern for clean message filtering per agent type
+- **Structured agent output**: All agents (classifier, location, fixture, arbiter) use Zod schemas for consistent output
+- **Arbiter synthesis**: Fan-in node combining agent responses into final narrative with structured output
+- **Dynamic graph building**: Class-based MultiAgentGraph with JavaScript private fields and factory patterns
+- **Clean organization**: Domain-based folders (domain/, agent/, game/) with proper separation of concerns
 
 ### 🚧 Next Steps
 
-- Implement parallel agent execution (currently routes to first agent only)
-- Add arbiter functionality to synthesize multiple agent responses  
-- Replace stubbed agent data with Redis integration
+- Add committer component for handling state changes from arbiter output
+- Replace stubbed domain entities with Redis integration  
+- Add NPC agent types and implementations
 - Deploy to Azure with AMR and Azure Container Apps
 
 ## Development Commands
