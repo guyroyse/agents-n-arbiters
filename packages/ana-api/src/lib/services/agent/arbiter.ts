@@ -3,7 +3,7 @@ import { BaseMessage, SystemMessage } from '@langchain/core/messages'
 import { z } from 'zod'
 import dedent from 'dedent'
 import { fetchLLMClient } from '@clients/llm-client.js'
-import { logMessages, logJson, toPrettyJsonString } from '@utils'
+import { log, toPrettyJsonString } from '@utils'
 
 const ArbiterOutputSchema = z.object({
   response: z.string().describe('The final game narrative response to show the player')
@@ -39,19 +39,19 @@ const ARBITER_PROMPT = dedent`
   - Focus on immediate, actionable information over atmospheric flourishes
 `
 
-export function arbiter(nodeName: string) {
+export function arbiter(gameId: string, nodeName: string) {
   return async function (state: typeof MessagesAnnotation.State) {
-    logMessages('⚖️  ARBITER: Input state', state.messages)
+    log(gameId, '⚖️  ARBITER: Input state', state.messages)
 
     const llm = await fetchLLM()
     const inputMessages = buildInputMessages(state)
-    logMessages('⚖️  ARBITER: Sending to LLM', inputMessages)
+    log(gameId, '⚖️  ARBITER: Sending to LLM', inputMessages)
 
     const output = (await llm.invoke(inputMessages)) as ArbiterOutput
-    logJson('⚖️  ARBITER: LLM output', output)
+    log(gameId, '⚖️  ARBITER: LLM output', output)
 
     const outputMessages = buildOutputMessages(state, output, nodeName)
-    logMessages('⚖️  ARBITER: Output state', outputMessages)
+    log(gameId, '⚖️  ARBITER: Output state', outputMessages)
     return { messages: outputMessages }
   }
 

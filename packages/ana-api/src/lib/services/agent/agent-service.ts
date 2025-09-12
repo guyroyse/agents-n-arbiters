@@ -1,15 +1,15 @@
 import { HumanMessage } from '@langchain/core/messages'
 import { MultiAgentGraph } from './graph-builder.js'
 import type { ArbiterOutput } from './arbiter.js'
-import { fetchGameEntities } from '@domain/entities.js'
-import { logWorkflow } from '@utils'
+import { fetchGameState } from '@domain/entities.js'
+import { log } from '@utils'
 
-export async function processCommand(command: string): Promise<string> {
-  const gameEntities = await fetchGameEntities()
-  const multiAgentGraph = new MultiAgentGraph(gameEntities)
+export async function processCommand(gameId: string, command: string): Promise<string> {
+  const gameState = await fetchGameState(gameId)
+  const multiAgentGraph = new MultiAgentGraph(gameState)
   const workflow = multiAgentGraph.build()
 
-  logWorkflow('🔗 MULTI-AGENT WORKFLOW STRUCTURE', workflow)
+  log(gameState.gameId, '🔗 MULTI-AGENT WORKFLOW STRUCTURE', workflow.getGraph())
 
   const result = await workflow.invoke({
     messages: [new HumanMessage({ content: command })]

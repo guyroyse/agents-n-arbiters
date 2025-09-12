@@ -4,8 +4,8 @@ import { SystemMessage } from '@langchain/core/messages'
 import { z } from 'zod'
 
 import { fetchLLMClient } from '@clients/llm-client.js'
-import type { GameEntities } from '@domain/entities.js'
-import { logMessages, logJson, toPrettyJsonString } from '@utils'
+import type { GameState } from '@domain/entities.js'
+import { log, toPrettyJsonString } from '@utils'
 
 const ClassifierOutputSchema = z.object({
   selected_agents: z
@@ -52,20 +52,23 @@ const CLASSIFIER_PROMPT = dedent`
   Be selective but not overly restrictive. If a command could reasonably involve scene entities, include the relevant agents.
 `
 
-export function classifier(gameEntities: GameEntities, nodeName: string) {
+export function classifier(gameState: GameState, nodeName: string) {
+  const gameId = gameState.gameId
+  const gameEntities = gameState.entities
+
   return async function (state: typeof MessagesAnnotation.State) {
-    logMessages('🤖 CLASSIFIER: Input state', state.messages)
+    log(gameId, '🤖 CLASSIFIER: Input state', state.messages)
 
     const llm = await fetchLLM()
 
     const inputMessages = buildInputMessages(state)
-    logMessages('🤖 CLASSIFIER: Sending to LLM', inputMessages)
+    log(gameId, '🤖 CLASSIFIER: Sending to LLM', inputMessages)
 
     const output = (await llm.invoke(inputMessages)) as ClassifierOutput
-    logJson('🤖 CLASSIFIER: LLM output', output)
+    log(gameId, '🤖 CLASSIFIER: LLM output', output)
 
     const outputMessages = buildOutputMessages(state, output)
-    logMessages('🤖 CLASSIFIER: Output state', outputMessages)
+    log(gameId, '🤖 CLASSIFIER: Output state', outputMessages)
 
     return { messages: outputMessages }
   }
@@ -87,6 +90,7 @@ export function classifier(gameEntities: GameEntities, nodeName: string) {
   }
 
   function buildGameEntityMessage() {
+    // TODO: consider passing in entire game state for more context
     const gameEntitiesJson = toPrettyJsonString(gameEntities)
     const gameEntitiesMessage = new SystemMessage({ content: gameEntitiesJson })
     return gameEntitiesMessage

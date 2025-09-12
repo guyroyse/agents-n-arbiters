@@ -54,7 +54,21 @@ export class FixtureEntity extends GameEntity {
 
 export type GameEntities = GameEntity[]
 
-export async function fetchGameEntities(): Promise<GameEntities> {
+export class GameState {
+  gameId: string
+  entities: GameEntities
+
+  private constructor(gameId: string, entities: GameEntities) {
+    this.gameId = gameId
+    this.entities = entities
+  }
+
+  static create(gameId: string, entities: GameEntities) {
+    return new GameState(gameId, entities)
+  }
+}
+
+export async function fetchGameState(gameId: string): Promise<GameState> {
   const locationEntity = LocationEntity.create().withId('ruined_shrine').withName('The Shrine of Forgotten Whispers')
     .withDescription(dedent`
       Ancient moss-covered stones form a crumbling circular shrine in the heart of a sun-dappled forest glade. 
@@ -97,5 +111,7 @@ export async function fetchGameEntities(): Promise<GameEntities> {
     )
     .inLocation(locationEntity.id)
 
-  return [locationEntity, statueFixture, altarFixture]
+  const entities = [locationEntity, statueFixture, altarFixture]
+
+  return GameState.create(gameId, entities)
 }

@@ -4,6 +4,7 @@ import type { UpdateGameNameRequest } from '@ana/shared'
 
 import responses from '@functions/http-responses.js'
 import gameService from '@services/game/game-service.js'
+import { log } from '@utils'
 
 export async function updateGameName(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
   context.log('HTTP trigger function processed an update game name request.')
@@ -30,6 +31,7 @@ export async function updateGameName(request: HttpRequest, context: InvocationCo
     if (!updated) return responses.notFound('Game not found')
 
     context.log(`Updated game: "${trimmedGameName}" with ID: ${gameId}`)
+    log(gameId, 'update-game-name', `Game name updated: "${trimmedGameName}"`)
 
     const updatedGame = await gameService.fetchGame(gameId)
     return responses.ok(updatedGame)

@@ -1,18 +1,19 @@
 import { MessagesAnnotation } from '@langchain/langgraph'
 import { BaseMessage, SystemMessage } from '@langchain/core/messages'
 import type { ClassifierOutput } from './classifier.js'
-import { logMessages } from '@utils'
+import { log } from '@utils'
+import type { GameEntity } from '@domain/entities.js'
 
-export function agentInputFilter(entityId: string, nodeName: string) {
+export function agentInputFilter(gameId: string, entity: GameEntity, nodeName: string) {
   return async function (state: typeof MessagesAnnotation.State) {
-    logMessages('🔍 AGENT INPUT FILTER: Input state', state.messages)
+    log(gameId, '🔍 AGENT INPUT FILTER: Input state', state.messages)
 
     const humanMessages = getHumanMessages(state.messages)
-    const reasoningMessage = buildClassifierReasoningMessage(state.messages, entityId, nodeName)
+    const reasoningMessage = buildClassifierReasoningMessage(state.messages, entity.id, nodeName)
 
     let outputMessages: BaseMessage[] = [...humanMessages, reasoningMessage]
 
-    logMessages('🔍 AGENT INPUT FILTER: Output state', outputMessages)
+    log(gameId, '🔍 AGENT INPUT FILTER: Output state', outputMessages)
 
     return { messages: outputMessages }
   }

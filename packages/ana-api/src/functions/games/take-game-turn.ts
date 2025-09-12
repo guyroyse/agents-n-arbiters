@@ -5,6 +5,7 @@ import type { TakeGameTurnRequest, TakeGameTurnResponse } from '@ana/shared'
 import responses from '@functions/http-responses.js'
 import gameService from '@services/game/game-service.js'
 import { processCommand } from '@services/agent/agent-service.js'
+import { log } from '@utils'
 
 export async function takeGameTurn(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
   context.log('HTTP trigger function processed a take game turn request.')
@@ -17,9 +18,10 @@ export async function takeGameTurn(request: HttpRequest, context: InvocationCont
     const { command } = body as TakeGameTurnRequest
 
     context.log(`Processing turn for game ${gameId}: ${command}`)
+    log(gameId, 'take-game-turn', `Processing command: ${command}`)
 
     // Process command through LLM agent service
-    const reply = await processCommand(command)
+    const reply = await processCommand(gameId, command)
     
     const response: TakeGameTurnResponse = {
       command,

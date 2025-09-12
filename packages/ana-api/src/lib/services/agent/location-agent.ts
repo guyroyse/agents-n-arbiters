@@ -4,7 +4,8 @@ import { z } from 'zod'
 import dedent from 'dedent'
 import { fetchLLMClient } from '@clients/llm-client.js'
 import type { LocationEntity } from '@domain/entities.js'
-import { logMessages, logJson, toPrettyJsonString } from '@utils'
+import { toPrettyJsonString } from '@utils'
+import { log } from 'console'
 
 const LocationAgentOutputSchema = z.object({
   entity_id: z.string().describe('ID of the location entity this response is from'),
@@ -31,19 +32,19 @@ const LOCATION_AGENT_PROMPT = dedent`
   Include obvious status information when relevant (lighting, accessibility, atmosphere, etc.).
 `
 
-export function locationAgent(entity: LocationEntity, nodeName: string) {
+export function locationAgent(gameId: string, entity: LocationEntity, nodeName: string) {
   return async function (state: typeof MessagesAnnotation.State) {
-    logMessages('🏛️  LOCATION AGENT: Input state', state.messages)
+    log(gameId, '🏛️  LOCATION AGENT: Input state', state.messages)
 
     const llm = await fetchLLM()
     const inputMessages = buildInputMessages(state, entity)
-    logMessages('🏛️  LOCATION AGENT: Sending to LLM', inputMessages)
+    log(gameId, '🏛️  LOCATION AGENT: Sending to LLM', inputMessages)
 
     const output = (await llm.invoke(inputMessages)) as LocationAgentOutput
-    logJson('🏛️  LOCATION AGENT: LLM output', output)
+    log(gameId, '🏛️  LOCATION AGENT: LLM output', output)
 
     const outputMessages = buildOutputMessages(state, output, nodeName)
-    logMessages('🏛️  LOCATION AGENT: Output state', outputMessages)
+    log(gameId, '🏛️  LOCATION AGENT: Output state', outputMessages)
 
     return { messages: outputMessages }
   }

@@ -4,7 +4,7 @@ import { z } from 'zod'
 import dedent from 'dedent'
 import { fetchLLMClient } from '@clients/llm-client.js'
 import type { FixtureEntity } from '@domain/entities.js'
-import { logMessages, logJson, toPrettyJsonString } from '@utils'
+import { log, toPrettyJsonString } from '@utils'
 
 const FixtureAgentOutputSchema = z.object({
   entity_id: z.string().describe('ID of the fixture entity this response is from'),
@@ -42,19 +42,19 @@ const FIXTURE_AGENT_PROMPT = dedent`
   Keep responses concise. Only provide detail when the player specifically asks for it.
 `
 
-export function fixtureAgent(entity: FixtureEntity, nodeName: string) {
+export function fixtureAgent(gameId: string, entity: FixtureEntity, nodeName: string) {
   return async function (state: typeof MessagesAnnotation.State) {
-    logMessages('🗿 FIXTURE AGENT: Input state', state.messages)
+    log(gameId, '🗿 FIXTURE AGENT: Input state', state.messages)
 
     const llm = await fetchLLM()
     const inputMessages = buildInputMessages(state, entity)
-    logMessages('🗿 FIXTURE AGENT: Sending to LLM', inputMessages)
+    log(gameId, '🗿 FIXTURE AGENT: Sending to LLM', inputMessages)
 
     const output = (await llm.invoke(inputMessages)) as FixtureAgentOutput
-    logJson('🗿 FIXTURE AGENT: LLM output', output)
+    log(gameId, '🗿 FIXTURE AGENT: LLM output', output)
 
     const outputMessages = buildOutputMessages(state, output, nodeName)
-    logMessages('🗿 FIXTURE AGENT: Output state', outputMessages)
+    log(gameId, '🗿 FIXTURE AGENT: Output state', outputMessages)
     return outputMessages
   }
 
