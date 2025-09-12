@@ -29,7 +29,8 @@ export class LocationEntity extends GameEntity {
 
 export class FixtureEntity extends GameEntity {
   location = ''
-  status = ''
+  statuses: string[] = []
+  actions: string[] = []
 
   static create() {
     return new FixtureEntity()
@@ -41,7 +42,12 @@ export class FixtureEntity extends GameEntity {
   }
 
   withStatus(status: string) {
-    this.status = status
+    this.statuses.push(status)
+    return this
+  }
+
+  withAction(action: string) {
+    this.actions.push(action)
     return this
   }
 }
@@ -71,7 +77,12 @@ export async function fetchGameEntities(): Promise<GameEntities> {
     `
     )
     .withLocation(locationEntity.id)
-    .withStatus('covered in vine, intact')
+    .withStatus('covered in vines')
+    .withStatus('intact')
+    .withAction('examine closely')
+    .withAction('touch surface')
+    .withAction('remove vines (if present)')
+    .withAction('climb (if vines removed)')
 
   const altarFixture = FixtureEntity.create()
     .withId('crumbling_altar')
@@ -87,6 +98,11 @@ export async function fetchGameEntities(): Promise<GameEntities> {
     )
     .withLocation(locationEntity.id)
     .withStatus('intact')
+    .withStatus('ancient')
+    .withAction('examine closely')
+    .withAction('touch surface')
+    .withAction('place offering')
+    .withAction('listen to hum')
 
   return [locationEntity, statueFixture, altarFixture]
 }

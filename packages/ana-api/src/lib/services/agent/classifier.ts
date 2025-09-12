@@ -25,15 +25,26 @@ const CLASSIFIER_PROMPT = dedent`
   TASK: Route player commands to appropriate game agents.
 
   ANALYZE the command and SELECT which agent(s) should handle it based on:
-  - The available agents and their capabilities (provided above)
+  - The available game entities in the JSON provided (locations and fixtures)
+  - The names, descriptions, statuses, and actions of those entities
+  - The content of the player's command (from the human message)
   - Which agents can contribute relevant information for this specific command
+  - Whether the command relates to fixture statuses or available actions
   - Whether multiple agents should provide input or just one
 
+  JSON INPUT:
+  - Contains the available game entities for the current scene
+  - Entities include locations and fixtures
+  - All entities have a name and description
+  - Fixtures have statuses describing the current conditions of that fixture
+  - Fixtures have actions describing possible interactions with that fixture
+  
   SELECTION GUIDELINES:
   - Commands about the current location (look around, look, examine room, where am I) → select location agents
-  - Commands about specific fixtures/items by name (examine altar, touch stone, look at door) → select those fixture agents
+  - Commands about specific fixtures by name (examine altar, touch stone, look at door) → select those fixture agents
+  - Commands matching fixture actions (remove vines, climb statue, place offering) → select relevant fixture agents
+  - Commands asking about fixture status (is it locked, what condition) → select relevant fixture agents
   - General location examination (look around) → select location agents AND visible fixture agents
-  - Movement commands (go north, enter door) → select relevant location/fixture agents
   - Meta-game commands (help, inventory, quit, save, status) → select NO agents
   - Commands about things not mentioned in available entities → select NO agents
 

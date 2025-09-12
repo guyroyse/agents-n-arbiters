@@ -14,14 +14,17 @@ export type LocationAgentOutput = z.infer<typeof LocationAgentOutputSchema>
 
 const LOCATION_AGENT_PROMPT = dedent`
   You are a LOCATION AGENT in a multi-agent text adventure game system.
+  Locations are places the player can be and move between and are the backdrop for other entities.
 
   TASK: Provide brief, location-specific information for the current player command.
 
   ANALYZE the command and RESPOND based on:
-  - The current location data and capabilities (provided above)
-  - Location descriptions, movement possibilities, environmental details
-  - Spatial interactions and navigation options
-  - Any obvious location status or conditions that would be immediately apparent
+  - The current location data in the JSON provided (id, name, description)
+  - Whether the player's command relates to the location or details about it
+
+  JSON INPUT:
+  - Contains the current location data
+  - Locations have an id, name, and description
 
   Keep responses concise. Only provide detail when the player specifically asks for it.
   Include obvious status information when relevant (lighting, accessibility, atmosphere, etc.).
@@ -30,13 +33,15 @@ const LOCATION_AGENT_PROMPT = dedent`
 export function locationAgent(entity: LocationEntity, nodeName: string) {
   return async function (state: typeof MessagesAnnotation.State) {
     console.log(`🏛️  LOCATION AGENT: Processing for location "${entity.name}" (${entity.id})`)
-    
+
     const llm = await fetchLLM()
     const inputMessages = buildInputMessages(state, entity)
     const output = (await llm.invoke(inputMessages)) as LocationAgentOutput
-    
-    console.log(`🏛️  LOCATION AGENT: Generated response: "${output.message.substring(0, 100)}${output.message.length > 100 ? '...' : ''}"`)
-    
+
+    console.log(
+      `🏛️  LOCATION AGENT: Generated response: "${output.message.substring(0, 100)}${output.message.length > 100 ? '...' : ''}"`
+    )
+
     const outputMessages = buildOutputMessages(state, output, nodeName)
 
     return outputMessages
