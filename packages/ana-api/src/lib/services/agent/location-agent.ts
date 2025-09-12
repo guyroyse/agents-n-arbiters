@@ -1,9 +1,10 @@
-import { SystemMessage } from '@langchain/core/messages'
+import { BaseMessage, SystemMessage } from '@langchain/core/messages'
 import { MessagesAnnotation } from '@langchain/langgraph'
 import { z } from 'zod'
 import dedent from 'dedent'
 import { fetchLLMClient } from '@clients/llm-client.js'
 import type { LocationEntity } from '@domain/entities.js'
+import { logMessages, logJson, toPrettyJsonString } from '@utils'
 
 const LocationAgentOutputSchema = z.object({
   entity_id: z.string().describe('ID of the location entity this response is from'),
@@ -32,19 +33,19 @@ const LOCATION_AGENT_PROMPT = dedent`
 
 export function locationAgent(entity: LocationEntity, nodeName: string) {
   return async function (state: typeof MessagesAnnotation.State) {
-    console.log(`🏛️  LOCATION AGENT: Processing for location "${entity.name}" (${entity.id})`)
+    logMessages('🏛️  LOCATION AGENT: Input state', state.messages)
 
     const llm = await fetchLLM()
     const inputMessages = buildInputMessages(state, entity)
-    const output = (await llm.invoke(inputMessages)) as LocationAgentOutput
+    logMessages('🏛️  LOCATION AGENT: Sending to LLM', inputMessages)
 
-    console.log(
-      `🏛️  LOCATION AGENT: Generated response: "${output.message.substring(0, 100)}${output.message.length > 100 ? '...' : ''}"`
-    )
+    const output = (await llm.invoke(inputMessages)) as LocationAgentOutput
+    logJson('🏛️  LOCATION AGENT: LLM output', output)
 
     const outputMessages = buildOutputMessages(state, output, nodeName)
+    logMessages('🏛️  LOCATION AGENT: Output state', outputMessages)
 
-    return outputMessages
+    return { messages: outputMessages }
   }
 
   async function fetchLLM() {
@@ -58,13 +59,17 @@ export function locationAgent(entity: LocationEntity, nodeName: string) {
     return [entityDataMessage, systemPromptMessage, ...state.messages]
   }
 
-  function buildOutputMessages(state: typeof MessagesAnnotation.State, output: LocationAgentOutput, nodeName: string) {
+  function buildOutputMessages(
+    state: typeof MessagesAnnotation.State,
+    output: LocationAgentOutput,
+    nodeName: string
+  ): BaseMessage[] {
     const outputMessage = buildOutputMessage(output, nodeName)
-    return { messages: [...state.messages, outputMessage] }
+    return [...state.messages, outputMessage]
   }
 
   function buildEntityDataMessage(entity: LocationEntity) {
-    const entityDataText = JSON.stringify({
+    const entityDataText = toPrettyJsonString({
       id: entity.id,
       name: entity.name,
       description: entity.description
@@ -78,7 +83,7 @@ export function locationAgent(entity: LocationEntity, nodeName: string) {
 
   function buildOutputMessage(output: LocationAgentOutput, nodeName: string) {
     const response = new SystemMessage({
-      content: JSON.stringify(output),
+      content: toPrettyJsonString(output),
       name: nodeName
     })
     return response

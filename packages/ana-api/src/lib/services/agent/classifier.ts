@@ -5,6 +5,7 @@ import { z } from 'zod'
 
 import { fetchLLMClient } from '@clients/llm-client.js'
 import type { GameEntities } from '@domain/entities.js'
+import { logMessages, logJson, toPrettyJsonString } from '@utils'
 
 const ClassifierOutputSchema = z.object({
   selected_agents: z
@@ -33,7 +34,7 @@ const CLASSIFIER_PROMPT = dedent`
   - Whether multiple agents should provide input or just one
 
   JSON INPUT:
-  - Contains the available game entities for the current scene
+  - Array containing the available game entities for the current scene
   - Entities include locations and fixtures
   - All entities have a name and description
   - Fixtures have statuses describing the current conditions of that fixture
@@ -53,24 +54,18 @@ const CLASSIFIER_PROMPT = dedent`
 
 export function classifier(gameEntities: GameEntities, nodeName: string) {
   return async function (state: typeof MessagesAnnotation.State) {
-    const userCommand = state.messages.find(msg => msg.getType() === 'human')?.content
-    console.log(`🤖 CLASSIFIER: Processing command: "${userCommand}"`)
+    logMessages('🤖 CLASSIFIER: Input state', state.messages)
 
     const llm = await fetchLLM()
 
     const inputMessages = buildInputMessages(state)
-    const output = (await llm.invoke(inputMessages)) as ClassifierOutput
+    logMessages('🤖 CLASSIFIER: Sending to LLM', inputMessages)
 
-    if (output.selected_agents.length === 0) {
-      console.log(`🤖 CLASSIFIER: Selected NO agents - command doesn't relate to scene entities`)
-    } else {
-      console.log(`🤖 CLASSIFIER: Selected ${output.selected_agents.length} agents:`)
-      output.selected_agents.forEach(agent => {
-        console.log(`   - ${agent.agent_id}: ${agent.reasoning}`)
-      })
-    }
+    const output = (await llm.invoke(inputMessages)) as ClassifierOutput
+    logJson('🤖 CLASSIFIER: LLM output', output)
 
     const outputMessages = buildOutputMessages(state, output)
+    logMessages('🤖 CLASSIFIER: Output state', outputMessages)
 
     return { messages: outputMessages }
   }
@@ -92,7 +87,7 @@ export function classifier(gameEntities: GameEntities, nodeName: string) {
   }
 
   function buildGameEntityMessage() {
-    const gameEntitiesJson = JSON.stringify(gameEntities)
+    const gameEntitiesJson = toPrettyJsonString(gameEntities)
     const gameEntitiesMessage = new SystemMessage({ content: gameEntitiesJson })
     return gameEntitiesMessage
   }
@@ -103,7 +98,7 @@ export function classifier(gameEntities: GameEntities, nodeName: string) {
   }
 
   function buildOutputMessage(output: ClassifierOutput) {
-    const outputJson = JSON.stringify(output)
+    const outputJson = toPrettyJsonString(output)
     const outputMessage = new SystemMessage({ content: outputJson, name: nodeName })
     return outputMessage
   }

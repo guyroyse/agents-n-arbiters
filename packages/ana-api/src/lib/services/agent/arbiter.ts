@@ -1,8 +1,9 @@
 import { MessagesAnnotation } from '@langchain/langgraph'
-import { SystemMessage } from '@langchain/core/messages'
+import { BaseMessage, SystemMessage } from '@langchain/core/messages'
 import { z } from 'zod'
 import dedent from 'dedent'
 import { fetchLLMClient } from '@clients/llm-client.js'
+import { logMessages, logJson, toPrettyJsonString } from '@utils'
 
 const ArbiterOutputSchema = z.object({
   response: z.string().describe('The final game narrative response to show the player')
@@ -40,22 +41,18 @@ const ARBITER_PROMPT = dedent`
 
 export function arbiter(nodeName: string) {
   return async function (state: typeof MessagesAnnotation.State) {
-    const agentResponses = getAgentResponses(state)
-    if (agentResponses.length === 0) {
-      console.log(`⚖️  ARBITER: No agent responses - generating fallback for irrelevant command`)
-    } else {
-      console.log(`⚖️  ARBITER: Synthesizing responses from ${agentResponses.length} agents`)
-    }
-    
+    logMessages('⚖️  ARBITER: Input state', state.messages)
+
     const llm = await fetchLLM()
     const inputMessages = buildInputMessages(state)
-    const output = (await llm.invoke(inputMessages)) as ArbiterOutput
-    
-    console.log(`⚖️  ARBITER: Final response: "${output.response.substring(0, 150)}${output.response.length > 150 ? '...' : ''}"`)
-    
-    const outputMessages = buildOutputMessages(state, output, nodeName)
+    logMessages('⚖️  ARBITER: Sending to LLM', inputMessages)
 
-    return outputMessages
+    const output = (await llm.invoke(inputMessages)) as ArbiterOutput
+    logJson('⚖️  ARBITER: LLM output', output)
+
+    const outputMessages = buildOutputMessages(state, output, nodeName)
+    logMessages('⚖️  ARBITER: Output state', outputMessages)
+    return { messages: outputMessages }
   }
 
   async function fetchLLM() {
@@ -70,9 +67,13 @@ export function arbiter(nodeName: string) {
     return [systemPromptMessage, ...humanMessages, ...agentResponses]
   }
 
-  function buildOutputMessages(state: typeof MessagesAnnotation.State, output: ArbiterOutput, nodeName: string) {
+  function buildOutputMessages(
+    state: typeof MessagesAnnotation.State,
+    output: ArbiterOutput,
+    nodeName: string
+  ): BaseMessage[] {
     const outputMessage = buildOutputMessage(output, nodeName)
-    return { messages: [...state.messages, outputMessage] }
+    return [...state.messages, outputMessage]
   }
 
   function getHumanMessages(state: typeof MessagesAnnotation.State) {
@@ -80,7 +81,9 @@ export function arbiter(nodeName: string) {
   }
 
   function getAgentResponses(state: typeof MessagesAnnotation.State) {
-    return state.messages.filter(msg => msg.getType() === 'system' && msg.name && msg.name !== 'classifier')
+    return state.messages.filter(
+      msg => msg.getType() === 'system' && msg.name && msg.name !== 'classifier' && !msg.name.endsWith('_filter')
+    )
   }
 
   function buildSystemPromptMessage() {
@@ -89,7 +92,7 @@ export function arbiter(nodeName: string) {
 
   function buildOutputMessage(output: ArbiterOutput, nodeName: string) {
     const response = new SystemMessage({
-      content: JSON.stringify(output),
+      content: toPrettyJsonString(output),
       name: nodeName
     })
     return response

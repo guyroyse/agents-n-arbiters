@@ -4,15 +4,9 @@ import { locationAgent } from './location-agent.js'
 import { fixtureAgent } from './fixture-agent.js'
 import { agentInputFilter } from './agent-input-filter.js'
 import { arbiter } from './arbiter.js'
-import { fetchGameEntities, LocationEntity, FixtureEntity, GameEntity, type GameEntities } from '@domain/entities.js'
+import { LocationEntity, FixtureEntity, GameEntity, type GameEntities } from '@domain/entities.js'
 
-export async function buildMultiAgentGraph() {
-  const gameEntities = await fetchGameEntities()
-  const multiAgentGraph = new MultiAgentGraph(gameEntities)
-  return multiAgentGraph.build()
-}
-
-class MultiAgentGraph {
+export class MultiAgentGraph {
   #graph: any
   #gameEntities: GameEntities
 
@@ -51,7 +45,7 @@ class MultiAgentGraph {
       routingDestinations[agentNodeName] = filterNodeName
     }
 
-    routingDestinations['arbiter'] = 'arbiter'
+    routingDestinations['default'] = 'arbiter'
 
     this.#graph.addConditionalEdges(
       'classifier',
@@ -67,7 +61,7 @@ class MultiAgentGraph {
 
     const selectedAgents = classifierOutput.selected_agents.map(agent => agent.agent_id)
 
-    return selectedAgents.length > 0 ? selectedAgents : ['arbiter']
+    return selectedAgents.length > 0 ? selectedAgents : ['default']
   }
 
   #addAgent(filterNodeName: string, agentNodeName: string, entity: GameEntity) {

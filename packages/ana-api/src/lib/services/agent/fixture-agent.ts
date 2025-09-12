@@ -1,13 +1,16 @@
-import { SystemMessage } from '@langchain/core/messages'
+import { BaseMessage, SystemMessage } from '@langchain/core/messages'
 import { MessagesAnnotation } from '@langchain/langgraph'
 import { z } from 'zod'
 import dedent from 'dedent'
 import { fetchLLMClient } from '@clients/llm-client.js'
 import type { FixtureEntity } from '@domain/entities.js'
+import { logMessages, logJson, toPrettyJsonString } from '@utils'
 
 const FixtureAgentOutputSchema = z.object({
   entity_id: z.string().describe('ID of the fixture entity this response is from'),
-  statuses: z.array(z.string()).describe('Complete updated statuses array for the fixture (include all statuses - both changed and unchanged)'),
+  statuses: z
+    .array(z.string())
+    .describe('Complete updated statuses array for the fixture (include all statuses - both changed and unchanged)'),
   message: z.string().describe('Message from the fixture agent to the arbiter about the current command')
 })
 
@@ -41,18 +44,17 @@ const FIXTURE_AGENT_PROMPT = dedent`
 
 export function fixtureAgent(entity: FixtureEntity, nodeName: string) {
   return async function (state: typeof MessagesAnnotation.State) {
-    console.log(`🗿 FIXTURE AGENT: Processing for fixture "${entity.name}" (${entity.id})`)
+    logMessages('🗿 FIXTURE AGENT: Input state', state.messages)
 
     const llm = await fetchLLM()
     const inputMessages = buildInputMessages(state, entity)
-    const output = (await llm.invoke(inputMessages)) as FixtureAgentOutput
+    logMessages('🗿 FIXTURE AGENT: Sending to LLM', inputMessages)
 
-    console.log(
-      `🗿 FIXTURE AGENT: Generated response: "${output.message.substring(0, 100)}${output.message.length > 100 ? '...' : ''}" (statuses: [${output.statuses.join(', ')}])`
-    )
+    const output = (await llm.invoke(inputMessages)) as FixtureAgentOutput
+    logJson('🗿 FIXTURE AGENT: LLM output', output)
 
     const outputMessages = buildOutputMessages(state, output, nodeName)
-
+    logMessages('🗿 FIXTURE AGENT: Output state', outputMessages)
     return outputMessages
   }
 
@@ -67,13 +69,17 @@ export function fixtureAgent(entity: FixtureEntity, nodeName: string) {
     return [entityDataMessage, systemPromptMessage, ...state.messages]
   }
 
-  function buildOutputMessages(state: typeof MessagesAnnotation.State, output: FixtureAgentOutput, nodeName: string) {
+  function buildOutputMessages(
+    state: typeof MessagesAnnotation.State,
+    output: FixtureAgentOutput,
+    nodeName: string
+  ): BaseMessage[] {
     const outputMessage = buildOutputMessage(output, nodeName)
-    return { messages: [...state.messages, outputMessage] }
+    return [...state.messages, outputMessage]
   }
 
   function buildEntityDataMessage(entity: FixtureEntity) {
-    const entityDataText = JSON.stringify({
+    const entityDataText = toPrettyJsonString({
       id: entity.id,
       name: entity.name,
       description: entity.description,
@@ -90,7 +96,7 @@ export function fixtureAgent(entity: FixtureEntity, nodeName: string) {
 
   function buildOutputMessage(output: FixtureAgentOutput, nodeName: string) {
     const response = new SystemMessage({
-      content: JSON.stringify(output),
+      content: toPrettyJsonString(output),
       name: nodeName
     })
     return response

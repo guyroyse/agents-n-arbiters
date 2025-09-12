@@ -32,11 +32,10 @@
     "paths": {
       "@clients/*": ["./src/lib/clients/*"],
       "@services/*": ["./src/lib/services/*"],
-      "@utils/*": ["./src/lib/utils/*"],
+      "@utils": ["./src/lib/utils/index.js"],
       "@functions/*": ["./src/functions/*"],
       "@domain/*": ["./src/lib/domain/*"]
     }
-
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"]

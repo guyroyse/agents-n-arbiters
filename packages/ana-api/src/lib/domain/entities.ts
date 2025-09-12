@@ -36,7 +36,7 @@ export class FixtureEntity extends GameEntity {
     return new FixtureEntity()
   }
 
-  withLocation(locationId: string) {
+  inLocation(locationId: string) {
     this.location = locationId
     return this
   }
@@ -76,11 +76,10 @@ export async function fetchGameEntities(): Promise<GameEntities> {
       fall just right.
     `
     )
-    .withLocation(locationEntity.id)
+    .inLocation(locationEntity.id)
     .withStatus('covered in vines')
     .withStatus('intact')
-    .withAction('examine closely')
-    .withAction('touch surface')
+    .withAction('knock over')
     .withAction('remove vines (if present)')
     .withAction('climb (if vines removed)')
 
@@ -96,13 +95,7 @@ export async function fetchGameEntities(): Promise<GameEntities> {
       to emit a low, haunting hum.
     `
     )
-    .withLocation(locationEntity.id)
-    .withStatus('intact')
-    .withStatus('ancient')
-    .withAction('examine closely')
-    .withAction('touch surface')
-    .withAction('place offering')
-    .withAction('listen to hum')
+    .inLocation(locationEntity.id)
 
   return [locationEntity, statueFixture, altarFixture]
 }
