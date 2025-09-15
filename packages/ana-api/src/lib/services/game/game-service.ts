@@ -1,6 +1,6 @@
 import type { RediSearchSchema } from 'redis'
 
-import type { SavedGame, GameTurn } from '@ana/shared'
+import type { SavedGame, GameTurn, GameLogEntry } from '@ana/shared'
 
 import { fetchRedisClient, type RedisClient } from '@clients/redis-client.js'
 import { dateToTimestamp, timestampToDate } from '@utils'
@@ -97,6 +97,31 @@ class GameService {
     }))
   }
 
+  async fetchGameLogs(gameId: string, count: number = 50): Promise<GameLogEntry[]> {
+    // Validate count
+    if (count < 1 || count > 1000) {
+      throw new Error('Count must be between 1 and 1000')
+    }
+
+    const logStreamKey = this.logKey(gameId)
+
+    // Use XRANGE to get logs in chronological order (oldest first)
+    const logs = (await this.#client.xRange(logStreamKey, '-', '+', { COUNT: count })) as StreamEntry[]
+
+    // Transform Redis stream entries to GameLogEntry objects
+    return logs.map(entry => ({
+      id: entry.id,
+      timestamp: parseInt(entry.id.split('-')[0]),
+      gameId: entry.message.gameId || gameId,
+      contentType: entry.message.contentType || 'unknown',
+      prefix: entry.message.prefix || '',
+      content: entry.message.content || '',
+      messageType: entry.message.messageType || undefined,
+      messageName: entry.message.messageName === 'none' ? undefined : entry.message.messageName,
+      messageIndex: entry.message.messageIndex ? parseInt(entry.message.messageIndex) : undefined
+    }))
+  }
+
   async updateGame(gameId: string, updates: Partial<SavedGame>): Promise<boolean> {
     const key = this.gameKey(gameId)
 
@@ -127,10 +152,12 @@ class GameService {
   async removeGame(gameId: string): Promise<void> {
     const gameKeyName = this.gameKey(gameId)
     const turnsKeyName = this.turnsKey(gameId)
+    const logKeyName = this.logKey(gameId)
 
     // not awaiting uses pipelining
     this.#client.del(turnsKeyName)
-    await this.#client.json.del(gameKeyName)
+    this.#client.json.del(gameKeyName)
+    await this.#client.del(logKeyName)
   }
 
   private async ensureGameIndex(): Promise<void> {
@@ -158,6 +185,10 @@ class GameService {
 
   private turnsKey(gameId: string): string {
     return `${this.gameKey(gameId)}:turns`
+  }
+
+  private logKey(gameId: string): string {
+    return `${this.gameKey(gameId)}:log`
   }
 }
 

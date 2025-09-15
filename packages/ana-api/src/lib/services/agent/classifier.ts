@@ -1,109 +1,75 @@
 import dedent from 'dedent'
-import { MessagesAnnotation } from '@langchain/langgraph'
-import { SystemMessage } from '@langchain/core/messages'
-import { z } from 'zod'
 
 import { fetchLLMClient } from '@clients/llm-client.js'
+import { GameTurnAnnotation, ClassifierSelectionSchema, type ClassifierSelection } from './game-turn-state.js'
 import type { GameState } from '@domain/entities.js'
 import { log, toPrettyJsonString } from '@utils'
 
-const ClassifierOutputSchema = z.object({
-  selected_agents: z
-    .array(
-      z.object({
-        agent_id: z.string().describe('ID from available agents list'),
-        reasoning: z.string().describe('One sentence why this specific agent is needed')
-      })
-    )
-    .describe('Array of agents that should provide input for this command')
-})
+export async function classifier(state: typeof GameTurnAnnotation.State) {
+  const gameState = state.game_state
+  const userCommand = state.user_command
 
-export type ClassifierOutput = z.infer<typeof ClassifierOutputSchema>
+  // Basic validation
+  if (!userCommand) throw new Error('Missing user command')
+  if (!gameState) throw new Error('Missing game state')
 
-const CLASSIFIER_PROMPT = dedent`
-  You are a CLASSIFIER in a multi-agent text adventure game system.
+  // Log input
+  log(gameState.gameId, '🤖 CLASSIFIER', `Processing command: ${userCommand}`)
+  log(gameState.gameId, '🤖 CLASSIFIER', `Available entities: ${gameState.entities.map(e => e.id).join(', ')}`)
 
-  TASK: Route player commands to appropriate game agents.
+  // Set up LLM with prompt and structured output
+  const llm = await fetchLLMClient()
+  const structuredLLM = llm.withStructuredOutput(ClassifierSelectionSchema)
+  const prompt = buildClassifierPrompt(gameState, userCommand)
+  log(gameState.gameId, '🤖 CLASSIFIER', 'Sending to LLM')
 
-  ANALYZE the command and SELECT which agent(s) should handle it based on:
-  - The available game entities in the JSON provided (locations and fixtures)
-  - The names, descriptions, statuses, and actions of those entities
-  - The content of the player's command (from the human message)
-  - Which agents can contribute relevant information for this specific command
-  - Whether the command relates to fixture statuses or available actions
-  - Whether multiple agents should provide input or just one
+  // Invoke LLM and parse structured output
+  const selection = (await structuredLLM.invoke(prompt)) as ClassifierSelection
+  log(gameState.gameId, '🤖 CLASSIFIER', selection)
 
-  JSON INPUT:
-  - Array containing the available game entities for the current scene
-  - Entities include locations and fixtures
-  - All entities have a name and description
-  - Fixtures have statuses describing the current conditions of that fixture
-  - Fixtures have actions describing possible interactions with that fixture
-  
-  SELECTION GUIDELINES:
-  - Commands about the current location (look around, look, examine room, where am I) → select location agents
-  - Commands about specific fixtures by name (examine altar, touch stone, look at door) → select those fixture agents
-  - Commands matching fixture actions (remove vines, climb statue, place offering) → select relevant fixture agents
-  - Commands asking about fixture status (is it locked, what condition) → select relevant fixture agents
-  - General location examination (look around) → select location agents AND visible fixture agents
-  - Meta-game commands (help, inventory, quit, save, status) → select NO agents
-  - Commands about things not mentioned in available entities → select NO agents
+  // Return the structured output directly
+  return { agent_selection: selection }
+}
 
-  Be selective but not overly restrictive. If a command could reasonably involve scene entities, include the relevant agents.
-`
+function buildClassifierPrompt(gameState: GameState, userCommand: string) {
+  const entitiesContext = toPrettyJsonString(gameState.entities)
 
-export function classifier(gameState: GameState, nodeName: string) {
-  const gameId = gameState.gameId
-  const gameEntities = gameState.entities
+  return dedent`
+    You are a CLASSIFIER in a multi-agent text adventure game system.
 
-  return async function (state: typeof MessagesAnnotation.State) {
-    log(gameId, '🤖 CLASSIFIER: Input state', state.messages)
+    TASK: Analyze the player command and select which game agents should respond.
 
-    const llm = await fetchLLM()
+    ANALYZE the player command and SELECT appropriate agents based on:
+    - The available game entities (locations, exits, fixtures, NPCs)
+    - Entity names, descriptions, current statuses, and available actions
+    - Whether the command relates to specific entities or general exploration
+    - Which agents can provide relevant responses for this command
 
-    const inputMessages = buildInputMessages(state)
-    log(gameId, '🤖 CLASSIFIER: Sending to LLM', inputMessages)
+    ENTITY TYPES:
+    - Location agents: Handle general area descriptions and environmental details
+    - Exit agents: Handle movement between locations (doors, passages, paths)
+    - Fixture agents: Handle specific interactive objects (altars, levers, statues, etc.)
+    - NPC agents: Handle character interactions and dialogue
 
-    const output = (await llm.invoke(inputMessages)) as ClassifierOutput
-    log(gameId, '🤖 CLASSIFIER: LLM output', output)
+    SELECTION GUIDELINES:
+    - Location commands (look around, examine room, where am I) → select location agents
+    - Movement commands (go north, enter door, exit south) → select relevant exit agents
+    - Exit queries (what exits, where does this lead, can I go there) → select exit agents
+    - Specific object commands (examine altar, touch stone, use lever) → select those fixture agents
+    - Action commands matching fixture actions (climb, activate, move) → select relevant fixture agents
+    - Status queries (is it locked, what condition) → select relevant fixture/exit agents
+    - General exploration (look around) → select location agents AND prominent fixture agents
+    - Character interactions (talk to, ask about) → select relevant NPC agents
+    - Meta-commands (help, inventory, quit, status) → select NO agents
+    - Commands about non-existent things → select NO agents
 
-    const outputMessages = buildOutputMessages(state, output)
-    log(gameId, '🤖 CLASSIFIER: Output state', outputMessages)
+    OUTPUT: Return agent IDs that should respond, with brief reasoning for each selection.
+    Be selective but thorough - include all agents that could provide useful context.
 
-    return { messages: outputMessages }
-  }
+    AVAILABLE ENTITIES:
+    ${entitiesContext}
 
-  async function fetchLLM() {
-    const llm = await fetchLLMClient()
-    return llm.withStructuredOutput(ClassifierOutputSchema)
-  }
-
-  function buildInputMessages(state: typeof MessagesAnnotation.State) {
-    const gameEntitiesMessage = buildGameEntityMessage()
-    const systemPromptMessage = buildSystemPromptMessage()
-    return [gameEntitiesMessage, systemPromptMessage, ...state.messages]
-  }
-
-  function buildOutputMessages(state: typeof MessagesAnnotation.State, output: ClassifierOutput) {
-    const outputMessage = buildOutputMessage(output)
-    return [...state.messages, outputMessage]
-  }
-
-  function buildGameEntityMessage() {
-    // TODO: consider passing in entire game state for more context
-    const gameEntitiesJson = toPrettyJsonString(gameEntities)
-    const gameEntitiesMessage = new SystemMessage({ content: gameEntitiesJson })
-    return gameEntitiesMessage
-  }
-
-  function buildSystemPromptMessage() {
-    const systemPromptMessage = new SystemMessage({ content: CLASSIFIER_PROMPT })
-    return systemPromptMessage
-  }
-
-  function buildOutputMessage(output: ClassifierOutput) {
-    const outputJson = toPrettyJsonString(output)
-    const outputMessage = new SystemMessage({ content: outputJson, name: nodeName })
-    return outputMessage
-  }
+    PLAYER COMMAND:
+    ${userCommand}
+  `
 }

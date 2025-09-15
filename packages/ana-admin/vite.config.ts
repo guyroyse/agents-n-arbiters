@@ -6,6 +6,12 @@ export default defineConfig({
   plugins: [tailwindcss()],
   build: {
     outDir: 'dist',
-    sourcemap: true
+    sourcemap: true,
+    rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, 'index.html'),
+        logs: path.resolve(__dirname, 'logs.html')
+      }
+    }
   }
 })

@@ -1,10 +1,11 @@
-import type { SavedGame, GameTurn, VersionInfo, ApiError } from './api-types.js'
+import type { SavedGame, GameTurn, GameLogEntry, VersionInfo, ApiError } from './api-types.js'
 
 // Success response types
 export type FetchGamesResponse = SavedGame[]
 export type CreateGameResponse = SavedGame
 export type FetchGameResponse = SavedGame
 export type FetchGameTurnsResponse = GameTurn[]
+export type FetchGameLogsResponse = GameLogEntry[]
 export type UpdateGameNameResponse = SavedGame
 export type DeleteGameResponse = void
 
@@ -20,5 +21,6 @@ export type FetchGamesApiResponse = FetchGamesResponse | ApiError
 export type CreateGameApiResponse = CreateGameResponse | ApiError
 export type FetchGameApiResponse = FetchGameResponse | ApiError
 export type FetchGameTurnsApiResponse = FetchGameTurnsResponse | ApiError
+export type FetchGameLogsApiResponse = FetchGameLogsResponse | ApiError
 export type UpdateGameNameApiResponse = UpdateGameNameResponse | ApiError
 export type DeleteGameApiResponse = DeleteGameResponse | ApiError

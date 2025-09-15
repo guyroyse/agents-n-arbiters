@@ -18,5 +18,18 @@ export type VersionInfo = {
   environment: string
 }
 
+// Game log entry type
+export type GameLogEntry = {
+  id: string
+  timestamp: number
+  gameId: string
+  contentType: string
+  prefix: string
+  content: string
+  messageType?: string
+  messageName?: string
+  messageIndex?: number
+}
+
 // Common error type
 export type ApiError = { error: string }

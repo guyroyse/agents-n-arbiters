@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agents & Arbiters - Log Viewer</title>
+    <link rel="stylesheet" href="/src/style.css" />
+    <script type="module" crossorigin src="/src/logs.js" defer></script>
+  </head>
+  <body class="min-h-screen bg-redis-midnight text-redis-white p-8 font-mono max-w-6xl mx-auto">
+    <header class="mb-8">
+      <a href="/" class="text-redis-hyper hover:text-redis-deep-hyper mb-4 inline-block">← Back to Dashboard</a>
+      <h1 class="text-3xl font-bold text-redis-hyper mb-2">Log Viewer</h1>
+      <p class="text-redis-dusk-30">View game logs and debug information</p>
+    </header>
+
+    <main>
+      <!-- Controls Section -->
+      <div class="bg-redis-dusk p-6 rounded-lg border border-redis-hyper/20 mb-6">
+        <form id="log-form" class="flex flex-wrap gap-4 items-end">
+          <div class="flex-1 min-w-48">
+            <label for="game-select" class="block text-redis-hyper font-bold mb-2">Select Game</label>
+            <select
+              id="game-select"
+              class="w-full bg-redis-midnight border border-redis-dusk-70 text-redis-white px-3 py-2 rounded focus:border-redis-hyper focus:outline-none"
+              required
+            >
+              <option value="">Loading games...</option>
+            </select>
+          </div>
+
+          <div class="min-w-32">
+            <label for="count-input" class="block text-redis-hyper font-bold mb-2">Log Count</label>
+            <input
+              id="count-input"
+              type="number"
+              min="1"
+              max="1000"
+              value="50"
+              class="w-full bg-redis-midnight border border-redis-dusk-70 text-redis-white px-3 py-2 rounded focus:border-redis-hyper focus:outline-none"
+            />
+          </div>
+
+          <button
+            type="submit"
+            id="load-btn"
+            class="bg-redis-hyper text-redis-white px-6 py-2 rounded font-bold hover:bg-redis-deep-hyper transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Load Logs
+          </button>
+        </form>
+      </div>
+
+      <!-- Loading State -->
+      <div id="loading" class="hidden text-center py-8">
+        <div class="inline-block animate-spin w-8 h-8 border-4 border-redis-hyper border-t-transparent rounded-full"></div>
+        <p class="text-redis-dusk-30 mt-4">Loading logs...</p>
+      </div>
+
+      <!-- Error State -->
+      <div id="error" class="hidden bg-redis-midnight border border-red-500 text-red-400 p-4 rounded-lg mb-6">
+        <strong>Error:</strong> <span id="error-message"></span>
+      </div>
+
+      <!-- Empty State -->
+      <div id="empty" class="hidden text-center py-12">
+        <p class="text-redis-dusk-30 text-lg">No logs found for the selected game.</p>
+        <p class="text-redis-dusk-50 mt-2">Try selecting a different game or check if the game has been played recently.</p>
+      </div>
+
+      <!-- Log Entries Container -->
+      <div id="log-entries" class="space-y-4">
+        <!-- Dynamic log entries will be inserted here -->
+      </div>
+
+      <!-- Stats Footer -->
+      <div id="stats" class="hidden mt-8 text-center text-redis-dusk-30">
+        <p>Showing <span id="stats-count">0</span> log entries</p>
+      </div>
+    </main>
+  </body>
+</html>

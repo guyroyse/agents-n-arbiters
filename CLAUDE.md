@@ -69,12 +69,17 @@ Current architecture:
 - **Dual logging strategy**: Azure context.log for infrastructure events, structured log() for business logic with gameId association
 - **Rich log metadata**: TypeScript overloads supporting strings, JSON, Mermaid diagrams, and BaseMessages with metadata
 - **Performance optimized logging**: Fire-and-forget Redis streams with error handling, non-blocking application flow
+- **Multi-channel state architecture**: Custom GameTurnAnnotation replacing MessagesAnnotation for clean context engineering
+- **Simplified agent patterns**: Direct function agents reading from dedicated state channels, eliminating message filtering complexity
+- **Unified type system**: Centralized Zod schemas and TypeScript types in game-turn-state.ts for consistency across all agents
+- **Structured agent reasoning**: Individual per-agent reasoning from classifier, enabling precise context extraction
 
 ### 🚧 Next Steps
 
+- **Complete agent refactoring**: Finish updating fixture and arbiter agents to use GameTurnAnnotation
 - **Build log viewer interface**: Create web-based log viewer for Redis streams to visualize multi-agent workflows
 - Add committer component for handling state changes from arbiter output
-- Replace stubbed domain entities with Redis integration  
+- Replace stubbed domain entities with Redis integration
 - Add NPC agent types and implementations
 - Deploy to Azure with AMR and Azure Container Apps
 

@@ -1,92 +1,95 @@
-import { BaseMessage, SystemMessage } from '@langchain/core/messages'
-import { MessagesAnnotation } from '@langchain/langgraph'
 import { z } from 'zod'
 import dedent from 'dedent'
 import { fetchLLMClient } from '@clients/llm-client.js'
-import type { LocationEntity } from '@domain/entities.js'
-import { toPrettyJsonString } from '@utils'
-import { log } from 'console'
+import { GameTurnAnnotation } from './game-turn-state.js'
+import type { LocationEntity, GameState } from '@domain/entities.js'
+import { toPrettyJsonString, log } from '@utils'
+import type { Class } from 'zod/v4/core/util.js'
 
 const LocationAgentOutputSchema = z.object({
-  entity_id: z.string().describe('ID of the location entity this response is from'),
-  message: z.string().describe('Message from the location agent to the arbiter about the current command')
+  message: z.string().describe('Location-specific response about the current command')
 })
 
 export type LocationAgentOutput = z.infer<typeof LocationAgentOutputSchema>
 
-const LOCATION_AGENT_PROMPT = dedent`
-  You are a LOCATION AGENT in a multi-agent text adventure game system.
-  Locations are places the player can be and move between and are the backdrop for other entities.
+export function locationAgent(nodeName: string) {
+  return async function (state: typeof GameTurnAnnotation.State) {
+    const gameState = state.game_state
+    const userCommand = state.user_command
+    const selection = state.agent_selection as ClassifierSelection | null
 
-  TASK: Provide brief, location-specific information for the current player command.
+    // Basic validation
+    if (!gameState) throw new Error('Missing game state')
+    if (!userCommand) throw new Error('Missing user command')
 
-  ANALYZE the command and RESPOND based on:
-  - The current location data in the JSON provided (id, name, description)
-  - Whether the player's command relates to the location or details about it
+    // Find my entity data
+    const entity = gameState.entities.find(entity => entity.id === nodeName) as LocationEntity
+    if (!entity) throw new Error(`Entity not found for node: ${nodeName}`)
 
-  JSON INPUT:
-  - Contains the current location data
-  - Locations have an id, name, and description
+    // Find classifier reasoning for selecting me
+    const reasoning = getAgentReasoning(selection, nodeName)
 
-  Keep responses concise. Only provide detail when the player specifically asks for it.
-  Include obvious status information when relevant (lighting, accessibility, atmosphere, etc.).
-`
+    // Log input
+    log(gameState.gameId, '🏛️  LOCATION AGENT - User command', userCommand)
+    log(gameState.gameId, '🏛️  LOCATION AGENT - Entity', entity)
+    log(gameState.gameId, '🏛️  LOCATION AGENT - Reasoning', reasoning)
 
-export function locationAgent(gameId: string, entity: LocationEntity, nodeName: string) {
-  return async function (state: typeof MessagesAnnotation.State) {
-    log(gameId, '🏛️  LOCATION AGENT: Input state', state.messages)
-
-    const llm = await fetchLLM()
-    const inputMessages = buildInputMessages(state, entity)
-    log(gameId, '🏛️  LOCATION AGENT: Sending to LLM', inputMessages)
-
-    const output = (await llm.invoke(inputMessages)) as LocationAgentOutput
-    log(gameId, '🏛️  LOCATION AGENT: LLM output', output)
-
-    const outputMessages = buildOutputMessages(state, output, nodeName)
-    log(gameId, '🏛️  LOCATION AGENT: Output state', outputMessages)
-
-    return { messages: outputMessages }
-  }
-
-  async function fetchLLM() {
     const llm = await fetchLLMClient()
-    return llm.withStructuredOutput(LocationAgentOutputSchema)
-  }
+    const structuredLLM = llm.withStructuredOutput(LocationAgentOutputSchema)
 
-  function buildInputMessages(state: typeof MessagesAnnotation.State, entity: LocationEntity) {
-    const entityDataMessage = buildEntityDataMessage(entity)
-    const systemPromptMessage = buildSystemPromptMessage()
-    return [entityDataMessage, systemPromptMessage, ...state.messages]
-  }
+    const prompt = buildLocationPrompt(entity, userCommand, reasoning)
+    const output = (await structuredLLM.invoke(prompt)) as LocationAgentOutput
 
-  function buildOutputMessages(
-    state: typeof MessagesAnnotation.State,
-    output: LocationAgentOutput,
-    nodeName: string
-  ): BaseMessage[] {
-    const outputMessage = buildOutputMessage(output, nodeName)
-    return [...state.messages, outputMessage]
-  }
+    log(gameState.gameId, '🏛️  LOCATION AGENT', output)
 
-  function buildEntityDataMessage(entity: LocationEntity) {
-    const entityDataText = toPrettyJsonString({
-      id: entity.id,
-      name: entity.name,
-      description: entity.description
-    })
-    return new SystemMessage({ content: entityDataText })
+    return {
+      agent_outputs: [
+        {
+          agent_id: nodeName,
+          agent_type: 'location' as const,
+          content: output.message,
+          reasoning: myReasoning
+        }
+      ]
+    }
   }
+}
 
-  function buildSystemPromptMessage() {
-    return new SystemMessage({ content: LOCATION_AGENT_PROMPT })
-  }
+function getAgentReasoning(selection: any, agentId: string): string {
+  if (!selection?.selected_agents) return 'No reasoning provided'
 
-  function buildOutputMessage(output: LocationAgentOutput, nodeName: string) {
-    const response = new SystemMessage({
-      content: toPrettyJsonString(output),
-      name: nodeName
-    })
-    return response
-  }
+  // Find my specific agent selection with reasoning
+  const mySelection = selection.selected_agents.find((agent: any) => agent.agent_id === agentId)
+  return mySelection?.reasoning || 'Selected for location context'
+}
+
+function buildLocationPrompt(entity: LocationEntity, userCommand: string, reasoning: string) {
+  const locationData = toPrettyJsonString({
+    id: entity.id,
+    name: entity.name,
+    description: entity.description
+  })
+
+  return dedent`
+    You are a LOCATION AGENT in a multi-agent text adventure game system.
+    Locations are places the player can be and move between and are the backdrop for other entities.
+
+    TASK: Provide brief, location-specific information for the current player command.
+
+    ANALYZE the command and RESPOND based on:
+    - The current location data provided
+    - Whether the player's command relates to the location or environmental details
+    - The reasoning for why you were selected to respond
+
+    LOCATION DATA:
+    ${locationData}
+
+    SELECTION REASONING: ${reasoning}
+
+    Keep responses concise. Only provide detail when the player specifically asks for it.
+    Include obvious status information when relevant (lighting, accessibility, atmosphere, exits).
+    Focus on environmental descriptions and general area information.
+
+    PLAYER COMMAND: ${userCommand}
+  `
 }

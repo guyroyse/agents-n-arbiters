@@ -1,17 +1,18 @@
-import { StateGraph, MessagesAnnotation, START, END } from '@langchain/langgraph'
-import { classifier, type ClassifierOutput } from './classifier.js'
+import { StateGraph, START, END } from '@langchain/langgraph'
+import { classifier } from './classifier.js'
 import { locationAgent } from './location-agent.js'
 import { fixtureAgent } from './fixture-agent.js'
-import { agentInputFilter } from './agent-input-filter.js'
 import { arbiter } from './arbiter.js'
-import { LocationEntity, FixtureEntity, GameEntity, GameState } from '@domain/entities.js'
+import { LocationEntity, FixtureEntity, GameState } from '@domain/entities.js'
+import { GameTurnAnnotation } from './game-turn-state.js'
+import { log } from '@utils'
 
 export class MultiAgentGraph {
   #graph: any
   #gameState: GameState
 
   constructor(gameState: GameState) {
-    this.#graph = new StateGraph(MessagesAnnotation) as any
+    this.#graph = new StateGraph(GameTurnAnnotation) as any
     this.#gameState = gameState
   }
 
@@ -24,78 +25,57 @@ export class MultiAgentGraph {
   }
 
   #addClassifier() {
-    this.#graph.addNode('classifier', classifier(this.#gameState, 'classifier'))
+    this.#graph.addNode('classifier', classifier)
     this.#graph.addEdge(START, 'classifier')
   }
 
   #addArbiter() {
-    this.#graph.addNode('arbiter', arbiter(this.#gameState.gameId, 'arbiter'))
+    this.#graph.addNode('arbiter', arbiter(this.#gameState.gameId))
     this.#graph.addEdge('arbiter', END)
   }
 
   #addAgents() {
     const routingDestinations: Record<string, any> = {}
 
-    const { gameId, entities } = this.#gameState
-
-    for (const entity of entities) {
-      const agentNodeName = entity.id
-      const filterNodeName = `${agentNodeName}_filter`
-
-      this.#addAgent(filterNodeName, agentNodeName, gameId, entity)
-
-      routingDestinations[agentNodeName] = filterNodeName
+    for (const entity of this.#gameState.entities) {
+      const nodeName = entity.id
+      this.#addAgent(nodeName)
+      this.#graph.addEdge(nodeName, 'arbiter')
+      routingDestinations[nodeName] = nodeName
     }
 
     routingDestinations['default'] = 'arbiter'
 
     this.#graph.addConditionalEdges(
       'classifier',
-      (state: typeof MessagesAnnotation.State) => this.#routeToAgents(state),
+      (state: typeof GameTurnAnnotation.State) => this.#routeToAgents(state),
       routingDestinations
     )
   }
 
-  #routeToAgents(state: typeof MessagesAnnotation.State): string[] {
-    const classifierMessage = state.messages[state.messages.length - 1]
-    const classifierJson = classifierMessage.content as string
-    const classifierOutput: ClassifierOutput = JSON.parse(classifierJson)
+  #routeToAgents(state: typeof GameTurnAnnotation.State): string[] {
+    const selection = state.agent_selection
+    if (!selection) return ['default']
 
-    const selectedAgents = classifierOutput.selected_agents.map(agent => agent.agent_id)
+    const selectedAgents = selection.selected_agents.map(agent => agent.agent_id)
+    log(this.#gameState.gameId, '🤖 CLASSIFIER selected agents:', selectedAgents)
 
     return selectedAgents.length > 0 ? selectedAgents : ['default']
   }
 
-  #addAgent(filterNodeName: string, agentNodeName: string, gameId: string, entity: GameEntity) {
-    this.#addAgentFilter(filterNodeName, gameId, entity)
-    this.#addAgentActual(agentNodeName, gameId, entity)
+  #addAgent(nodeName: string) {
+    const entity = this.#gameState.entities.find(entity => entity.id === nodeName)
+    if (!entity) throw new Error(`Entity not found for node: ${nodeName}`)
 
-    this.#graph.addEdge(filterNodeName, agentNodeName)
-    this.#graph.addEdge(agentNodeName, 'arbiter')
-  }
-
-  #addAgentFilter(filterNodeName: string, gameId: string, entity: GameEntity) {
-    this.#graph.addNode(filterNodeName, agentInputFilter(gameId, entity, filterNodeName))
-  }
-
-  #addAgentActual(agentNodeName: string, gameId: string, entity: GameEntity) {
     switch (entity.constructor) {
       case LocationEntity:
-        this.#addLocation(agentNodeName, gameId, entity as LocationEntity)
+        this.#graph.addNode(nodeName, locationAgent(nodeName))
         break
       case FixtureEntity:
-        this.#addFixture(agentNodeName, gameId, entity as FixtureEntity)
+        this.#graph.addNode(nodeName, fixtureAgent(nodeName))
         break
       default:
         throw new Error(`Unknown entity type: ${entity.constructor.name}`)
     }
-  }
-
-  #addLocation(agentNodeName: string, gameId: string, entity: LocationEntity) {
-    this.#graph.addNode(agentNodeName, locationAgent(gameId, entity, agentNodeName))
-  }
-
-  #addFixture(agentNodeName: string, gameId: string, entity: FixtureEntity) {
-    this.#graph.addNode(agentNodeName, fixtureAgent(gameId, entity, agentNodeName))
   }
 }

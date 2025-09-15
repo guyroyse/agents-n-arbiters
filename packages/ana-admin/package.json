@@ -7,7 +7,9 @@
     "build": "vite build"
   },
   "dependencies": {
-    "@ana/shared": "*"
+    "@alenaksu/json-viewer": "^2.1.2",
+    "@ana/shared": "*",
+    "mermaid": "^11.11.0"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.12",

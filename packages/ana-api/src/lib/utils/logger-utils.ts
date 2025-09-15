@@ -48,7 +48,6 @@ export function log(gameId: string, prefix: string, content: any): void {
 
   // Array of BaseMessage
   if (Array.isArray(content) && content.length > 0 && content[0] instanceof BaseMessage) {
-    callLoggers(gameId, LogEventType.Message, prefix, `${content.length} message(s)`)
     content.forEach((message, index) => {
       const metadata = {
         messageType: message.getType(),
@@ -129,7 +128,7 @@ async function logToStream(
       break
     case LogEventType.Message:
       let eventProperties: Record<string, string> = { gameId, contentType, prefix, content }
-      if (metadata.messageIndex) eventProperties.messageIndex = metadata.messageIndex.toString()
+      if (metadata.messageIndex !== undefined) eventProperties.messageIndex = metadata.messageIndex.toString()
       eventProperties.messageType = metadata.messageType ?? 'unknown'
       eventProperties.messageName = metadata.messageName ?? 'none'
       await client.xAdd(key, '*', eventProperties)
