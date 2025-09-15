@@ -4,6 +4,7 @@ import { fetchGames } from './games/fetch-games.js'
 import { createGame } from './games/create-game.js'
 import { fetchGame } from './games/fetch-game.js'
 import { fetchGameTurns } from './games/fetch-game-turns.js'
+import { fetchGameLogs } from './games/fetch-game-logs.js'
 import { takeGameTurn } from './games/take-game-turn.js'
 import { updateGameName } from './games/update-game-name.js'
 import { deleteGame } from './games/delete-game.js'
@@ -50,6 +51,13 @@ app.http('updateGameName', {
   authLevel: 'anonymous',
   route: 'games/{gameId}/name',
   handler: updateGameName
+})
+
+app.http('fetchGameLogs', {
+  methods: ['GET'],
+  authLevel: 'anonymous',
+  route: 'games/{gameId}/logs',
+  handler: fetchGameLogs
 })
 
 app.http('deleteGame', {

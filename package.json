@@ -14,11 +14,14 @@
     "npm-run-all": "^4.1.5"
   },
   "scripts": {
-    "dev": "npm-run-all --sequential build --parallel dev:web",
+    "dev": "npm-run-all --sequential build --parallel dev:api dev:web dev:admin",
     "dev:web": "npm run dev --workspace=@ana/web",
-    "build": "npm-run-all --sequential build:shared --parallel build:web build:api",
+    "dev:api": "npm run dev --workspace=@ana/api",
+    "dev:admin": "npm run dev --workspace=@ana/admin",
+    "build": "npm-run-all --sequential build:shared --parallel build:web build:admin build:api",
     "build:shared": "npm run build --workspace=@ana/shared",
     "build:web": "npm run build --workspace=@ana/web",
+    "build:admin": "npm run build --workspace=@ana/admin",
     "build:api": "npm run build --workspace=@ana/api"
   }
 }

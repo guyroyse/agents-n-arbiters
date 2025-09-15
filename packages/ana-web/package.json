@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "swa start dist --port 4280 --api-location ../ana-api",
+    "dev": "swa start dist --port 4280 --api-location http://localhost:7071",
     "build": "vite build",
     "check": "svelte-check --tsconfig ./tsconfig.json"
   },

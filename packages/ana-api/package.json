@@ -4,6 +4,7 @@
   "type": "module",
   "main": "dist/main.js",
   "scripts": {
+    "dev": "func start",
     "build": "tsc && tsc-alias"
   },
   "devDependencies": {

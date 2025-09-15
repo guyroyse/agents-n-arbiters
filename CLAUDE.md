@@ -64,9 +64,15 @@ Current architecture:
 - **Arbiter synthesis**: Fan-in node combining agent responses into final narrative with structured output
 - **Dynamic graph building**: Class-based MultiAgentGraph with JavaScript private fields and factory patterns
 - **Clean organization**: Domain-based folders (domain/, agent/, game/) with proper separation of concerns
+- **Comprehensive logging system**: Structured logging with Redis streams and console output for debugging multi-agent workflows
+- **GameState architecture**: Unified GameState class encapsulating gameId and entities with private constructor pattern
+- **Dual logging strategy**: Azure context.log for infrastructure events, structured log() for business logic with gameId association
+- **Rich log metadata**: TypeScript overloads supporting strings, JSON, Mermaid diagrams, and BaseMessages with metadata
+- **Performance optimized logging**: Fire-and-forget Redis streams with error handling, non-blocking application flow
 
 ### 🚧 Next Steps
 
+- **Build log viewer interface**: Create web-based log viewer for Redis streams to visualize multi-agent workflows
 - Add committer component for handling state changes from arbiter output
 - Replace stubbed domain entities with Redis integration  
 - Add NPC agent types and implementations
@@ -149,6 +155,21 @@ Both packages share aligned linting standards but different compilation targets:
 - **Agent Memory Server**: Python 3.12-based container (placeholder HTTP server on port 8000)
 - **Local development**: `docker-compose.yml` orchestrates both services with health checks
 - **Future deployment**: Azure Container Apps for AMS, Azure Managed Redis for production
+
+### Logging Architecture
+
+- **Dual logging strategy**: Infrastructure vs business logic separation
+  - `context.log()` for Azure Functions HTTP endpoint logging (Azure monitoring integration)
+  - `log(gameId, prefix, content)` for game-specific business logic (Redis streams with session association)
+- **Structured log function**: TypeScript overloads support different content types:
+  - Strings: Direct text logging
+  - JSON objects: Pretty-printed structured data
+  - BaseMessages: LangChain message objects with metadata (type, name, index)
+  - Mermaid diagrams: Workflow visualization from LangGraph
+- **Redis streams**: Game-specific logs stored in `saved:game:{gameId}:log` with rich metadata
+- **Performance**: Fire-and-forget logging with Promise-based Redis operations, non-blocking
+- **GameState integration**: All business logic logging includes gameId for session tracking
+- **Log metadata**: Structured fields include contentType, messageType, messageName, messageIndex for filtering
 
 ## Environment Configuration
 

@@ -86,7 +86,7 @@ function logToConsole(
   contentType: LogEventType,
   prefix: string,
   content: string,
-  metadata?: Record<string, any>
+  metadata: Record<string, any> = {}
 ): void {
   switch (contentType) {
     case LogEventType.String:
@@ -101,9 +101,9 @@ function logToConsole(
       console.log(content)
       break
     case LogEventType.Message:
-      const indexString = metadata?.messageIndex !== undefined ? `[${metadata.messageIndex}]` : ''
-      const typeString = `type=${metadata?.messageType || 'unknown'}`
-      const nameString = metadata?.messageName ? `name=${metadata.messageName}` : ''
+      const indexString = metadata.messageIndex !== undefined ? `[${metadata.messageIndex}]` : ''
+      const typeString = `type=${metadata.messageType || 'unknown'}`
+      const nameString = metadata.messageName ? `name=${metadata.messageName}` : ''
 
       console.log(`[${gameId}] ${prefix}`, indexString, typeString, nameString)
       console.log(content)
@@ -111,17 +111,28 @@ function logToConsole(
   }
 }
 
-function logToStream(
+async function logToStream(
   gameId: string,
   contentType: LogEventType,
   prefix: string,
   content: string,
-  metadata?: Record<string, any>
-): void {
-  fetchRedisClient().then(client => {
-    const key = `saved:game:${gameId}:log`
-    client.xAdd(key, '*', { gameId, contentType, prefix, content, ...metadata })
-  }).catch(err => {
-    console.error('Failed to log to stream:', err)
-  })
+  metadata: Record<string, any> = {}
+): Promise<void> {
+  const client = await fetchRedisClient()
+  const key = `saved:game:${gameId}:log`
+
+  switch (contentType) {
+    case LogEventType.String:
+    case LogEventType.Mermaid:
+    case LogEventType.JSON:
+      await client.xAdd(key, '*', { gameId, contentType, prefix, content })
+      break
+    case LogEventType.Message:
+      let eventProperties: Record<string, string> = { gameId, contentType, prefix, content }
+      if (metadata.messageIndex) eventProperties.messageIndex = metadata.messageIndex.toString()
+      eventProperties.messageType = metadata.messageType ?? 'unknown'
+      eventProperties.messageName = metadata.messageName ?? 'none'
+      await client.xAdd(key, '*', eventProperties)
+      break
+  }
 }
