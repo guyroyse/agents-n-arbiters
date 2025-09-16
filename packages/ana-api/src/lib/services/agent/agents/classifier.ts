@@ -64,10 +64,11 @@ function buildClassifierPrompt(gameState: GameState, userCommand: string): strin
     - Location agents: Handle general area descriptions and environmental details
     - Exit agents: Handle movement between locations (doors, passages, paths)
     - Fixture agents: Handle specific interactive objects (altars, levers, statues, etc.)
+    - Player agents: Handle player character state, abilities, inventory, and self-examination
     - NPC agents: Handle character interactions and dialogue
 
     SELECTION GUIDELINES:
-    - Location commands (look around, examine room, where am I) → select location agents
+    - Location commands (look around, examine room, where am I, describe this place) → select location agents
     - Movement commands (go north, enter door, exit south) → select relevant exit agents
     - Exit queries (what exits, where does this lead, can I go there) → select exit agents
     - Specific object commands (examine altar, touch stone, use lever) → select those fixture agents
@@ -75,8 +76,19 @@ function buildClassifierPrompt(gameState: GameState, userCommand: string): strin
     - Status queries (is it locked, what condition) → select relevant fixture/exit agents
     - General exploration (look around) → select location agents AND prominent fixture agents
     - Character interactions (talk to, ask about) → select relevant NPC agents
-    - Meta-commands (help, inventory, quit, status) → select NO agents
+    - Player identity/character (who am I, what am I wearing, describe myself) → select player agents
+    - Inventory commands (what do I have, what am I carrying, check inventory) → select player agents
+    - Player physical status (am I hurt, what's my health, how do I feel physically) → select player agents
+    - Character abilities (what are my skills, what abilities do I have) → select player agents
+    - Meta-commands (help, inventory, quit, status) → select player agents if related to character state
     - Commands about non-existent things → select NO agents
+
+    IMPORTANT DISTINCTIONS:
+    - "Where am I?" = location query → select LOCATION agents (asking about current place/environment)
+    - "Who am I?" = identity query → select PLAYER agents (asking about character identity/self)
+
+    NEVER SELECT THE PLAYER AGENT FOR COMMANDS ABOUT THE EXTERNAL WORLD, LOCATIONS, OR OBJECTS. YES,
+    THE PLAYER AGENT HAS A LOCATION ID. THAT DOES NOT MEAN IT SHOULD ANSWER QUESTIONS ABOUT THE LOCATION.
 
     OUTPUT: Return agent IDs that should respond, with brief reasoning for each selection.
     Be selective but thorough - include all agents that could provide useful context.

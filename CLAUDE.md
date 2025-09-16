@@ -83,6 +83,7 @@ Current architecture:
 - **Template management system**: Admin interface for loading world templates with Redis storage using `template:entity:*` keyspace
 - **Batch entity loading**: Optimized Redis operations using JSON.MGET for efficient fixture loading
 - **Admin dashboard**: Complete admin interface (@ana/admin) with log viewer and world template management capabilities
+- **Player agent integration**: Added PlayerEntity agent support to multi-agent workflow for handling player introspection, inventory, status, and abilities
 
 ### 🚧 Next Steps
 

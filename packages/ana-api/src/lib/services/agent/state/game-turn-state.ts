@@ -16,7 +16,9 @@ export const SelectedEntityAgentsSchema = z.object({
 
 export const EntityAgentContributionSchema = z.object({
   entityId: z.string().describe('the entity ID that this contribution is from'),
-  entityType: z.enum(['location', 'fixture', 'npc', 'exit']).describe('Type of entity providing this contribution'),
+  entityType: z
+    .enum(['player', 'location', 'fixture', 'item', 'npc', 'exit'])
+    .describe('Type of entity providing this contribution'),
   content: z.string().describe("The entity agent's contribution to the game response")
 })
 

@@ -2,9 +2,11 @@ import { StateGraph, START, END } from '@langchain/langgraph'
 import { classifier } from '@services/agent/agents/classifier.js'
 import { locationAgent } from '@services/agent/agents/location-agent.js'
 import { fixtureAgent } from '@services/agent/agents/fixture-agent.js'
+import { playerAgent } from '@services/agent/agents/player-agent.js'
 import { arbiter } from '@services/agent/agents/arbiter.js'
 import { LocationEntity } from '@domain/location-entity.js'
 import { FixtureEntity } from '@domain/fixture-entity.js'
+import { PlayerEntity } from '@domain/player-entity.js'
 import { GameState } from '@domain/game-state.js'
 import { GameTurnAnnotation } from '@services/agent/state/game-turn-state.js'
 import { log } from '@utils'
@@ -72,6 +74,9 @@ export class MultiAgentGraph {
         break
       case FixtureEntity:
         this.#graph.addNode(nodeName, fixtureAgent(nodeName))
+        break
+      case PlayerEntity:
+        this.#graph.addNode(nodeName, playerAgent(nodeName))
         break
       default:
         throw new Error(`Unknown entity type: ${entity.constructor.name}`)
