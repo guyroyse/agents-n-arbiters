@@ -4,9 +4,9 @@ import { loadTemplateHandler } from './admin/load-template.js'
 
 const { app } = azureFunctions
 
-app.http('load-template', {
+app.http('loadTemplate', {
   methods: ['POST'],
   authLevel: 'anonymous',
-  route: 'admin/load-template',
+  route: 'load-template',
   handler: loadTemplateHandler
 })

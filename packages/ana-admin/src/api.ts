@@ -15,14 +15,14 @@ export async function fetchGameLogs(gameId: string, count: number = 50): Promise
 }
 
 export async function loadTemplate(templateData: LoadTemplateRequest): Promise<LoadTemplateResponse> {
-  const response = await fetch('/api/admin/load-template', {
+  const response = await fetch('/api/load-template', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify(templateData)
   })
-  
+
   if (!response.ok) {
     const error = await response.json().catch(() => ({ error: `HTTP ${response.status}` }))
     throw new Error(error.error || `Failed to load template: ${response.status} ${response.statusText}`)
