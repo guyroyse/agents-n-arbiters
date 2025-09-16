@@ -1,4 +1,5 @@
 import dedent from 'dedent'
+
 import { fetchLLMClient } from '@clients/llm-client.js'
 import { log } from '@utils'
 import {
@@ -6,15 +7,15 @@ import {
   GameTurnAnnotation,
   type EntityAgentContribution,
   type SelectedEntityAgent
-} from './game-turn-state.js'
-import type { FixtureEntity } from '@domain/entities.js'
+} from '@services/agent/state/game-turn-state.js'
+import type { LocationEntity } from '@domain/entities.js'
 
-type FixtureAgentReturnType = Partial<typeof GameTurnAnnotation.State>
+type LocationAgentReturnType = Partial<typeof GameTurnAnnotation.State>
 
-export function fixtureAgent(nodeName: string) {
+export function locationAgent(nodeName: string) {
   const entityId = nodeName
 
-  return async function (state: typeof GameTurnAnnotation.State): Promise<FixtureAgentReturnType> {
+  return async function (state: typeof GameTurnAnnotation.State): Promise<LocationAgentReturnType> {
     const gameState = state.gameState
     const userCommand = state.userCommand
     const selections = state.selectedAgents as SelectedEntityAgent[]
@@ -27,7 +28,7 @@ export function fixtureAgent(nodeName: string) {
     const { gameId, entities } = gameState
 
     // Find my entity data
-    const entity = entities.find(entity => entity.id === entityId) as FixtureEntity
+    const entity = entities.find(entity => entity.id === entityId) as LocationEntity
     if (!entity) throw new Error(`Entity not found for node: ${nodeName}`)
 
     // Find classifier reasoning for selecting me
@@ -35,45 +36,45 @@ export function fixtureAgent(nodeName: string) {
     const reasoning = selection?.reasoning ?? 'No reasoning provided'
 
     // Log input
-    log(gameId, '🗿 FIXTURE AGENT - User command', userCommand)
-    log(gameId, '🗿 FIXTURE AGENT - Entity', entity)
-    log(gameId, '🗿 FIXTURE AGENT - Reasoning', reasoning)
+    log(gameId, '🏛️  LOCATION AGENT - User command', userCommand)
+    log(gameId, '🏛️  LOCATION AGENT - Entity', entity)
+    log(gameId, '🏛️  LOCATION AGENT - Reasoning', reasoning)
 
     // Set up LLM with prompt and structured output
     const llm = await fetchLLMClient()
     const structuredLLM = llm.withStructuredOutput(EntityAgentContributionSchema)
-    const prompt = buildFixturePrompt(entity, userCommand, reasoning)
-    log(gameId, '🗿 FIXTURE AGENT - Sending to LLM', prompt)
+    const prompt = buildLocationPrompt(entity, userCommand, reasoning)
+    log(gameId, '🏛️  LOCATION AGENT - Sending to LLM', prompt)
 
     // Invoke LLM and parse structured output
     const agentResponse = (await structuredLLM.invoke(prompt)) as EntityAgentContribution
-    log(gameId, '🗿 FIXTURE AGENT - LLM response', agentResponse)
+    log(gameId, '🏛️  LOCATION AGENT - LLM response', agentResponse)
 
     // Return the structured output directly
     return { agentContributions: agentResponse }
   }
 
-  function buildFixturePrompt(entity: FixtureEntity, userCommand: string, reasoning: string) {
+  function buildLocationPrompt(entity: LocationEntity, userCommand: string, reasoning: string) {
     return dedent`
-      You are a FIXTURE AGENT in a multi-agent text adventure game system.
-      Fixtures are immovable objects that can be interacted with but cannot be taken.
+      You are a LOCATION AGENT in a multi-agent text adventure game system.
+      Locations are places the player can be in and move between and are the backdrop for other entities.
 
-      TASK: Provide brief, fixture-specific information for the current player command.
+      TASK: Provide brief, location-specific information for the current player command.
 
       ANALYZE the command and RESPOND based on:
-      - The current fixture data provided
-      - The nature of the player's command as it relates to this specific fixture
+      - The current location data provided
+      - The nature of the player's command as it relates to the location or environmental details
       - The reasoning for why you were selected to respond
 
-      FIXTURE DATA:
+      LOCATION DATA:
       ${JSON.stringify(entity)}
 
       SELECTION REASONING:
       ${reasoning}
 
       Keep responses concise. Only provide detail when the player specifically asks for it.
-      Reference specific statuses when relevant and suggest available actions when appropriate.
-      Focus on this fixture's specific characteristics and possible interactions.
+      Include obvious status information when relevant (lighting, accessibility, atmosphere, exits).
+      Focus on environmental descriptions and general area information.
 
       PLAYER COMMAND:
       ${userCommand}

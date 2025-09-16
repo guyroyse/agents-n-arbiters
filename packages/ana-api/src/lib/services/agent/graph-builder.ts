@@ -1,10 +1,10 @@
 import { StateGraph, START, END } from '@langchain/langgraph'
-import { classifier } from './classifier.js'
-import { locationAgent } from './location-agent.js'
-import { fixtureAgent } from './fixture-agent.js'
-import { arbiter } from './arbiter.js'
+import { classifier } from '@services/agent/agents/classifier.js'
+import { locationAgent } from '@services/agent/agents/location-agent.js'
+import { fixtureAgent } from '@services/agent/agents/fixture-agent.js'
+import { arbiter } from '@services/agent/agents/arbiter.js'
 import { LocationEntity, FixtureEntity, GameState } from '@domain/entities.js'
-import { GameTurnAnnotation } from './game-turn-state.js'
+import { GameTurnAnnotation } from '@services/agent/state/game-turn-state.js'
 import { log } from '@utils'
 
 export class MultiAgentGraph {

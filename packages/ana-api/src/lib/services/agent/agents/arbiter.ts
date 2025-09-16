@@ -6,7 +6,7 @@ import {
   ArbiterResponseSchema,
   type EntityAgentContribution,
   type ArbiterResponse
-} from './game-turn-state.js'
+} from '@services/agent/state/game-turn-state.js'
 
 type ArbiterReturnType = Partial<typeof GameTurnAnnotation.State>
 

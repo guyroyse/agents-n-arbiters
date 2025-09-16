@@ -1,7 +1,7 @@
 import { MultiAgentGraph } from './graph-builder.js'
 import { fetchGameState } from '@domain/entities.js'
 import { log } from '@utils'
-import type { GameTurnAnnotation } from './game-turn-state.js'
+import type { GameTurnAnnotation } from '@services/agent/state/game-turn-state.js'
 
 export async function processCommand(gameId: string, command: string): Promise<string> {
   // Fetch the current game state

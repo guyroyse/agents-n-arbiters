@@ -1,7 +1,7 @@
 import dedent from 'dedent'
 
 import { fetchLLMClient } from '@clients/llm-client.js'
-import { GameTurnAnnotation, SelectedEntityAgentsSchema, type SelectedEntityAgents } from './game-turn-state.js'
+import { GameTurnAnnotation, SelectedEntityAgentsSchema, type SelectedEntityAgents } from '@services/agent/state/game-turn-state.js'
 import type { GameState } from '@domain/entities.js'
 import { log } from '@utils'
 
