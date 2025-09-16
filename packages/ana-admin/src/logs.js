@@ -145,6 +145,7 @@ class LogViewer {
 
     // Clear previous logs
     this.logEntriesEl.innerHTML = ''
+    this.logEntriesEl.className = 'bg-redis-midnight border border-redis-hyper/20 rounded-lg p-4'
 
     // Render each log entry
     logs.forEach((log, index) => {
@@ -159,33 +160,43 @@ class LogViewer {
 
 
   createLogElement(log, index) {
-    const container = document.createElement('div')
-    container.className = 'bg-redis-dusk border border-redis-hyper/20 rounded-lg overflow-hidden'
+    // Check if this is a simple text message that should be inline
+    const isSimpleMessage = log.contentType !== 'JSON' && log.contentType !== 'Mermaid' && 
+                           !log.content.includes('\n')
 
-    // Header with timestamp and prefix
-    const header = document.createElement('div')
-    header.className = 'bg-redis-midnight p-4 border-b border-redis-hyper/20'
+    if (isSimpleMessage) {
+      // Simple inline log entry
+      const container = document.createElement('div')
+      container.className = 'py-1 px-4 text-sm font-mono'
+      container.innerHTML = `
+        <span class="text-redis-hyper">${new Date(log.timestamp).toLocaleString()}</span>
+        ${log.prefix ? `<span class="text-redis-white ml-2">${log.prefix}</span>` : ''}
+        <span class="text-redis-white ml-2">${log.content}</span>
+      `
+      return container
+    } else {
+      // Complex log entry - return fragment with header and content as separate elements
+      const fragment = document.createDocumentFragment()
 
-    header.innerHTML = `
-      <div class="flex flex-wrap gap-2 items-center text-sm">
-        <span class="text-redis-hyper font-bold">
-          ${new Date(log.timestamp).toLocaleString()}
-        </span>
-        ${log.prefix ? `<span class="text-redis-white font-mono">${log.prefix}</span>` : ''}
-      </div>
-    `
+      // Header with timestamp and prefix
+      const header = document.createElement('div')
+      header.className = 'bg-redis-midnight py-1 px-4 text-sm font-mono'
+      header.innerHTML = `
+        <span class="text-redis-hyper">${new Date(log.timestamp).toLocaleString()}</span>
+        ${log.prefix ? `<span class="text-redis-white ml-2">${log.prefix}</span>` : ''}
+      `
 
-    // Content area
-    const content = document.createElement('div')
-    content.className = 'p-4'
+      // Content area
+      const content = document.createElement('div')
+      content.className = 'px-4 py-2 bg-redis-dusk'
 
-    // Render content based on type
-    this.renderLogContent(content, log)
+      // Render content based on type
+      this.renderLogContent(content, log)
 
-    container.appendChild(header)
-    container.appendChild(content)
-
-    return container
+      fragment.appendChild(header)
+      fragment.appendChild(content)
+      return fragment
+    }
   }
 
   renderLogContent(container, log) {
@@ -212,7 +223,7 @@ class LogViewer {
         --json-viewer-color-number: #80dbff;
         --json-viewer-color-boolean: #c795e3;
         --json-viewer-color-null: #b2b2b2;
-        --json-viewer-background: transparent;
+        --json-viewer-background: #1a1d29;
         --json-viewer-font-family: 'Space Mono', monospace;
       `
       container.appendChild(jsonViewer)

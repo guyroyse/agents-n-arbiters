@@ -10,7 +10,8 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: path.resolve(__dirname, 'index.html'),
-        logs: path.resolve(__dirname, 'logs.html')
+        logs: path.resolve(__dirname, 'logs.html'),
+        worlds: path.resolve(__dirname, 'worlds.html')
       }
     }
   }
