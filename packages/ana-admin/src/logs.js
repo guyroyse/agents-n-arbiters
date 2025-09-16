@@ -133,46 +133,6 @@ class LogViewer {
     this.statsEl.classList.add('hidden')
   }
 
-  groupRelatedMessages(logs) {
-    const groups = []
-    let currentGroup = []
-
-    for (let i = 0; i < logs.length; i++) {
-      const log = logs[i]
-
-      // Check if this log should be grouped with the current group
-      if (currentGroup.length === 0) {
-        // Start new group
-        currentGroup.push(log)
-      } else {
-        const lastLog = currentGroup[currentGroup.length - 1]
-
-        // Group if: same prefix, both are Messages, and consecutive messageIndex
-        const shouldGroup =
-          log.prefix === lastLog.prefix &&
-          log.contentType === 'Message' &&
-          lastLog.contentType === 'Message' &&
-          log.messageIndex !== undefined &&
-          lastLog.messageIndex !== undefined &&
-          log.messageIndex === lastLog.messageIndex + 1
-
-        if (shouldGroup) {
-          currentGroup.push(log)
-        } else {
-          // Finish current group and start new one
-          groups.push([...currentGroup])
-          currentGroup = [log]
-        }
-      }
-    }
-
-    // Add the last group
-    if (currentGroup.length > 0) {
-      groups.push(currentGroup)
-    }
-
-    return groups
-  }
 
   renderLogs(logs) {
     this.hideAllStates()
@@ -186,20 +146,10 @@ class LogViewer {
     // Clear previous logs
     this.logEntriesEl.innerHTML = ''
 
-    // Group messages with the same prefix and consecutive messageIndex
-    const groups = this.groupRelatedMessages(logs)
-
-    // Render each group
-    groups.forEach((group, groupIndex) => {
-      if (group.length === 1) {
-        // Single log entry
-        const logElement = this.createLogElement(group[0], groupIndex)
-        this.logEntriesEl.appendChild(logElement)
-      } else {
-        // Group of related messages
-        const groupElement = this.createMessageGroup(group, groupIndex)
-        this.logEntriesEl.appendChild(groupElement)
-      }
+    // Render each log entry
+    logs.forEach((log, index) => {
+      const logElement = this.createLogElement(log, index)
+      this.logEntriesEl.appendChild(logElement)
     })
 
     // Show stats
@@ -207,90 +157,14 @@ class LogViewer {
     this.statsEl.classList.remove('hidden')
   }
 
-  createMessageGroup(logs, groupIndex) {
-    const container = document.createElement('div')
-    container.className = 'bg-redis-dusk border border-redis-hyper/20 rounded-lg overflow-hidden'
-
-    // Group header with timestamp and metadata from first message
-    const firstLog = logs[0]
-    const lastLog = logs[logs.length - 1]
-
-    const header = document.createElement('div')
-    header.className = 'bg-redis-midnight p-4 border-b border-redis-hyper/20'
-
-    // Build content type badge for the group
-    const messageTypeMap = {
-      'system': 'SystemMessage',
-      'ai': 'AIMessage',
-      'human': 'HumanMessage',
-      'assistant': 'AIMessage'
-    }
-    const displayType = messageTypeMap[firstLog.messageType?.toLowerCase()] || `${firstLog.messageType}Message`
-
-    header.innerHTML = `
-      <div class="flex flex-wrap gap-2 items-center text-sm">
-        <span class="text-redis-hyper font-bold">
-          ${new Date(firstLog.timestamp).toLocaleString()}
-        </span>
-        ${firstLog.prefix ? `<span class="text-redis-white font-mono">${firstLog.prefix}</span>` : ''}
-        <span class="bg-redis-violet/20 text-redis-violet px-2 py-1 rounded text-xs font-mono">${displayType}</span>
-        ${firstLog.messageName ? `<span class="bg-redis-sky-blue/20 text-redis-sky-blue px-2 py-1 rounded text-xs">${firstLog.messageName}</span>` : ''}
-        <span class="bg-redis-yellow/20 text-redis-black px-2 py-1 rounded text-xs">${logs.length} messages (#${firstLog.messageIndex}-${lastLog.messageIndex})</span>
-      </div>
-    `
-
-    // Content area with all messages
-    const content = document.createElement('div')
-    content.className = 'p-4 space-y-3'
-
-    logs.forEach((log, index) => {
-      const messageDiv = document.createElement('div')
-      messageDiv.className = 'bg-redis-midnight p-3 rounded border-l-4 border-redis-violet'
-
-      // Message header
-      const messageHeader = document.createElement('div')
-      messageHeader.className = 'text-xs text-redis-dusk-30 mb-2'
-      messageHeader.textContent = `Message #${log.messageIndex}`
-
-      // Message content
-      const messageContent = document.createElement('pre')
-      messageContent.className = 'text-redis-white whitespace-pre-wrap font-mono text-sm'
-      messageContent.textContent = log.content
-
-      messageDiv.appendChild(messageHeader)
-      messageDiv.appendChild(messageContent)
-      content.appendChild(messageDiv)
-    })
-
-    container.appendChild(header)
-    container.appendChild(content)
-
-    return container
-  }
 
   createLogElement(log, index) {
     const container = document.createElement('div')
     container.className = 'bg-redis-dusk border border-redis-hyper/20 rounded-lg overflow-hidden'
 
-    // Header with timestamp and metadata
+    // Header with timestamp and prefix
     const header = document.createElement('div')
     header.className = 'bg-redis-midnight p-4 border-b border-redis-hyper/20'
-
-    // Build content type badge
-    let contentTypeBadge = ''
-    if (log.contentType === 'Message' && log.messageType) {
-      // Combine Message type with messageType for clearer context
-      const messageTypeMap = {
-        system: 'SystemMessage',
-        ai: 'AIMessage',
-        human: 'HumanMessage',
-        assistant: 'AIMessage'
-      }
-      const displayType = messageTypeMap[log.messageType.toLowerCase()] || `${log.messageType}Message`
-      contentTypeBadge = `<span class="bg-redis-violet/20 text-redis-violet px-2 py-1 rounded text-xs font-mono">${displayType}</span>`
-    } else {
-      contentTypeBadge = `<span class="bg-redis-hyper/20 text-redis-hyper px-2 py-1 rounded text-xs font-mono">${log.contentType}</span>`
-    }
 
     header.innerHTML = `
       <div class="flex flex-wrap gap-2 items-center text-sm">
@@ -298,9 +172,6 @@ class LogViewer {
           ${new Date(log.timestamp).toLocaleString()}
         </span>
         ${log.prefix ? `<span class="text-redis-white font-mono">${log.prefix}</span>` : ''}
-        ${contentTypeBadge}
-        ${log.messageName ? `<span class="bg-redis-sky-blue/20 text-redis-sky-blue px-2 py-1 rounded text-xs">${log.messageName}</span>` : ''}
-        ${log.messageIndex !== undefined ? `<span class="bg-redis-yellow/20 text-redis-black px-2 py-1 rounded text-xs">#${log.messageIndex}</span>` : ''}
       </div>
     `
 
@@ -324,9 +195,6 @@ class LogViewer {
         break
       case 'Mermaid':
         this.renderMermaidContent(container, log.content)
-        break
-      case 'Message':
-        this.renderMessageContent(container, log.content)
         break
       default:
         this.renderStringContent(container, log.content)
@@ -387,18 +255,21 @@ class LogViewer {
     container.appendChild(mermaidContainer)
   }
 
-  renderMessageContent(container, content) {
-    const messageContainer = document.createElement('div')
-    messageContainer.className = 'bg-redis-midnight p-4 rounded border-l-4 border-redis-violet'
-    messageContainer.innerHTML = `<pre class="text-redis-white whitespace-pre-wrap font-mono text-sm">${content}</pre>`
-    container.appendChild(messageContainer)
-  }
-
   renderStringContent(container, content) {
-    const stringContainer = document.createElement('div')
-    stringContainer.className = 'bg-redis-midnight p-4 rounded'
-    stringContainer.innerHTML = `<pre class="text-redis-white whitespace-pre-wrap font-mono text-sm">${content}</pre>`
-    container.appendChild(stringContainer)
+    // For single-line strings, use compact display
+    const isMultiline = content.includes('\n')
+    
+    if (isMultiline) {
+      const stringContainer = document.createElement('div')
+      stringContainer.className = 'bg-redis-midnight p-4 rounded'
+      stringContainer.innerHTML = `<pre class="text-redis-white whitespace-pre-wrap font-mono text-sm">${content}</pre>`
+      container.appendChild(stringContainer)
+    } else {
+      const singleLineContainer = document.createElement('div')
+      singleLineContainer.className = 'bg-redis-midnight px-4 py-2 rounded'
+      singleLineContainer.innerHTML = `<span class="text-redis-white font-mono text-sm">${content}</span>`
+      container.appendChild(singleLineContainer)
+    }
   }
 }
 

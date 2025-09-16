@@ -13,6 +13,15 @@ export type TakeGameTurnResponse = GameTurn
 
 export type FetchVersionResponse = VersionInfo
 
+export type LoadTemplateResponse = {
+  message: string
+  timestamp: string
+  entitiesLoaded: {
+    player: number
+    entities: number
+  }
+}
+
 // Union types for API responses (success | error)
 export type FetchVersionApiResponse = FetchVersionResponse | ApiError
 export type TakeGameTurnApiResponse = TakeGameTurnResponse | ApiError
@@ -24,3 +33,5 @@ export type FetchGameTurnsApiResponse = FetchGameTurnsResponse | ApiError
 export type FetchGameLogsApiResponse = FetchGameLogsResponse | ApiError
 export type UpdateGameNameApiResponse = UpdateGameNameResponse | ApiError
 export type DeleteGameApiResponse = DeleteGameResponse | ApiError
+
+export type LoadTemplateApiResponse = LoadTemplateResponse | ApiError

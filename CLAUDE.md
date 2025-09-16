@@ -10,6 +10,7 @@ Current architecture:
 
 - **`packages/ana-web/`** (@ana/web) - Svelte 5 frontend with terminal-style game interface
 - **`packages/ana-api/`** (@ana/api) - Azure Functions v4 API with game loop endpoints
+- **`packages/ana-admin/`** (@ana/admin) - Static admin interface for log viewing and template management
 - **`packages/shared/`** - Shared TypeScript types and interfaces
 - **`packages/agent-memory-server/`** - Containerized Agent Memory Server (Python-based placeholder)
 - **`data/redis/`** - Persistent Redis data storage for local development
@@ -77,13 +78,16 @@ Current architecture:
 - **Entity type awareness**: JSON serialization includes entity types for improved classifier decision-making
 - **Enhanced logging**: Improved logger handles arrays, objects with toJSON(), and null/undefined values safely
 - **Structured agent contributions**: Agents provide structured output prepared for future state change capabilities
+- **Redis-based domain entities**: Complete refactoring of domain objects to load from Redis with game-specific and template fallback patterns
+- **Entity hierarchy**: Separated GameEntity, PlayerEntity, LocationEntity, FixtureEntity into individual files with proper inheritance
+- **Template management system**: Admin interface for loading world templates with Redis storage using `template:entity:*` keyspace
+- **Batch entity loading**: Optimized Redis operations using JSON.MGET for efficient fixture loading
+- **Admin dashboard**: Complete admin interface (@ana/admin) with log viewer and world template management capabilities
 
 ### 🚧 Next Steps
 
 - **Add state change capabilities**: Extend agent schemas to include state modifications (statusesAdded, statusesRemoved, etc.)
 - **Build committer component**: Handle state changes from arbiter output and update game entities
-- **Build log viewer interface**: Create web-based log viewer for Redis streams to visualize multi-agent workflows
-- Replace stubbed domain entities with Redis integration
 - Add NPC agent types and implementations
 - Deploy to Azure with AMR and Azure Container Apps
 

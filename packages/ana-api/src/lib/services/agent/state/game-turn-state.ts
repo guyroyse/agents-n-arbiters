@@ -1,7 +1,7 @@
 import { Annotation } from '@langchain/langgraph'
 import { z } from 'zod'
 import type { BaseMessage } from '@langchain/core/messages'
-import type { GameState } from '@domain/entities.js'
+import type { GameState } from '@domain/game-state.js'
 
 export const SelectedEntityAgentsSchema = z.object({
   selectedAgents: z

@@ -8,7 +8,7 @@ import {
   type EntityAgentContribution,
   type SelectedEntityAgent
 } from '@services/agent/state/game-turn-state.js'
-import type { LocationEntity } from '@domain/entities.js'
+import type { LocationEntity } from '@domain/location-entity.js'
 
 type LocationAgentReturnType = Partial<typeof GameTurnAnnotation.State>
 

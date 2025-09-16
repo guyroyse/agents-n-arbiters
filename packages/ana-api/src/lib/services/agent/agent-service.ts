@@ -1,12 +1,11 @@
 import { MultiAgentGraph } from './graph-builder.js'
-import { fetchGameState } from '@domain/entities.js'
+import { GameState } from '@domain/game-state.js'
 import { log } from '@utils'
 import type { GameTurnAnnotation } from '@services/agent/state/game-turn-state.js'
 
 export async function processCommand(gameId: string, command: string): Promise<string> {
   // Fetch the current game state
-  const gameState = await fetchGameState(gameId)
-  if (!gameState) throw new Error('Failed to fetch game state')
+  const gameState = await GameState.fetch(gameId)
   log(gameId, '🔄 CURRENT GAME STATE:', gameState)
 
   // Build the multi-agent workflow graph

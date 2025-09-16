@@ -18,6 +18,39 @@ export type VersionInfo = {
   environment: string
 }
 
+// Template entity types
+export type PlayerTemplate = {
+  entityId: string
+  entityType: 'player'
+  name: string
+  description: string
+  locationId: string
+}
+
+export type LocationTemplate = {
+  entityId: string
+  entityType: 'location'
+  name: string
+  description: string
+  fixtureIds: string[]
+}
+
+export type FixtureTemplate = {
+  entityId: string
+  entityType: 'fixture'
+  name: string
+  description: string
+  statuses: string[]
+  actions: string[]
+}
+
+export type EntityTemplate = LocationTemplate | FixtureTemplate
+
+export type TemplateData = {
+  player: PlayerTemplate
+  entities: EntityTemplate[]
+}
+
 // Game log entry type
 export type GameLogEntry = {
   id: string

@@ -7,7 +7,7 @@ import {
   type EntityAgentContribution,
   type SelectedEntityAgent
 } from '@services/agent/state/game-turn-state.js'
-import type { FixtureEntity } from '@domain/entities.js'
+import type { FixtureEntity } from '@domain/fixture-entity.js'
 
 type FixtureAgentReturnType = Partial<typeof GameTurnAnnotation.State>
 

@@ -30,11 +30,13 @@
 
     /* Path mapping */
     "paths": {
-      "@clients/*": ["./src/lib/clients/*"],
-      "@services/*": ["./src/lib/services/*"],
-      "@utils": ["./src/lib/utils/index.js"],
       "@functions/*": ["./src/functions/*"],
-      "@domain/*": ["./src/lib/domain/*"]
+      "@lib/*": ["./src/lib/*"],
+      "@admin/*": ["./src/lib/admin/*"],
+      "@clients/*": ["./src/lib/clients/*"],
+      "@domain/*": ["./src/lib/domain/*"],
+      "@services/*": ["./src/lib/services/*"],
+      "@utils": ["./src/lib/utils/index.js"]
     }
   },
   "include": ["src"],
