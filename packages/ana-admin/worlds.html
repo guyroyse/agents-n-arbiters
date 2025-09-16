@@ -15,6 +15,22 @@
     </header>
 
     <main>
+      <!-- Warning Section -->
+      <div class="bg-red-900/30 border border-red-500 p-6 rounded-lg mb-6">
+        <h2 class="text-xl font-bold text-red-400 mb-3">⚠️ DANGER ZONE ⚠️</h2>
+        <div class="text-red-300 space-y-2">
+          <p class="font-bold">Loading a template will PERMANENTLY DELETE ALL DATA in Redis!</p>
+          <p>This includes:</p>
+          <ul class="list-disc list-inside ml-4 space-y-1">
+            <li>All saved games</li>
+            <li>All game history and logs</li>
+            <li>All existing templates</li>
+            <li>Any other Redis data</li>
+          </ul>
+          <p class="font-bold text-red-200">This action cannot be undone. Use only in development environments.</p>
+        </div>
+      </div>
+
       <!-- Template Upload Section -->
       <div class="bg-redis-dusk p-6 rounded-lg border border-redis-hyper/20 mb-6">
         <h2 class="text-xl font-bold text-redis-hyper mb-4">Upload World Template</h2>

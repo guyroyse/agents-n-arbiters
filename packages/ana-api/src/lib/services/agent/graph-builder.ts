@@ -3,7 +3,9 @@ import { classifier } from '@services/agent/agents/classifier.js'
 import { locationAgent } from '@services/agent/agents/location-agent.js'
 import { fixtureAgent } from '@services/agent/agents/fixture-agent.js'
 import { arbiter } from '@services/agent/agents/arbiter.js'
-import { LocationEntity, FixtureEntity, GameState } from '@domain/entities.js'
+import { LocationEntity } from '@domain/location-entity.js'
+import { FixtureEntity } from '@domain/fixture-entity.js'
+import { GameState } from '@domain/game-state.js'
 import { GameTurnAnnotation } from '@services/agent/state/game-turn-state.js'
 import { log } from '@utils'
 
@@ -37,8 +39,8 @@ export class MultiAgentGraph {
   #addAgents() {
     const routingDestinations: Record<string, any> = {}
 
-    for (const entity of this.#gameState.entities) {
-      const nodeName = entity.id
+    for (const entity of this.#gameState.nearbyEntities) {
+      const nodeName = entity.entityId
       this.#addAgent(nodeName)
       this.#graph.addEdge(nodeName, 'arbiter')
       routingDestinations[nodeName] = nodeName
@@ -61,7 +63,7 @@ export class MultiAgentGraph {
   }
 
   #addAgent(nodeName: string) {
-    const entity = this.#gameState.entities.find(entity => entity.id === nodeName)
+    const entity = this.#gameState.nearbyEntities.find(entity => entity.entityId === nodeName)
     if (!entity) throw new Error(`Entity not found for node: ${nodeName}`)
 
     switch (entity.constructor) {

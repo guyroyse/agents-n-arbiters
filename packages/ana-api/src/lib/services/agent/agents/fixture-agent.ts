@@ -24,10 +24,10 @@ export function fixtureAgent(nodeName: string) {
     if (!userCommand) throw new Error('Missing user command')
 
     // Extract useful data
-    const { gameId, entities } = gameState
+    const { gameId, nearbyEntities } = gameState
 
     // Find my entity data
-    const entity = entities.find(entity => entity.id === entityId) as FixtureEntity
+    const entity = nearbyEntities.find(entity => entity.entityId === entityId) as FixtureEntity
     if (!entity) throw new Error(`Entity not found for node: ${nodeName}`)
 
     // Find classifier reasoning for selecting me

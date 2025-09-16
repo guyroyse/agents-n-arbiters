@@ -41,7 +41,7 @@ export async function classifier(state: typeof GameTurnAnnotation.State): Promis
 }
 
 function buildClassifierPrompt(gameState: GameState, userCommand: string): string {
-  const entitiesContext = JSON.stringify(gameState.entities)
+  const entitiesContext = JSON.stringify(gameState.nearbyEntities)
 
   return dedent`
     You are a CLASSIFIER in a multi-agent text adventure game system.
