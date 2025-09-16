@@ -1,104 +1,82 @@
-import { BaseMessage, SystemMessage } from '@langchain/core/messages'
-import { MessagesAnnotation } from '@langchain/langgraph'
-import { z } from 'zod'
 import dedent from 'dedent'
 import { fetchLLMClient } from '@clients/llm-client.js'
+import { log } from '@utils'
+import {
+  EntityAgentContributionSchema,
+  GameTurnAnnotation,
+  type EntityAgentContribution,
+  type SelectedEntityAgent
+} from './game-turn-state.js'
 import type { FixtureEntity } from '@domain/entities.js'
-import { log, toPrettyJsonString } from '@utils'
 
-const FixtureAgentOutputSchema = z.object({
-  entity_id: z.string().describe('ID of the fixture entity this response is from'),
-  statuses: z
-    .array(z.string())
-    .describe('Complete updated statuses array for the fixture (include all statuses - both changed and unchanged)'),
-  message: z.string().describe('Message from the fixture agent to the arbiter about the current command')
-})
+type FixtureAgentReturnType = Partial<typeof GameTurnAnnotation.State>
 
-export type FixtureAgentOutput = z.infer<typeof FixtureAgentOutputSchema>
+export function fixtureAgent(nodeName: string) {
+  const entityId = nodeName
 
-const FIXTURE_AGENT_PROMPT = dedent`
-  You are a FIXTURE AGENT in a multi-agent text adventure game system.
-  Fixtures are immovable objects that can be interacted with but cannot be taken.
+  return async function (state: typeof GameTurnAnnotation.State): Promise<FixtureAgentReturnType> {
+    const gameState = state.gameState
+    const userCommand = state.userCommand
+    const selections = state.selectedAgents as SelectedEntityAgent[]
 
-  TASK: Provide brief, fixture-specific information based on the current player command.
+    // Basic validation
+    if (!gameState) throw new Error('Missing game state')
+    if (!userCommand) throw new Error('Missing user command')
 
-  ANALYZE the command and RESPOND based on:
-  - The current fixture data in the JSON provided (id, name, description, location, statuses, actions)
-  - Whether the player's command matches any available actions or relates to current statuses
+    // Extract useful data
+    const { gameId, entities } = gameState
 
-  JSON INPUT:
-  - Contains the current fixture data
-  - Fixtures have an id, name, and description
-  - Fixtures have statuses describing the current conditions of that fixture like "covered in vines", "intact", "locked"
-  - Fixtures have actions describing possible interactions with that fixture like "examine closely", "remove vines (if present)"
+    // Find my entity data
+    const entity = entities.find(entity => entity.id === entityId) as FixtureEntity
+    if (!entity) throw new Error(`Entity not found for node: ${nodeName}`)
 
-  GUIDELINES:
-  - Reference specific statuses when relevant and suggest available actions when appropriate.
-  - If the player attempts an action not in the actions array, explain why it's not possible.
-  - Always return the complete statuses array - include unchanged statuses plus any additions/removals from the player's action.
-  - If the player's action changes statuses (e.g., "remove vines" removes "covered in vines"), return the updated complete array.
-  - If no status changes occur, return the original statuses array unchanged.
+    // Find classifier reasoning for selecting me
+    const selection = selections.find((selection: SelectedEntityAgent) => selection.entityId === entityId)
+    const reasoning = selection?.reasoning ?? 'No reasoning provided'
 
-  Keep responses concise. Only provide detail when the player specifically asks for it.
-`
+    // Log input
+    log(gameId, '🗿 FIXTURE AGENT - User command', userCommand)
+    log(gameId, '🗿 FIXTURE AGENT - Entity', entity)
+    log(gameId, '🗿 FIXTURE AGENT - Reasoning', reasoning)
 
-export function fixtureAgent(gameId: string, entity: FixtureEntity, nodeName: string) {
-  return async function (state: typeof MessagesAnnotation.State) {
-    log(gameId, '🗿 FIXTURE AGENT: Input state', state.messages)
-
-    const llm = await fetchLLM()
-    const inputMessages = buildInputMessages(state, entity)
-    log(gameId, '🗿 FIXTURE AGENT: Sending to LLM', inputMessages)
-
-    const output = (await llm.invoke(inputMessages)) as FixtureAgentOutput
-    log(gameId, '🗿 FIXTURE AGENT: LLM output', output)
-
-    const outputMessages = buildOutputMessages(state, output, nodeName)
-    log(gameId, '🗿 FIXTURE AGENT: Output state', outputMessages)
-    return outputMessages
-  }
-
-  async function fetchLLM() {
+    // Set up LLM with prompt and structured output
     const llm = await fetchLLMClient()
-    return llm.withStructuredOutput(FixtureAgentOutputSchema)
+    const structuredLLM = llm.withStructuredOutput(EntityAgentContributionSchema)
+    const prompt = buildFixturePrompt(entity, userCommand, reasoning)
+    log(gameId, '🗿 FIXTURE AGENT - Sending to LLM', prompt)
+
+    // Invoke LLM and parse structured output
+    const agentResponse = (await structuredLLM.invoke(prompt)) as EntityAgentContribution
+    log(gameId, '🗿 FIXTURE AGENT - LLM response', agentResponse)
+
+    // Return the structured output directly
+    return { agentContributions: agentResponse }
   }
 
-  function buildInputMessages(state: typeof MessagesAnnotation.State, entity: FixtureEntity) {
-    const entityDataMessage = buildEntityDataMessage(entity)
-    const systemPromptMessage = buildSystemPromptMessage()
-    return [entityDataMessage, systemPromptMessage, ...state.messages]
-  }
+  function buildFixturePrompt(entity: FixtureEntity, userCommand: string, reasoning: string) {
+    return dedent`
+      You are a FIXTURE AGENT in a multi-agent text adventure game system.
+      Fixtures are immovable objects that can be interacted with but cannot be taken.
 
-  function buildOutputMessages(
-    state: typeof MessagesAnnotation.State,
-    output: FixtureAgentOutput,
-    nodeName: string
-  ): BaseMessage[] {
-    const outputMessage = buildOutputMessage(output, nodeName)
-    return [...state.messages, outputMessage]
-  }
+      TASK: Provide brief, fixture-specific information for the current player command.
 
-  function buildEntityDataMessage(entity: FixtureEntity) {
-    const entityDataText = toPrettyJsonString({
-      id: entity.id,
-      name: entity.name,
-      description: entity.description,
-      location: entity.location,
-      statuses: entity.statuses,
-      actions: entity.actions
-    })
-    return new SystemMessage({ content: entityDataText })
-  }
+      ANALYZE the command and RESPOND based on:
+      - The current fixture data provided
+      - The nature of the player's command as it relates to this specific fixture
+      - The reasoning for why you were selected to respond
 
-  function buildSystemPromptMessage() {
-    return new SystemMessage({ content: FIXTURE_AGENT_PROMPT })
-  }
+      FIXTURE DATA:
+      ${JSON.stringify(entity)}
 
-  function buildOutputMessage(output: FixtureAgentOutput, nodeName: string) {
-    const response = new SystemMessage({
-      content: toPrettyJsonString(output),
-      name: nodeName
-    })
-    return response
+      SELECTION REASONING:
+      ${reasoning}
+
+      Keep responses concise. Only provide detail when the player specifically asks for it.
+      Reference specific statuses when relevant and suggest available actions when appropriate.
+      Focus on this fixture's specific characteristics and possible interactions.
+
+      PLAYER COMMAND:
+      ${userCommand}
+    `
   }
 }

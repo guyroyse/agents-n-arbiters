@@ -19,11 +19,22 @@ export abstract class GameEntity {
     this.description = description
     return this
   }
+
+  toJSON() {
+    return { id: this.id, name: this.name, description: this.description }
+  }
 }
 
 export class LocationEntity extends GameEntity {
   static create() {
     return new LocationEntity()
+  }
+
+  toJSON() {
+    return {
+      ...super.toJSON(),
+      type: 'location'
+    }
   }
 }
 
@@ -50,6 +61,16 @@ export class FixtureEntity extends GameEntity {
     this.actions.push(action)
     return this
   }
+
+  toJSON() {
+    return { 
+      ...super.toJSON(), 
+      type: 'fixture',
+      location: this.location, 
+      statuses: this.statuses, 
+      actions: this.actions 
+    }
+  }
 }
 
 export type GameEntities = GameEntity[]
@@ -65,6 +86,10 @@ export class GameState {
 
   static create(gameId: string, entities: GameEntities) {
     return new GameState(gameId, entities)
+  }
+
+  toJSON() {
+    return { gameId: this.gameId, entities: this.entities }
   }
 }
 

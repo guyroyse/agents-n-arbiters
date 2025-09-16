@@ -1,100 +1,77 @@
-import { MessagesAnnotation } from '@langchain/langgraph'
-import { BaseMessage, SystemMessage } from '@langchain/core/messages'
-import { z } from 'zod'
 import dedent from 'dedent'
 import { fetchLLMClient } from '@clients/llm-client.js'
-import { log, toPrettyJsonString } from '@utils'
+import { log } from '@utils'
+import {
+  GameTurnAnnotation,
+  ArbiterResponseSchema,
+  type EntityAgentContribution,
+  type ArbiterResponse
+} from './game-turn-state.js'
 
-const ArbiterOutputSchema = z.object({
-  response: z.string().describe('The final game narrative response to show the player')
-})
+type ArbiterReturnType = Partial<typeof GameTurnAnnotation.State>
 
-export type ArbiterOutput = z.infer<typeof ArbiterOutputSchema>
+export async function arbiter(state: typeof GameTurnAnnotation.State): Promise<ArbiterReturnType> {
+  const gameState = state.gameState
+  const userCommand = state.userCommand
+  const agentContributions = state.agentContributions as EntityAgentContribution[]
 
-const ARBITER_PROMPT = dedent`
-  You are the ARBITER in a multi-agent text adventure game system.
-  
-  TASK: Synthesize agent responses into a concise, engaging game narrative.
-  
-  Your role as Arbiter:
-  - Combine insights from multiple agents into one cohesive response
-  - Create the final response that the player will see
-  - Maintain text adventure game tone and immersive storytelling
-  - Weave agent inputs together naturally without revealing the multi-agent structure
-  
-  Guidelines:
-  - Keep responses brief and focused
-  - If only one agent responded, enhance and polish their response concisely
-  - If multiple agents responded, synthesize them into a unified, terse narrative
-  - If no agents responded (empty agent responses), the command was about things NOT in the scene:
-    * For help requests: Provide brief gameplay instructions (examine, look, go, take, etc.)
-    * For actions on non-existent items (take sword, examine book, etc.): "You don't see that here."
-    * For movement to non-existent exits (go north, enter cave, etc.): "You can't go that way."
-    * For invalid game commands: "That isn't a valid action."
-    * For abstract questions: "You can't do that right now."
-    * IMPORTANT: Never allow actions on items/locations that agents didn't mention
-    * Keep these responses very brief and direct
-  - Always respond as the omniscient game narrator
-  - Only provide detailed descriptions when the player specifically asks for them
-  - Focus on immediate, actionable information over atmospheric flourishes
-`
+  // Basic validation
+  if (!gameState) throw new Error('Missing game state')
+  if (!userCommand) throw new Error('Missing user command')
 
-export function arbiter(gameId: string, nodeName: string) {
-  return async function (state: typeof MessagesAnnotation.State) {
-    log(gameId, '⚖️  ARBITER: Input state', state.messages)
+  // Extract useful data
+  const { gameId } = gameState
 
-    const llm = await fetchLLM()
-    const inputMessages = buildInputMessages(state)
-    log(gameId, '⚖️  ARBITER: Sending to LLM', inputMessages)
+  // Log input
+  log(gameId, '⚖️  ARBITER - User command', userCommand)
+  log(gameId, '⚖️  ARBITER - Agent contributions', agentContributions)
 
-    const output = (await llm.invoke(inputMessages)) as ArbiterOutput
-    log(gameId, '⚖️  ARBITER: LLM output', output)
+  // Set up LLM with prompt and structured output
+  const llm = await fetchLLMClient()
+  const structuredLLM = llm.withStructuredOutput(ArbiterResponseSchema)
+  const prompt = buildArbiterPrompt(userCommand, agentContributions)
+  log(gameId, '⚖️  ARBITER - Sending to LLM', prompt)
 
-    const outputMessages = buildOutputMessages(state, output, nodeName)
-    log(gameId, '⚖️  ARBITER: Output state', outputMessages)
-    return { messages: outputMessages }
-  }
+  // Invoke LLM and parse structured output
+  const arbiterResponse = (await structuredLLM.invoke(prompt)) as ArbiterResponse
+  log(gameId, '⚖️  ARBITER - LLM response', arbiterResponse)
 
-  async function fetchLLM() {
-    const llm = await fetchLLMClient()
-    return llm.withStructuredOutput(ArbiterOutputSchema)
-  }
+  // Return the structured output directly
+  return { arbiterResponse }
+}
 
-  function buildInputMessages(state: typeof MessagesAnnotation.State) {
-    const humanMessages = getHumanMessages(state)
-    const agentResponses = getAgentResponses(state)
-    const systemPromptMessage = buildSystemPromptMessage()
-    return [systemPromptMessage, ...humanMessages, ...agentResponses]
-  }
+function buildArbiterPrompt(userCommand: string, agentContributions: EntityAgentContribution[]) {
+  return dedent`
+    You are the ARBITER in a multi-agent text adventure game system.
+    
+    TASK: Synthesize agent responses into a concise, engaging game narrative.
+    
+    Your role as Arbiter:
+    - Combine insights from multiple agents into one cohesive response
+    - Create the final response that the player will see
+    - Maintain text adventure game tone and immersive storytelling
+    - Weave agent inputs together naturally without revealing the multi-agent structure
+    
+    Guidelines:
+    - Keep responses brief and focused
+    - If only one agent responded, enhance and polish their response concisely
+    - If multiple agents responded, synthesize them into a unified, terse narrative
+    - If no agents responded (empty agent contributions), the command was about things NOT in the scene:
+      * For help requests: Provide brief gameplay instructions (examine, look, go, take, etc.)
+      * For actions on non-existent items (take sword, examine book, etc.): "You don't see that here."
+      * For movement to non-existent exits (go north, enter cave, etc.): "You can't go that way."
+      * For invalid game commands: "That isn't a valid action."
+      * For abstract questions: "You can't do that right now."
+      * IMPORTANT: Never allow actions on items/locations that agents didn't mention
+      * Keep these responses very brief and direct
+    - Always respond as the omniscient game narrator
+    - Only provide detailed descriptions when the player specifically asks for them
+    - Focus on immediate, actionable information over atmospheric flourishes
 
-  function buildOutputMessages(
-    state: typeof MessagesAnnotation.State,
-    output: ArbiterOutput,
-    nodeName: string
-  ): BaseMessage[] {
-    const outputMessage = buildOutputMessage(output, nodeName)
-    return [...state.messages, outputMessage]
-  }
+    PLAYER COMMAND:
+    ${userCommand}
 
-  function getHumanMessages(state: typeof MessagesAnnotation.State) {
-    return state.messages.filter(msg => msg.getType() === 'human')
-  }
-
-  function getAgentResponses(state: typeof MessagesAnnotation.State) {
-    return state.messages.filter(
-      msg => msg.getType() === 'system' && msg.name && msg.name !== 'classifier' && !msg.name.endsWith('_filter')
-    )
-  }
-
-  function buildSystemPromptMessage() {
-    return new SystemMessage({ content: ARBITER_PROMPT })
-  }
-
-  function buildOutputMessage(output: ArbiterOutput, nodeName: string) {
-    const response = new SystemMessage({
-      content: toPrettyJsonString(output),
-      name: nodeName
-    })
-    return response
-  }
+    AGENT CONTRIBUTIONS:
+    ${JSON.stringify(agentContributions)}
+  `
 }

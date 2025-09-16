@@ -30,7 +30,7 @@ export class MultiAgentGraph {
   }
 
   #addArbiter() {
-    this.#graph.addNode('arbiter', arbiter(this.#gameState.gameId))
+    this.#graph.addNode('arbiter', arbiter)
     this.#graph.addEdge('arbiter', END)
   }
 
@@ -48,16 +48,13 @@ export class MultiAgentGraph {
 
     this.#graph.addConditionalEdges(
       'classifier',
-      (state: typeof GameTurnAnnotation.State) => this.#routeToAgents(state),
+      (state: typeof GameTurnAnnotation.State) => this.#routeToEntityAgents(state),
       routingDestinations
     )
   }
 
-  #routeToAgents(state: typeof GameTurnAnnotation.State): string[] {
-    const selection = state.agent_selection
-    if (!selection) return ['default']
-
-    const selectedAgents = selection.selected_agents.map(agent => agent.agent_id)
+  #routeToEntityAgents(state: typeof GameTurnAnnotation.State): string[] {
+    const selectedAgents = state.selectedAgents.map(agent => agent.entityId)
     log(this.#gameState.gameId, '🤖 CLASSIFIER selected agents:', selectedAgents)
 
     return selectedAgents.length > 0 ? selectedAgents : ['default']

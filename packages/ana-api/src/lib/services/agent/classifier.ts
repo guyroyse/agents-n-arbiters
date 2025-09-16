@@ -1,43 +1,54 @@
 import dedent from 'dedent'
 
 import { fetchLLMClient } from '@clients/llm-client.js'
-import { GameTurnAnnotation, ClassifierSelectionSchema, type ClassifierSelection } from './game-turn-state.js'
+import { GameTurnAnnotation, SelectedEntityAgentsSchema, type SelectedEntityAgents } from './game-turn-state.js'
 import type { GameState } from '@domain/entities.js'
-import { log, toPrettyJsonString } from '@utils'
+import { log } from '@utils'
 
-export async function classifier(state: typeof GameTurnAnnotation.State) {
-  const gameState = state.game_state
-  const userCommand = state.user_command
+type ClassifierReturnType = Partial<typeof GameTurnAnnotation.State>
+
+export async function classifier(state: typeof GameTurnAnnotation.State): Promise<ClassifierReturnType> {
+  const gameState = state.gameState
+  const userCommand = state.userCommand
 
   // Basic validation
   if (!userCommand) throw new Error('Missing user command')
   if (!gameState) throw new Error('Missing game state')
 
+  // Extract useful data
+  const { gameId } = gameState
+
   // Log input
-  log(gameState.gameId, '🤖 CLASSIFIER', `Processing command: ${userCommand}`)
-  log(gameState.gameId, '🤖 CLASSIFIER', `Available entities: ${gameState.entities.map(e => e.id).join(', ')}`)
+  log(gameId, '🤖 CLASSIFIER - User command', userCommand)
+  log(gameId, '🤖 CLASSIFIER - Game state', gameState)
 
   // Set up LLM with prompt and structured output
   const llm = await fetchLLMClient()
-  const structuredLLM = llm.withStructuredOutput(ClassifierSelectionSchema)
+  const structuredLLM = llm.withStructuredOutput(SelectedEntityAgentsSchema)
   const prompt = buildClassifierPrompt(gameState, userCommand)
-  log(gameState.gameId, '🤖 CLASSIFIER', 'Sending to LLM')
+  log(gameId, '🤖 CLASSIFIER - Sending to LLM', prompt)
 
   // Invoke LLM and parse structured output
-  const selection = (await structuredLLM.invoke(prompt)) as ClassifierSelection
-  log(gameState.gameId, '🤖 CLASSIFIER', selection)
+  const selection = (await structuredLLM.invoke(prompt)) as SelectedEntityAgents
+  log(gameId, '🤖 CLASSIFIER - LLM response', selection)
 
   // Return the structured output directly
-  return { agent_selection: selection }
+  return { selectedAgents: selection.selectedAgents }
 }
 
-function buildClassifierPrompt(gameState: GameState, userCommand: string) {
-  const entitiesContext = toPrettyJsonString(gameState.entities)
+function buildClassifierPrompt(gameState: GameState, userCommand: string): string {
+  const entitiesContext = JSON.stringify(gameState.entities)
 
   return dedent`
     You are a CLASSIFIER in a multi-agent text adventure game system.
 
     TASK: Analyze the player command and select which game agents should respond.
+    - Each game agent represents a specific entity in the game world (like locations, exits, fixtures, NPCs).
+    - Each agent can provide unique, relevant information based on their entity's data.
+    - The word agent and entity are used interchangeably here.
+
+    Your goal is to SELECT the most relevant agents to handle the player's command,
+    providing brief REASONING for why each agent was selected.
 
     ANALYZE the player command and SELECT appropriate agents based on:
     - The available game entities (locations, exits, fixtures, NPCs)

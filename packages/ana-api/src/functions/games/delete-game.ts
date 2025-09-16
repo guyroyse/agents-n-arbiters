@@ -2,7 +2,6 @@ import type { HttpRequest, HttpResponseInit, InvocationContext } from '@azure/fu
 
 import responses from '@functions/http-responses.js'
 import gameService from '@services/game/game-service.js'
-import { log } from '@utils'
 
 export async function deleteGame(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
   context.log('HTTP trigger function processed a delete game request.')
@@ -15,7 +14,6 @@ export async function deleteGame(request: HttpRequest, context: InvocationContex
     await gameService.removeGame(gameId)
 
     context.log(`Deleted game with ID: ${gameId}`)
-    log(gameId, 'delete-game', 'Game deleted')
 
     return responses.noContent()
   } catch (error) {

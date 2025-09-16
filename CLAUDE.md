@@ -73,12 +73,16 @@ Current architecture:
 - **Simplified agent patterns**: Direct function agents reading from dedicated state channels, eliminating message filtering complexity
 - **Unified type system**: Centralized Zod schemas and TypeScript types in game-turn-state.ts for consistency across all agents
 - **Structured agent reasoning**: Individual per-agent reasoning from classifier, enabling precise context extraction
+- **Complete GameTurnAnnotation migration**: All agents (classifier, location, fixture, arbiter) updated to use multi-channel state pattern
+- **Entity type awareness**: JSON serialization includes entity types for improved classifier decision-making
+- **Enhanced logging**: Improved logger handles arrays, objects with toJSON(), and null/undefined values safely
+- **Structured agent contributions**: Agents provide structured output prepared for future state change capabilities
 
 ### 🚧 Next Steps
 
-- **Complete agent refactoring**: Finish updating fixture and arbiter agents to use GameTurnAnnotation
+- **Add state change capabilities**: Extend agent schemas to include state modifications (statusesAdded, statusesRemoved, etc.)
+- **Build committer component**: Handle state changes from arbiter output and update game entities
 - **Build log viewer interface**: Create web-based log viewer for Redis streams to visualize multi-agent workflows
-- Add committer component for handling state changes from arbiter output
 - Replace stubbed domain entities with Redis integration
 - Add NPC agent types and implementations
 - Deploy to Azure with AMR and Azure Container Apps
