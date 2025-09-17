@@ -7,6 +7,7 @@ const redisClient = await fetchRedisClient()
 type PlayerData = {
   name?: string
   description?: string
+  entityPrompt?: string
   locationId: string
 }
 
@@ -31,6 +32,7 @@ export class PlayerEntity extends GameEntity {
     player.name = data.name ?? 'Player'
     player.description = data.description ?? ''
     player.locationId = data.locationId
+    player.entityPrompt = data.entityPrompt
 
     // return the player entity
     return player

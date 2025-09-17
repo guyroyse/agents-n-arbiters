@@ -38,6 +38,7 @@ export function playerAgent(nodeName: string) {
     // Log input
     log(gameId, '🧑 PLAYER AGENT - User command', userCommand)
     log(gameId, '🧑 PLAYER AGENT - Entity', entity)
+    log(gameId, '🧑 PLAYER AGENT - Entity prompt', entity.entityPrompt ?? 'None')
     log(gameId, '🧑 PLAYER AGENT - Reasoning', reasoning)
 
     // Set up LLM with prompt and structured output
@@ -66,12 +67,6 @@ export function playerAgent(nodeName: string) {
       - The nature of the player's command as it relates to personal state, inventory, abilities, or self-examination
       - The reasoning for why you were selected to respond
 
-      PLAYER DATA:
-      ${JSON.stringify(entity)}
-
-      SELECTION REASONING:
-      ${reasoning}
-
       PLAYER AGENT RESPONSIBILITIES:
       - Handle personal introspection commands (who am I, what am I wearing, how do I feel)
       - Manage inventory-related queries (what do I have, what am I carrying)
@@ -80,6 +75,16 @@ export function playerAgent(nodeName: string) {
       - Provide self-description and character background information
       - Handle meta-character commands that relate to the player's internal state
 
+      PLAYER DATA:
+      ${JSON.stringify(entity)}
+
+      SELECTION REASONING:
+      ${reasoning}
+
+      ${entity.entityPrompt ? 'PLAYER-SPECIFIC INSTRUCTIONS:' : ''}
+      ${entity.entityPrompt ?? ''}
+
+      GENERAL GUIDELINES:
       Keep responses personal and from the character's perspective.
       Focus on the player's internal state, capabilities, and personal inventory.
       Only respond to commands that specifically relate to the player character.

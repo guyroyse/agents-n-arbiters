@@ -37,6 +37,7 @@ export function fixtureAgent(nodeName: string) {
     // Log input
     log(gameId, '🗿 FIXTURE AGENT - User command', userCommand)
     log(gameId, '🗿 FIXTURE AGENT - Entity', entity)
+    log(gameId, '🗿 FIXTURE AGENT - Entity prompt', entity.entityPrompt ?? 'None')
     log(gameId, '🗿 FIXTURE AGENT - Reasoning', reasoning)
 
     // Set up LLM with prompt and structured output
@@ -71,6 +72,10 @@ export function fixtureAgent(nodeName: string) {
       SELECTION REASONING:
       ${reasoning}
 
+      ${entity.entityPrompt ? 'FIXTURE-SPECIFIC INSTRUCTIONS:' : ''}
+      ${entity.entityPrompt ?? ''}
+
+      GENERAL GUIDELINES:
       Keep responses concise. Only provide detail when the player specifically asks for it.
       Reference specific statuses when relevant and suggest available actions when appropriate.
       Focus on this fixture's specific characteristics and possible interactions.

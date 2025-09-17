@@ -3,6 +3,7 @@ export abstract class GameEntity {
   readonly entityType: string
   name = ''
   description = ''
+  entityPrompt?: string
 
   protected readonly gameId: string
 

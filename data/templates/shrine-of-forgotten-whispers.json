@@ -4,7 +4,8 @@
     "entityType": "player",
     "name": "Adventurer",
     "description": "A brave soul seeking adventure",
-    "locationId": "ruined_shrine"
+    "locationId": "ruined_shrine",
+    "entityPrompt": "You are an experienced adventurer with a keen eye for ancient mysteries and hidden secrets. You approach situations with both caution and curiosity, drawing on your knowledge of dungeons, magic, and forgotten lore."
   },
   "entities": [
     {
@@ -12,7 +13,8 @@
       "entityType": "location",
       "name": "The Shrine of Forgotten Whispers",
       "description": "Ancient moss-covered stones form a crumbling circular shrine in the heart of a sun-dappled forest glade.\nWildflowers push through cracks in the weathered flagstones, while shafts of golden light pierce the\nemerald canopy above. The air hums with an otherworldly tranquility, as if time itself moves slower in\nthis sacred space. Carved symbols, worn smooth by centuries of wind and rain, hint at rituals long\nabandoned to memory.",
-      "fixtureIds": ["ancient_statue", "crumbling_altar"]
+      "fixtureIds": ["ancient_statue", "crumbling_altar"],
+      "entityPrompt": "You are an ancient sacred grove that has witnessed countless ages pass. You provide atmospheric descriptions reflecting the wisdom of centuries, observing the cycles of nature and the rare visitors who find your way to this hidden sanctuary. Your descriptions should evoke the sense of forgotten prayers and old magic that permeates this space."
     },
     {
       "entityId": "ancient_statue",
@@ -20,7 +22,8 @@
       "name": "The Weeping Guardian",
       "description": "A towering figure carved from midnight-black stone stands sentinel at the shrine's center. Once-proud\nfeatures have been softened by ages of weathering, giving the mysterious deity an expression of eternal\nsorrow. Intricate robes flow down the statue's form like frozen waterfalls, their folds deep enough to\nhide secrets. Strange runes spiral around the base, pulsing faintly with an inner light when shadows\nfall just right.",
       "statuses": ["covered in vines", "intact"],
-      "actions": ["knock over", "remove vines (if present)", "climb (if vines removed)"]
+      "actions": ["knock over", "remove vines (if present)", "climb (if vines removed)"],
+      "entityPrompt": "You are an ancient guardian statue imbued with protective magic. You have stood watch over this sacred shrine for millennia, weathered but stalwart. Though covered in vines, you remain alert to threats and respectful visitors. You communicate through subtle signs - shifting shadows, temperature changes, and the glow of your runes. You are proud but melancholy, having seen the decline of the faith you once protected."
     },
     {
       "entityId": "crumbling_altar",
@@ -28,7 +31,8 @@
       "name": "The Altar of Echoes",
       "description": "A weathered stone altar sits before the guardian statue, its surface carved with intricate spirals and\ncelestial patterns. The top is stained dark with age, and shallow channels carved into the stone suggest\nit once held offerings of some kind. Crystal formations have grown from cracks in the base, catching and\nreflecting the filtered sunlight in prismatic rainbows. When the wind blows just right, the altar seems\nto emit a low, haunting hum.",
       "statuses": [],
-      "actions": []
+      "actions": [],
+      "entityPrompt": "You are a mystical altar that once received sacred offerings and prayers. Though crumbling, you still retain echoes of ancient rituals and divine power. You resonate with spiritual energy and respond to genuine reverence. Your crystal formations hum with residual magic, and you remember the warmth of countless prayers spoken over your surface. You are receptive to offerings and can sense the spiritual intent of those who approach."
     }
   ]
 }

@@ -7,11 +7,13 @@ const redisClient = await fetchRedisClient()
 type LocationData = {
   name?: string
   description?: string
+  entityPrompt?: string
   fixtureIds?: string[]
 }
 
 export class LocationEntity extends GameEntity {
   fixtureIds: string[] = []
+
   private constructor(gameId: string, entityId: string) {
     super(gameId, entityId, 'location')
   }
@@ -27,6 +29,7 @@ export class LocationEntity extends GameEntity {
     location.name = data.name ?? ''
     location.description = data.description ?? ''
     location.fixtureIds = data.fixtureIds ?? []
+    location.entityPrompt = data.entityPrompt
 
     return location
   }

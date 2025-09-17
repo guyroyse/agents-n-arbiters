@@ -38,6 +38,7 @@ export function locationAgent(nodeName: string) {
     // Log input
     log(gameId, '🏛️  LOCATION AGENT - User command', userCommand)
     log(gameId, '🏛️  LOCATION AGENT - Entity', entity)
+    log(gameId, '🏛️  LOCATION AGENT - Entity prompt', entity.entityPrompt ?? 'None')
     log(gameId, '🏛️  LOCATION AGENT - Reasoning', reasoning)
 
     // Set up LLM with prompt and structured output
@@ -72,6 +73,10 @@ export function locationAgent(nodeName: string) {
       SELECTION REASONING:
       ${reasoning}
 
+      ${entity.entityPrompt ? 'LOCATION-SPECIFIC INSTRUCTIONS:' : ''}
+      ${entity.entityPrompt ?? ''}
+
+      GENERAL GUIDELINES:
       Keep responses concise. Only provide detail when the player specifically asks for it.
       Include obvious status information when relevant (lighting, accessibility, atmosphere, exits).
       Focus on environmental descriptions and general area information.

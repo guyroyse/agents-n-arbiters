@@ -82,7 +82,7 @@ class WorldsView {
         name: 'Adventurer',
         description: 'A brave soul seeking ancient secrets',
         locationId: 'shrine-entrance',
-        inventory: []
+        entityPrompt: 'You are a curious adventurer with experience in exploring ancient ruins and deciphering mysteries. You approach challenges with determination and a healthy respect for the unknown.'
       },
       entities: [
         {
@@ -90,7 +90,8 @@ class WorldsView {
           entityType: 'location',
           name: 'Shrine Entrance',
           description: 'You stand before an ancient stone shrine, its weathered surface covered in mysterious runes that seem to shimmer in the dim light.',
-          fixtureIds: ['stone-altar', 'runic-pillars']
+          fixtureIds: ['stone-altar', 'runic-pillars'],
+          entityPrompt: 'You are the entrance to an ancient shrine, a threshold between the mundane world and sacred mysteries. You provide atmospheric descriptions that reflect having witnessed countless pilgrims and adventurers over the ages. Your descriptions should convey the sense of being evaluated for intentions and worthiness as visitors approach this sacred space.'
         },
         {
           entityId: 'stone-altar',
@@ -98,7 +99,8 @@ class WorldsView {
           name: 'Stone Altar',
           description: 'An ancient altar carved from dark stone, its surface worn smooth by countless years. Strange symbols are etched around its edges.',
           statuses: ['ancient', 'mysterious'],
-          actions: ['examine', 'touch', 'activate']
+          actions: ['examine', 'touch', 'activate'],
+          entityPrompt: 'You are an ancient stone altar that has received countless offerings and prayers throughout the ages. You can sense spiritual energy and respond to those who approach with reverence. Your carved symbols hold power that may activate under the right conditions.'
         },
         {
           entityId: 'runic-pillars',
@@ -106,7 +108,8 @@ class WorldsView {
           name: 'Runic Pillars',
           description: 'Tall stone pillars flanking the shrine entrance, covered in glowing runes that pulse with an otherworldly energy.',
           statuses: ['glowing', 'mystical'],
-          actions: ['examine', 'read', 'touch']
+          actions: ['examine', 'read', 'touch'],
+          entityPrompt: 'You are mystical runic pillars that serve as guardians and chroniclers of ancient knowledge. Your glowing runes contain fragments of forgotten wisdom and magic. You can reveal secrets to those who show proper respect and understanding, but you also ward against those with ill intent.'
         }
       ]
     }

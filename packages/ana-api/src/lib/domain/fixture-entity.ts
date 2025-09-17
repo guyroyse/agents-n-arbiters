@@ -6,6 +6,7 @@ const redisClient = await fetchRedisClient()
 type FixtureData = {
   name?: string
   description?: string
+  entityPrompt?: string
   statuses?: string[]
   actions?: string[]
 }
@@ -37,8 +38,14 @@ export class FixtureEntity extends GameEntity {
     const templateKeys = entityIds.map(id => `template:entity:${id}`)
 
     // Fetch game-specific data first, then templates for any missing ones
-    const gameData = (await redisClient.json.mGet(gameKeys, '$')) as (FixtureData | null)[]
-    const templateData = (await redisClient.json.mGet(templateKeys, '$')) as (FixtureData | null)[]
+    //
+    // NOTE: mGet returns arrays of matches to the pattern or null if the pattern is not found
+    // So we get back an array of arrays or an array of nulls resulting in this janky type
+    const rawGameData = (await redisClient.json.mGet(gameKeys, '$')) as (FixtureData[] | null)[]
+    const gameData = rawGameData.map(data => (data ? data[0] : null)) as (FixtureData | null)[]
+
+    const rawTemplateData = (await redisClient.json.mGet(templateKeys, '$')) as (FixtureData[] | null)[]
+    const templateData = rawTemplateData.map(data => (data ? data[0] : null)) as (FixtureData | null)[]
 
     // Combine results, preferring game-specific data
     const fixtures: FixtureEntity[] = []
@@ -60,6 +67,8 @@ export class FixtureEntity extends GameEntity {
     fixture.description = data.description ?? ''
     fixture.statuses = data.statuses ?? []
     fixture.actions = data.actions ?? []
+    fixture.entityPrompt = data.entityPrompt
+
     return fixture
   }
 

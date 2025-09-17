@@ -84,6 +84,9 @@ Current architecture:
 - **Batch entity loading**: Optimized Redis operations using JSON.MGET for efficient fixture loading
 - **Admin dashboard**: Complete admin interface (@ana/admin) with log viewer and world template management capabilities
 - **Player agent integration**: Added PlayerEntity agent support to multi-agent workflow for handling player introspection, inventory, status, and abilities
+- **Entity-specific prompts**: Complete entityPrompt system allowing each entity to have custom LLM personality and behavior instructions
+- **Redis mGet optimization**: Fixed data unwrapping issue in FixtureEntity.fetchMany for proper batch loading of entity prompts
+- **Structured agent prompts**: Clear separation between entity-specific instructions and general guidelines in all agent types
 
 ### 🚧 Next Steps
 
