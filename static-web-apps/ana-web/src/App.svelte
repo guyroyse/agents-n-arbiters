@@ -14,7 +14,7 @@
 
 <Header />
 
-<main class="space-y-6">
+<main class="flex-1 flex flex-col space-y-6">
   {#if appRouter.currentRoute === Route.Welcome}
     <Welcome />
   {:else if appRouter.currentRoute === Route.NewGame}

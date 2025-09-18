@@ -27,7 +27,7 @@
   }
 </script>
 
-<section class="h-96 flex flex-col space-y-6">
+<section class="flex-1 w-full max-w-6xl mx-auto flex flex-col space-y-6">
   <header class="flex items-center justify-between">
     <h2 class="text-2xl font-bold text-redis-white">Load Saved Game</h2>
     <button onclick={handleBack} class="text-redis-dusk-30 hover:text-redis-white transition-colors"> ← Back </button>
