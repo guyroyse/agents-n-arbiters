@@ -8,10 +8,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Current architecture:
 
+- **`packages/ana-types/`** (@ana/types) - Pure TypeScript types and Zod schemas
+- **`packages/ana-common/`** (@ana/common) - Shared utilities, Redis/LLM clients, admin functions
+- **`packages/ana-domain/`** (@ana/domain) - Entity classes and game state management
+- **`packages/ana-agents/`** (@ana/agents) - Complete multi-agent LangGraph system
 - **`packages/ana-web/`** (@ana/web) - Svelte 5 frontend with terminal-style game interface
-- **`packages/ana-api/`** (@ana/api) - Azure Functions v4 API with game loop endpoints
+- **`packages/ana-api/`** (@ana/api) - Azure Functions v4 API endpoints (depends on all packages)
 - **`packages/ana-admin/`** (@ana/admin) - Static admin interface for log viewing and template management
-- **`packages/shared/`** - Shared TypeScript types and interfaces
 - **`packages/agent-memory-server/`** - Containerized Agent Memory Server (Python-based placeholder)
 - **`data/redis/`** - Persistent Redis data storage for local development
 - **`infrastructure/`** - Infrastructure as Code (Bicep templates for Azure deployment)
@@ -59,8 +62,11 @@ npm run dev --workspace=@ana/api      # Azure Functions Core Tools (port 7071)
 ### Build Commands
 
 ```bash
-npm run build                         # Build all packages in dependency order (shared first, then others in parallel)
-npm run build --workspace=@ana/shared # TypeScript compilation for shared types
+npm run build                         # Build all packages in dependency order (types → common → domain → agents, then web/admin/api in parallel)
+npm run build --workspace=@ana/types  # TypeScript compilation for shared types
+npm run build --workspace=@ana/common # TypeScript compilation for shared utilities and clients
+npm run build --workspace=@ana/domain # TypeScript compilation for entity classes
+npm run build --workspace=@ana/agents # TypeScript compilation for multi-agent system
 npm run build --workspace=@ana/web    # Vite production build
 npm run build --workspace=@ana/admin  # Vite production build for admin interface
 npm run build --workspace=@ana/api    # TypeScript compilation to dist/ with tsc-alias
@@ -89,6 +95,40 @@ docker compose down                   # Stop and remove containers
 - **Root level tooling**: Azure SWA CLI, Azure Functions Core Tools, npm-run-all orchestration
 - **Package isolation**: Each package has independent dependencies and build processes
 - **Workspace scripts**: Root orchestrates via `npm-run-all --parallel/--sequential`
+
+### Layered Package Architecture
+
+The monorepo follows a clean layered architecture with explicit dependency flow:
+
+```
+@ana/types (no dependencies)
+    ↓
+@ana/common (depends on: types)
+    ↓
+@ana/domain (depends on: types, common)
+    ↓
+@ana/agents (depends on: types, common, domain)
+    ↓
+@ana/api (depends on: all packages)
+
+@ana/web (depends on: types only)
+@ana/admin (depends on: types only)
+```
+
+**Benefits of this architecture:**
+- **No circular dependencies**: Clear unidirectional dependency flow
+- **Reusability**: Each layer can be consumed independently by other services
+- **Testability**: Lower layers can be tested in isolation
+- **Azure compatibility**: All dependencies bundle correctly during deployment
+- **Modularity**: Clean separation of concerns across the system
+
+**Package responsibilities:**
+- **@ana/types**: Pure type definitions and Zod schemas (no runtime dependencies)
+- **@ana/common**: Infrastructure services (Redis, LLM clients, utilities, admin functions)
+- **@ana/domain**: Business logic (entities, game state, domain rules)
+- **@ana/agents**: AI workflow orchestration (LangGraph multi-agent system)
+- **@ana/api**: API endpoints (Azure Functions consuming all business packages)
+- **@ana/web/@ana/admin**: Frontend applications (consume types only, communicate via API)
 
 ### Frontend Architecture (@ana/web)
 
@@ -123,12 +163,12 @@ Both packages share aligned linting standards but different compilation targets:
 - **Custom fonts**: Space Grotesk (sans) and Space Mono (mono) via Google Fonts
 - **CSS variables**: Extensive Redis brand colors (redis-midnight, redis-hyper, etc.)
 
-### Multi-Agent System Architecture (@ana/api)
+### Multi-Agent System Architecture (@ana/agents)
 
-The core innovation is the multi-agent collaboration system built with LangGraph.js:
+The core innovation is the multi-agent collaboration system built with LangGraph.js and now extracted to its own package:
 
 - **Game Turn Flow**: `/api/take-turn` endpoint orchestrates the complete multi-agent workflow
-- **LangGraph Implementation**: `MultiAgentGraph` class in `services/agent/graph-builder.ts` constructs dynamic execution graphs
+- **LangGraph Implementation**: `MultiAgentGraph` class in `@ana/agents` constructs dynamic execution graphs
 - **Agent Types**:
   - `classifier` - LLM-powered routing to determine which agents should respond
   - `location-agent` - Provides environmental context and atmosphere
@@ -193,11 +233,27 @@ The core innovation is the multi-agent collaboration system built with LangGraph
 
 ## Key File Locations
 
+### Package Structure
+- **`packages/ana-types/src/`** - All TypeScript types and Zod schemas shared across packages
+- **`packages/ana-common/src/`** - Shared utilities, Redis/LLM clients, admin functions
+- **`packages/ana-domain/src/`** - Entity classes and game state management
+- **`packages/ana-agents/src/`** - Complete multi-agent LangGraph system
+- **`packages/ana-api/src/functions/`** - Azure Functions endpoints that consume all packages
+
 ### Multi-Agent System Core
-- `packages/ana-api/src/lib/services/agent/graph-builder.ts` - Main LangGraph orchestration
-- `packages/ana-api/src/lib/services/agent/agents/` - All individual agent implementations
-- `packages/ana-api/src/lib/domain/` - Entity classes and game state management
-- `packages/ana-api/src/functions/take-turn.ts` - Main game turn API endpoint
+- `packages/ana-agents/src/agent/graph-builder.ts` - Main LangGraph orchestration
+- `packages/ana-agents/src/agent/agents/` - All individual agent implementations
+- `packages/ana-agents/src/agent/state/` - GameTurnAnnotation and state management
+- `packages/ana-api/src/functions/games/take-game-turn.ts` - Main game turn API endpoint
+
+### Domain Layer
+- `packages/ana-domain/src/domain/` - GameEntity, LocationEntity, PlayerEntity, FixtureEntity classes
+- `packages/ana-domain/src/domain/game-state.ts` - Central game state management
+
+### Common Utilities
+- `packages/ana-common/src/clients/` - Redis and LLM client configurations
+- `packages/ana-common/src/utils/` - Logging, JSON utilities, date helpers
+- `packages/ana-common/src/admin/` - Template loading functionality
 
 ### Frontend Architecture
 - `packages/ana-web/src/views/` - Feature-based view organization (game/, load-game/, etc.)
@@ -206,10 +262,6 @@ The core innovation is the multi-agent collaboration system built with LangGraph
 
 ### Admin Interface
 - `packages/ana-admin/` - Complete admin dashboard for log viewing and template management
-- Template loading functionality for world initialization
-
-### Shared Types
-- `packages/shared/src/` - All TypeScript types and Zod schemas shared across packages
 
 ## Key Development Patterns
 
@@ -238,3 +290,27 @@ The core innovation is the multi-agent collaboration system built with LangGraph
 - **Svelte 5**: No SvelteKit - plain Svelte with Vite bundler
 - **No global installations**: All tooling installed locally via npm workspaces
 - **Node.js v20.x**: Required for Azure Functions v4 compatibility (use `nvm use`)
+
+## Coding Standards
+
+### File Formatting
+- **Always end files with a newline**: All source files must end with a newline character
+- Consistent with Unix conventions and prevents git diff issues
+
+### JavaScript/TypeScript Style
+- **Favor one-line if statements**: When an if statement body is simple, prefer single-line format
+  ```typescript
+  // Preferred
+  if (condition) return value
+  if (!isValid) throw new Error('Invalid input')
+
+  // Avoid when simple
+  if (condition) {
+    return value
+  }
+  ```
+
+### Dependency Management
+- **Always use npm install**: Install packages using `npm install <package>` or `npm install <package> --workspace=<name>`
+- **Never edit package.json directly**: Let npm manage the package.json and package-lock.json files
+- **Use workspace flag for package-specific dependencies**: `npm install redis --workspace=@ana/common`

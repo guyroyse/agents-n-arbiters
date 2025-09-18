@@ -10,7 +10,7 @@ import type {
   FetchGameTurnsResponse,
   CreateGameResponse,
   FetchGamesResponse
-} from '@ana/shared'
+} from '@ana/types'
 
 export async function fetchVersionInfo(): Promise<VersionInfo> {
   const response: FetchVersionResponse = await apiCall('/api/version')

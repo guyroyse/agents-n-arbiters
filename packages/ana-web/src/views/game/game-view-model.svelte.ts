@@ -1,4 +1,4 @@
-import type { GameTurn } from '@ana/shared'
+import type { GameTurn } from '@ana/types'
 import { takeTurn, fetchGameTurns } from '@services/api'
 
 export default class GameViewModel {

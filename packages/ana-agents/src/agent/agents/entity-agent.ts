@@ -1,12 +1,12 @@
-import { fetchLLMClient } from '@clients/llm-client.js'
-import { log } from '@utils'
+import { fetchLLMClient } from '@ana/common'
+import { log } from '@ana/common'
 import {
   GameTurnAnnotation,
   EntityAgentResponseSchema,
   type EntityAgentResponse,
   type SelectedEntity
-} from '@services/agent/state/game-turn-state.js'
-import type { GameEntity } from '@domain/game-entity.js'
+} from '../state/game-turn-state.js'
+import type { GameEntity } from '@ana/domain'
 
 const agentLabels: Record<string, string> = {
   player: '🧑 PLAYER AGENT',

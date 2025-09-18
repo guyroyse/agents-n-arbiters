@@ -13,7 +13,10 @@
     "typescript": "^5.9.2"
   },
   "dependencies": {
-    "@ana/shared": "*",
+    "@ana/types": "*",
+    "@ana/common": "*",
+    "@ana/domain": "*",
+    "@ana/agents": "*",
     "@azure/functions": "^4.7.2-preview",
     "@azure/identity": "^4.11.1",
     "@langchain/core": "^0.3.75",

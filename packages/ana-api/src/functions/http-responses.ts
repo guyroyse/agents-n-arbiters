@@ -1,5 +1,5 @@
 import type { HttpResponseInit } from '@azure/functions'
-import type { ApiError } from '@ana/shared'
+import type { ApiError } from '@ana/types'
 
 const responses = {
   ok: <T>(data: T): HttpResponseInit => ({

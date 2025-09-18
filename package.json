@@ -18,8 +18,11 @@
     "dev:web": "npm run dev --workspace=@ana/web",
     "dev:api": "npm run dev --workspace=@ana/api",
     "dev:admin": "npm run dev --workspace=@ana/admin",
-    "build": "npm-run-all --sequential build:shared --parallel build:web build:admin build:api",
-    "build:shared": "npm run build --workspace=@ana/shared",
+    "build": "npm-run-all --sequential build:types build:common build:domain build:agents --parallel build:web build:admin build:api",
+    "build:types": "npm run build --workspace=@ana/types",
+    "build:common": "npm run build --workspace=@ana/common",
+    "build:domain": "npm run build --workspace=@ana/domain",
+    "build:agents": "npm run build --workspace=@ana/agents",
     "build:web": "npm run build --workspace=@ana/web",
     "build:admin": "npm run build --workspace=@ana/admin",
     "build:api": "npm run build --workspace=@ana/api"

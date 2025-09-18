@@ -1,13 +1,13 @@
 import dedent from 'dedent'
 
-import { fetchLLMClient } from '@clients/llm-client.js'
+import { fetchLLMClient } from '@ana/common'
 import {
   GameTurnAnnotation,
   SelectedEntitiesSchema,
   type SelectedEntities
-} from '@services/agent/state/game-turn-state.js'
-import type { GameState } from '@domain/game-state.js'
-import { log } from '@utils'
+} from '../state/game-turn-state.js'
+import type { GameState } from '@ana/domain'
+import { log } from '@ana/common'
 
 type ClassifierReturnType = Partial<typeof GameTurnAnnotation.State>
 

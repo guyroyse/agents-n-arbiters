@@ -1,7 +1,7 @@
 import type { HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions'
-import type { LoadTemplateRequest, LoadTemplateResponse } from '@ana/shared'
+import type { LoadTemplateRequest, LoadTemplateResponse } from '@ana/types'
 import responses from '@functions/http-responses.js'
-import { loadTemplate } from '@admin/template-loader.js'
+import { loadTemplate } from '@ana/common'
 
 export async function loadTemplateHandler(
   request: HttpRequest,

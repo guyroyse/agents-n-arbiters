@@ -1,7 +1,7 @@
 import { Annotation } from '@langchain/langgraph'
 import { z } from 'zod'
 
-import type { GameState } from '@domain/game-state.js'
+import type { GameState } from '@ana/domain'
 
 /* 🤖 Classifier outputs */
 export const SelectedEntitiesSchema = z.object({

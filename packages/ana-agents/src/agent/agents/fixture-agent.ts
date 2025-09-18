@@ -1,6 +1,6 @@
 import dedent from 'dedent'
 import { createAgent } from './entity-agent.js'
-import type { GameEntity } from '@domain/game-entity.js'
+import type { GameEntity } from '@ana/domain'
 
 export function fixtureAgent(nodeName: string) {
   return createAgent(nodeName, buildFixturePrompt)

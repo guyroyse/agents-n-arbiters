@@ -1,5 +1,5 @@
 import { fetchRedisClient } from '@clients/redis-client.js'
-import type { TemplateData } from '@ana/shared'
+import type { TemplateData } from '@ana/types'
 
 export async function loadTemplate(template: TemplateData): Promise<void> {
   const redisClient = await fetchRedisClient()

@@ -1,4 +1,4 @@
-import type { SavedGame } from '@ana/shared'
+import type { SavedGame } from '@ana/types'
 import { fetchSavedGames, deleteGame } from '@services/api'
 
 export default class LoadGameViewModel {

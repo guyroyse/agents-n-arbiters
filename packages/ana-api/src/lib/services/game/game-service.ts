@@ -1,9 +1,9 @@
 import type { RediSearchSchema } from 'redis'
 
-import type { SavedGame, GameTurn, GameLogEntry } from '@ana/shared'
+import type { SavedGame, GameTurn, GameLogEntry } from '@ana/types'
 
-import { fetchRedisClient, type RedisClient } from '@clients/redis-client.js'
-import { dateToTimestamp, timestampToDate } from '@utils'
+import { fetchRedisClient, type RedisClient } from '@ana/common'
+import { dateToTimestamp, timestampToDate } from '@ana/common'
 
 type GameIndexOptions = {
   ON: 'JSON' | 'HASH' | undefined

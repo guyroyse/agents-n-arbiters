@@ -1,4 +1,4 @@
-import type { VersionInfo } from '@ana/shared'
+import type { VersionInfo } from '@ana/types'
 import { fetchVersionInfo } from '@services/api'
 
 export default class FooterViewModel {

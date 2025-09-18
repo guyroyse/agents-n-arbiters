@@ -8,7 +8,7 @@
     "check": "svelte-check --tsconfig ./tsconfig.json"
   },
   "dependencies": {
-    "@ana/shared": "*",
+    "@ana/types": "*",
     "ulid": "^3.0.1"
   },
   "devDependencies": {

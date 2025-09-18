@@ -1,13 +1,13 @@
 import dedent from 'dedent'
-import { fetchLLMClient } from '@clients/llm-client.js'
-import { log } from '@utils'
+import { fetchLLMClient } from '@ana/common'
+import { log } from '@ana/common'
 import {
   GameTurnAnnotation,
   ArbiterResponseSchema,
   type EntityRecommendation,
   type ArbiterResponse
-} from '@services/agent/state/game-turn-state.js'
-import type { GameEntity } from '@lib/domain/game-entity'
+} from '../state/game-turn-state.js'
+import type { GameEntity } from '@ana/domain'
 
 type ArbiterReturnType = Partial<typeof GameTurnAnnotation.State>
 

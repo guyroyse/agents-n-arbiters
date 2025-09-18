@@ -1,4 +1,4 @@
-import { fetchRedisClient } from '@clients/redis-client.js'
+import { fetchRedisClient } from '@ana/common'
 
 const redisClient = await fetchRedisClient()
 

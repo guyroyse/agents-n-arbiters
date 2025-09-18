@@ -1,0 +1,29 @@
+{
+  "name": "@ana/agents",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc && tsc-alias"
+  },
+  "devDependencies": {
+    "tsc-alias": "^1.8.16",
+    "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "@ana/common": "*",
+    "@ana/domain": "*",
+    "@ana/types": "*",
+    "@langchain/core": "^0.3.77",
+    "@langchain/langgraph": "^0.4.9",
+    "dedent": "^1.7.0",
+    "zod": "^3.25.76"
+  }
+}

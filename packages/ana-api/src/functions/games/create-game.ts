@@ -1,11 +1,11 @@
 import type { HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions'
 import { ulid } from 'ulid'
 
-import type { SavedGame, CreateGameRequest } from '@ana/shared'
+import type { SavedGame, CreateGameRequest } from '@ana/types'
 
 import responses from '@functions/http-responses.js'
 import gameService from '@services/game/game-service.js'
-import { log } from '@utils'
+import { log } from '@ana/common'
 
 export async function createGame(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
   context.log('HTTP trigger function processed a create saved game request.')

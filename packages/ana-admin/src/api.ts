@@ -1,4 +1,4 @@
-import type { SavedGame, GameLogEntry, LoadTemplateRequest, LoadTemplateResponse } from '@ana/shared'
+import type { SavedGame, GameLogEntry, LoadTemplateRequest, LoadTemplateResponse } from '@ana/types'
 
 export async function fetchGames(): Promise<SavedGame[]> {
   const response = await fetch('/api/games')
