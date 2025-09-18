@@ -1,4 +1,4 @@
-import type { SavedGame, GameTurn, GameLogEntry, VersionInfo, ApiError } from './api-types.js'
+import type { SavedGame, GameTurn, GameLogEntry, VersionInfo, ApiError } from './api.js'
 
 // Success response types
 export type FetchGamesResponse = SavedGame[]

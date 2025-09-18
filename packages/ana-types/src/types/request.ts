@@ -1,4 +1,4 @@
-import type { SavedGameName, GameCommand, TemplateData } from './api-types.js'
+import type { SavedGameName, GameCommand, TemplateData } from './api.js'
 
 // Game management requests
 export type CreateGameRequest = SavedGameName
