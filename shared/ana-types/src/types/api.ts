@@ -18,33 +18,39 @@ export type VersionInfo = {
   environment: string
 }
 
-// Template entity types
-export type PlayerTemplate = {
+// Base template type (mirrors BaseEntityData)
+export type BaseTemplate = {
   entityId: string
-  entityType: 'player'
+  entityType: string
   name: string
   description: string
+  statuses?: string[]
+  entityPrompt?: string
+}
+
+// Template entity types
+export type PlayerTemplate = BaseTemplate & {
+  entityType: 'player'
   locationId: string
 }
 
-export type LocationTemplate = {
-  entityId: string
+export type LocationTemplate = BaseTemplate & {
   entityType: 'location'
-  name: string
-  description: string
   fixtureIds: string[]
+  exitIds: string[]
 }
 
-export type FixtureTemplate = {
-  entityId: string
+export type FixtureTemplate = BaseTemplate & {
   entityType: 'fixture'
-  name: string
-  description: string
-  statuses: string[]
   actions: string[]
 }
 
-export type EntityTemplate = LocationTemplate | FixtureTemplate
+export type ExitTemplate = BaseTemplate & {
+  entityType: 'exit'
+  destinationId: string
+}
+
+export type EntityTemplate = LocationTemplate | FixtureTemplate | ExitTemplate
 
 export type TemplateData = {
   player: PlayerTemplate

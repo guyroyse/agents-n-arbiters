@@ -24,11 +24,11 @@ export class GameState {
     const location = await LocationEntity.fetch(gameId, player.locationId)
     if (!location) throw new Error(`Player location ${player.locationId} not found`)
 
-    // Load the fixtures in the location
-    const fixtures = await location.fixtures()
+    // Load all entities in the location
+    const locationEntities = await location.entities()
 
     // Build nearbyEntities array
-    const nearbyEntities = [player, location, ...fixtures]
+    const nearbyEntities = [player, location, ...locationEntities]
 
     return new GameState(gameId, player, location, nearbyEntities)
   }

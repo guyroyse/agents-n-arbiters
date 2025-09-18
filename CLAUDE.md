@@ -32,6 +32,10 @@ Current architecture:
 
 ### 🚧 Next Priorities
 
+- Add exit agent and movement logic to handle player location changes
+- Add narrator agent for enhanced narrative after committer
+- Integrate Agent Memory Server for persistent agent memory
+- Add item entities and item agent types
 - Add NPC agent types and implementations
 - Deploy to Azure with AMR and Azure Container Apps
 
@@ -116,6 +120,7 @@ The monorepo follows a clean layered architecture with explicit dependency flow:
 ```
 
 **Benefits of this architecture:**
+
 - **No circular dependencies**: Clear unidirectional dependency flow
 - **Reusability**: Each layer can be consumed independently by other services
 - **Testability**: Lower layers can be tested in isolation
@@ -123,6 +128,7 @@ The monorepo follows a clean layered architecture with explicit dependency flow:
 - **Modularity**: Clean separation of concerns across the system
 
 **Package responsibilities:**
+
 - **@ana/types**: Pure type definitions and Zod schemas (no runtime dependencies)
 - **@ana/common**: Infrastructure services (Redis, LLM clients, utilities, admin functions)
 - **@ana/domain**: Business logic (entities, game state, domain rules)
@@ -181,7 +187,7 @@ The core innovation is the multi-agent collaboration system built with LangGraph
 
 - **GameTurnAnnotation**: Custom LangGraph annotation replacing MessagesAnnotation for clean context engineering
 - **Dedicated State Channels**: Each agent reads from specific state channels (classifier_reasoning, entities, player_input, etc.)
-- **Domain Entities**: Redis-backed `GameEntity`, `LocationEntity`, `FixtureEntity`, `PlayerEntity` with template fallback patterns
+- **Domain Entities**: Redis-backed `GameEntity`, `LocationEntity`, `FixtureEntity`, `PlayerEntity`, `ExitEntity` with template fallback patterns
 - **State Change System**: Set-based status management with entity persistence and LLM-safe JSON serialization
 
 ### Entity and Prompt System
@@ -234,6 +240,7 @@ The core innovation is the multi-agent collaboration system built with LangGraph
 ## Key File Locations
 
 ### Package Structure
+
 - **`shared/ana-types/src/`** - All TypeScript types and Zod schemas shared across packages
 - **`shared/ana-common/src/`** - Shared utilities, Redis/LLM clients, admin functions
 - **`shared/ana-domain/src/`** - Entity classes and game state management
@@ -241,43 +248,51 @@ The core innovation is the multi-agent collaboration system built with LangGraph
 - **`functions/ana-api/src/functions/`** - Azure Functions endpoints that consume all packages
 
 ### Multi-Agent System Core
+
 - `shared/ana-agents/src/agent/graph-builder.ts` - Main LangGraph orchestration
 - `shared/ana-agents/src/agent/agents/` - All individual agent implementations
 - `shared/ana-agents/src/agent/state/` - GameTurnAnnotation and state management
 - `functions/ana-api/src/functions/games/take-game-turn.ts` - Main game turn API endpoint
 
 ### Domain Layer
+
 - `shared/ana-domain/src/domain/` - GameEntity, LocationEntity, PlayerEntity, FixtureEntity classes
 - `shared/ana-domain/src/domain/game-state.ts` - Central game state management
 
 ### Common Utilities
+
 - `shared/ana-common/src/clients/` - Redis and LLM client configurations
 - `shared/ana-common/src/utils/` - Logging, JSON utilities, date helpers
 - `shared/ana-common/src/admin/` - Template loading functionality
 
 ### Frontend Architecture
+
 - `static-web-apps/ana-web/src/views/` - Feature-based view organization (game/, load-game/, etc.)
 - `static-web-apps/ana-web/src/services/api.ts` - Centralized API client with type safety
 - `static-web-apps/ana-web/src/components/` - Reusable UI components with unified dialog system
 
 ### Admin Interface
+
 - `static-web-apps/ana-admin/` - Complete admin dashboard for log viewing and template management
 
 ## Key Development Patterns
 
 ### Agent Development
+
 - All agents use Zod schemas for structured input/output
 - Agents read from dedicated GameTurnAnnotation state channels
 - Conservative behavior: avoid unnecessary status changes on informational commands
 - Entity-specific prompts via `entityPrompt` field for personalized LLM behavior
 
 ### Entity Management
+
 - Private constructor pattern with static factory methods (`GameEntity.load()`, `FixtureEntity.fetchMany()`)
 - Template fallback: game-specific entities fall back to template defaults
 - Set-based status management with clean array interface
 - `save()` method preserves `entityPrompt` while maintaining LLM-safe `toJSON()` separation
 
 ### Frontend State Management
+
 - ViewModel pattern with Svelte 5 runes (`$state`, `$derived`, `$effect`)
 - Private fields (#) with clean getter/setter interfaces
 - Law of Demeter compliance: components only interact with ViewModel public interfaces
@@ -294,11 +309,14 @@ The core innovation is the multi-agent collaboration system built with LangGraph
 ## Coding Standards
 
 ### File Formatting
+
 - **Always end files with a newline**: All source files must end with a newline character
 - Consistent with Unix conventions and prevents git diff issues
 
 ### JavaScript/TypeScript Style
+
 - **Favor one-line if statements**: When an if statement body is simple, prefer single-line format
+
   ```typescript
   // Preferred
   if (condition) return value
@@ -311,11 +329,13 @@ The core innovation is the multi-agent collaboration system built with LangGraph
   ```
 
 ### Git Commit Messages
+
 - **Favor one-line commit messages**: Keep commits concise and focused
 - **No attributions or signatures**: Avoid adding "Generated with Claude Code" or co-author attributions to commit messages
 - **Imperative mood**: Use imperative present tense (e.g., "Add feature" not "Added feature")
 
 ### Dependency Management
+
 - **Always use npm install**: Install packages using `npm install <package>` or `npm install <package> --workspace=<name>`
 - **Never edit package.json directly**: Let npm manage the package.json and package-lock.json files
 - **Use workspace flag for package-specific dependencies**: `npm install redis --workspace=@ana/common`
