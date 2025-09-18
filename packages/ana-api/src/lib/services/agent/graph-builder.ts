@@ -4,6 +4,7 @@ import { locationAgent } from '@services/agent/agents/location-agent.js'
 import { fixtureAgent } from '@services/agent/agents/fixture-agent.js'
 import { playerAgent } from '@services/agent/agents/player-agent.js'
 import { arbiter } from '@services/agent/agents/arbiter.js'
+import { committer } from '@services/agent/agents/committer.js'
 import { LocationEntity } from '@domain/location-entity.js'
 import { FixtureEntity } from '@domain/fixture-entity.js'
 import { PlayerEntity } from '@domain/player-entity.js'
@@ -23,6 +24,7 @@ export class MultiAgentGraph {
   build() {
     this.#addClassifier()
     this.#addArbiter()
+    this.#addCommitter()
     this.#addAgents()
 
     return this.#graph.compile()
@@ -35,7 +37,12 @@ export class MultiAgentGraph {
 
   #addArbiter() {
     this.#graph.addNode('arbiter', arbiter)
-    this.#graph.addEdge('arbiter', END)
+    this.#graph.addEdge('arbiter', 'committer')
+  }
+
+  #addCommitter() {
+    this.#graph.addNode('committer', committer)
+    this.#graph.addEdge('committer', END)
   }
 
   #addAgents() {
@@ -58,7 +65,7 @@ export class MultiAgentGraph {
   }
 
   #routeToEntityAgents(state: typeof GameTurnAnnotation.State): string[] {
-    const selectedAgents = state.selectedAgents.map(agent => agent.entityId)
+    const selectedAgents = state.selectedEntities.map(entity => entity.entityId)
     log(this.#gameState.gameId, '🤖 CLASSIFIER selected agents:', selectedAgents)
 
     return selectedAgents.length > 0 ? selectedAgents : ['default']

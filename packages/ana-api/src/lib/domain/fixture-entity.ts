@@ -1,18 +1,13 @@
 import { fetchRedisClient } from '@clients/redis-client.js'
-import { GameEntity } from './game-entity.js'
+import { GameEntity, type BaseEntityData } from './game-entity.js'
 
 const redisClient = await fetchRedisClient()
 
-type FixtureData = {
-  name?: string
-  description?: string
-  entityPrompt?: string
-  statuses?: string[]
+type FixtureData = BaseEntityData & {
   actions?: string[]
 }
 
 export class FixtureEntity extends GameEntity {
-  statuses: string[] = []
   actions: string[] = []
 
   private constructor(gameId: string, entityId: string) {
@@ -72,15 +67,9 @@ export class FixtureEntity extends GameEntity {
     return fixture
   }
 
-  async save(): Promise<void> {
-    const key = `game:${this.gameId}:entity:${this.entityId}`
-    await redisClient.json.set(key, '$', this.toJSON())
-  }
-
   toJSON() {
     return {
       ...super.toJSON(),
-      statuses: this.statuses,
       actions: this.actions
     }
   }

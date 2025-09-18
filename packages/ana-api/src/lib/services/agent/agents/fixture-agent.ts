@@ -1,87 +1,61 @@
 import dedent from 'dedent'
-import { fetchLLMClient } from '@clients/llm-client.js'
-import { log } from '@utils'
-import {
-  EntityAgentContributionSchema,
-  GameTurnAnnotation,
-  type EntityAgentContribution,
-  type SelectedEntityAgent
-} from '@services/agent/state/game-turn-state.js'
-import type { FixtureEntity } from '@domain/fixture-entity.js'
-
-type FixtureAgentReturnType = Partial<typeof GameTurnAnnotation.State>
+import { createAgent } from './entity-agent.js'
+import type { GameEntity } from '@domain/game-entity.js'
 
 export function fixtureAgent(nodeName: string) {
-  const entityId = nodeName
+  return createAgent(nodeName, buildFixturePrompt)
+}
 
-  return async function (state: typeof GameTurnAnnotation.State): Promise<FixtureAgentReturnType> {
-    const gameState = state.gameState
-    const userCommand = state.userCommand
-    const selections = state.selectedAgents as SelectedEntityAgent[]
+function buildFixturePrompt(entity: GameEntity, userCommand: string, reasoning: string) {
+  return dedent`
+    You are a FIXTURE AGENT in a multi-agent text adventure game system.
+    Fixtures are immovable objects that can be interacted with but cannot be taken.
 
-    // Basic validation
-    if (!gameState) throw new Error('Missing game state')
-    if (!userCommand) throw new Error('Missing user command')
+    TASK: Provide both narrative content and state change recommendations for the current player command.
 
-    // Extract useful data
-    const { gameId, nearbyEntities } = gameState
+    ANALYZE the command and RESPOND with:
+    1. NARRATIVE: Brief, fixture-specific information about what the player observes or experiences
+    2. RECOMMENDATIONS: Any state changes that should happen to this fixture
 
-    // Find my entity data
-    const entity = nearbyEntities.find(entity => entity.entityId === entityId) as FixtureEntity
-    if (!entity) throw new Error(`Entity not found for node: ${nodeName}`)
+    Based on:
+    - The current fixture data provided
+    - The nature of the player's command as it relates to this specific fixture
+    - The reasoning for why you were selected to respond
 
-    // Find classifier reasoning for selecting me
-    const selection = selections.find((selection: SelectedEntityAgent) => selection.entityId === entityId)
-    const reasoning = selection?.reasoning ?? 'No reasoning provided'
+    FIXTURE DATA:
+    ${JSON.stringify(entity)}
 
-    // Log input
-    log(gameId, '🗿 FIXTURE AGENT - User command', userCommand)
-    log(gameId, '🗿 FIXTURE AGENT - Entity', entity)
-    log(gameId, '🗿 FIXTURE AGENT - Entity prompt', entity.entityPrompt ?? 'None')
-    log(gameId, '🗿 FIXTURE AGENT - Reasoning', reasoning)
+    SELECTION REASONING:
+    ${reasoning}
 
-    // Set up LLM with prompt and structured output
-    const llm = await fetchLLMClient()
-    const structuredLLM = llm.withStructuredOutput(EntityAgentContributionSchema)
-    const prompt = buildFixturePrompt(entity, userCommand, reasoning)
-    log(gameId, '🗿 FIXTURE AGENT - Sending to LLM', prompt)
+    ${entity.entityPrompt ? 'FIXTURE-SPECIFIC INSTRUCTIONS:' : ''}
+    ${entity.entityPrompt ?? ''}
 
-    // Invoke LLM and parse structured output
-    const agentResponse = (await structuredLLM.invoke(prompt)) as EntityAgentContribution
-    log(gameId, '🗿 FIXTURE AGENT - LLM response', agentResponse)
+    NARRATIVE GUIDELINES:
+    Keep responses concise. Only provide detail when the player specifically asks for it.
+    Reference specific statuses when relevant and suggest available actions when appropriate.
+    Focus on this fixture's specific characteristics and possible interactions.
 
-    // Return the structured output directly
-    return { agentContributions: agentResponse }
-  }
+    STATE CHANGE GUIDELINES:
+    IMPORTANT: Statuses represent the current physical/logical state of entities, not actions being performed.
 
-  function buildFixturePrompt(entity: FixtureEntity, userCommand: string, reasoning: string) {
-    return dedent`
-      You are a FIXTURE AGENT in a multi-agent text adventure game system.
-      Fixtures are immovable objects that can be interacted with but cannot be taken.
+    ONLY recommend status changes when the player's command would logically ALTER the fixture's state:
+    - INFORMATIONAL commands ("what can I do?", "look", "examine") → NO status changes, provide narrative only
+    - INTERACTION commands ("use torch", "break statue") → MAY cause status changes if they alter the fixture
 
-      TASK: Provide brief, fixture-specific information for the current player command.
+    Examples of valid status changes:
+    - Breaking something → add "broken" status
+    - Lighting something → add "lit" status, remove "unlit" status
+    - Activating something → add "active" status
 
-      ANALYZE the command and RESPOND based on:
-      - The current fixture data provided
-      - The nature of the player's command as it relates to this specific fixture
-      - The reasoning for why you were selected to respond
+    DO NOT recommend changes for:
+    - Questions about possibilities ("what can I do?")
+    - Simple observations ("look at statue")
+    - Commands that don't physically alter this fixture
 
-      FIXTURE DATA:
-      ${JSON.stringify(entity)}
+    Each recommended change must include both what should change and why the player's specific action caused it.
 
-      SELECTION REASONING:
-      ${reasoning}
-
-      ${entity.entityPrompt ? 'FIXTURE-SPECIFIC INSTRUCTIONS:' : ''}
-      ${entity.entityPrompt ?? ''}
-
-      GENERAL GUIDELINES:
-      Keep responses concise. Only provide detail when the player specifically asks for it.
-      Reference specific statuses when relevant and suggest available actions when appropriate.
-      Focus on this fixture's specific characteristics and possible interactions.
-
-      PLAYER COMMAND:
-      ${userCommand}
-    `
-  }
+    PLAYER COMMAND:
+    ${userCommand}
+  `
 }

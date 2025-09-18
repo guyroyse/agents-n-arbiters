@@ -87,11 +87,14 @@ Current architecture:
 - **Entity-specific prompts**: Complete entityPrompt system allowing each entity to have custom LLM personality and behavior instructions
 - **Redis mGet optimization**: Fixed data unwrapping issue in FixtureEntity.fetchMany for proper batch loading of entity prompts
 - **Structured agent prompts**: Clear separation between entity-specific instructions and general guidelines in all agent types
+- **Complete state change system**: Full implementation of entity status modification with Set-based storage and clean array interface
+- **Committer component**: Final workflow step that applies arbiter-approved changes to entities and generates narrative responses
+- **Set-based status management**: Private Set storage with public array interface for optimal performance and clean API
+- **Entity persistence**: Elegant save() method preserving entityPrompt while maintaining LLM-safe toJSON() separation
+- **Conservative agent behavior**: Updated prompts with clear guidelines preventing unnecessary status changes on informational commands
 
 ### 🚧 Next Steps
 
-- **Add state change capabilities**: Extend agent schemas to include state modifications (statusesAdded, statusesRemoved, etc.)
-- **Build committer component**: Handle state changes from arbiter output and update game entities
 - Add NPC agent types and implementations
 - Deploy to Azure with AMR and Azure Container Apps
 

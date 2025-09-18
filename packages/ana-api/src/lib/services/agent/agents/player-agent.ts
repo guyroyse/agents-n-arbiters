@@ -1,97 +1,71 @@
 import dedent from 'dedent'
-
-import { fetchLLMClient } from '@clients/llm-client.js'
-import { log } from '@utils'
-import {
-  EntityAgentContributionSchema,
-  GameTurnAnnotation,
-  type EntityAgentContribution,
-  type SelectedEntityAgent
-} from '@services/agent/state/game-turn-state.js'
-import type { PlayerEntity } from '@domain/player-entity.js'
-
-type PlayerAgentReturnType = Partial<typeof GameTurnAnnotation.State>
+import { createAgent } from './entity-agent.js'
+import type { GameEntity } from '@domain/game-entity.js'
 
 export function playerAgent(nodeName: string) {
-  const entityId = nodeName
+  return createAgent(nodeName, buildPlayerPrompt)
+}
 
-  return async function (state: typeof GameTurnAnnotation.State): Promise<PlayerAgentReturnType> {
-    const gameState = state.gameState
-    const userCommand = state.userCommand
-    const selections = state.selectedAgents as SelectedEntityAgent[]
+function buildPlayerPrompt(entity: GameEntity, userCommand: string, reasoning: string) {
+  return dedent`
+    You are a PLAYER AGENT in a multi-agent text adventure game system.
+    You represent the player character and handle commands related to the player's personal state, abilities, and introspection.
 
-    // Basic validation
-    if (!gameState) throw new Error('Missing game state')
-    if (!userCommand) throw new Error('Missing user command')
+    TASK: Provide both narrative content and state change recommendations for the current player command.
 
-    // Extract useful data
-    const { gameId, nearbyEntities } = gameState
+    ANALYZE the command and RESPOND with:
+    1. NARRATIVE: Information about what the player character observes or experiences
+    2. RECOMMENDATIONS: Any state changes that should happen to the player
 
-    // Find my entity data
-    const entity = nearbyEntities.find(entity => entity.entityId === entityId) as PlayerEntity
-    if (!entity) throw new Error(`Entity not found for node: ${nodeName}`)
+    ANALYZE the command and RESPOND based on:
+    - The current player data provided
+    - The nature of the player's command as it relates to personal state, inventory, abilities, or self-examination
+    - The reasoning for why you were selected to respond
 
-    // Find classifier reasoning for selecting me
-    const selection = selections.find((selection: SelectedEntityAgent) => selection.entityId === entityId)
-    const reasoning = selection?.reasoning ?? 'No reasoning provided'
+    PLAYER AGENT RESPONSIBILITIES:
+    - Handle personal introspection commands (who am I, what am I wearing, how do I feel)
+    - Manage inventory-related queries (what do I have, what am I carrying)
+    - Respond to status checks (am I hurt, what's my condition, what can I do)
+    - Handle character ability queries (what are my skills, what can I do)
+    - Provide self-description and character background information
+    - Handle meta-character commands that relate to the player's internal state
 
-    // Log input
-    log(gameId, '🧑 PLAYER AGENT - User command', userCommand)
-    log(gameId, '🧑 PLAYER AGENT - Entity', entity)
-    log(gameId, '🧑 PLAYER AGENT - Entity prompt', entity.entityPrompt ?? 'None')
-    log(gameId, '🧑 PLAYER AGENT - Reasoning', reasoning)
+    PLAYER DATA:
+    ${JSON.stringify(entity)}
 
-    // Set up LLM with prompt and structured output
-    const llm = await fetchLLMClient()
-    const structuredLLM = llm.withStructuredOutput(EntityAgentContributionSchema)
-    const prompt = buildPlayerPrompt(entity, userCommand, reasoning)
-    log(gameId, '🧑 PLAYER AGENT - Sending to LLM', prompt)
+    SELECTION REASONING:
+    ${reasoning}
 
-    // Invoke LLM and parse structured output
-    const agentResponse = (await structuredLLM.invoke(prompt)) as EntityAgentContribution
-    log(gameId, '🧑 PLAYER AGENT - LLM response', agentResponse)
+    ${entity.entityPrompt ? 'PLAYER-SPECIFIC INSTRUCTIONS:' : ''}
+    ${entity.entityPrompt ?? ''}
 
-    // Return the structured output directly
-    return { agentContributions: agentResponse }
-  }
+    NARRATIVE GUIDELINES:
+    Keep responses personal and from the character's perspective.
+    Focus on the player's internal state, capabilities, and personal inventory.
+    Only respond to commands that specifically relate to the player character.
+    Do NOT respond to commands about the external world, locations, other characters, or objects.
 
-  function buildPlayerPrompt(entity: PlayerEntity, userCommand: string, reasoning: string) {
-    return dedent`
-      You are a PLAYER AGENT in a multi-agent text adventure game system.
-      You represent the player character and handle commands related to the player's personal state, abilities, and introspection.
+    STATE CHANGE GUIDELINES:
+    IMPORTANT: Statuses represent the player's current physical/mental condition, not actions being performed.
 
-      TASK: Provide information about the player character for the current command.
+    ONLY recommend status changes when the player's command would logically ALTER the player's personal state:
+    - INFORMATIONAL commands ("what can I do?", "check inventory", "how do I feel?") → NO status changes, provide narrative only
+    - SELF-AFFECTING commands (risky actions, consuming items, resting) → MAY cause status changes if they alter the player
 
-      ANALYZE the command and RESPOND based on:
-      - The current player data provided
-      - The nature of the player's command as it relates to personal state, inventory, abilities, or self-examination
-      - The reasoning for why you were selected to respond
+    Examples of valid status changes:
+    - Exhausting physical activity → add "tired" status
+    - Taking damage → add "injured" status
+    - Resting → remove "tired" status, add "rested" status
+    - Consuming something → add/remove relevant condition statuses
 
-      PLAYER AGENT RESPONSIBILITIES:
-      - Handle personal introspection commands (who am I, what am I wearing, how do I feel)
-      - Manage inventory-related queries (what do I have, what am I carrying)
-      - Respond to status checks (am I hurt, what's my condition, what can I do)
-      - Handle character ability queries (what are my skills, what can I do)
-      - Provide self-description and character background information
-      - Handle meta-character commands that relate to the player's internal state
+    DO NOT recommend changes for:
+    - Questions about capabilities ("what can I do?")
+    - Simple status checks ("how do I feel?", "what do I have?")
+    - Commands that don't physically or mentally affect the player character
 
-      PLAYER DATA:
-      ${JSON.stringify(entity)}
+    Each recommended change must include both what should change and why the player's specific action caused it.
 
-      SELECTION REASONING:
-      ${reasoning}
-
-      ${entity.entityPrompt ? 'PLAYER-SPECIFIC INSTRUCTIONS:' : ''}
-      ${entity.entityPrompt ?? ''}
-
-      GENERAL GUIDELINES:
-      Keep responses personal and from the character's perspective.
-      Focus on the player's internal state, capabilities, and personal inventory.
-      Only respond to commands that specifically relate to the player character.
-      Do NOT respond to commands about the external world, locations, other characters, or objects.
-
-      PLAYER COMMAND:
-      ${userCommand}
-    `
-  }
+    PLAYER COMMAND:
+    ${userCommand}
+  `
 }

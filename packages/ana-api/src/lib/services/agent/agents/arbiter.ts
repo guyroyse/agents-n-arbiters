@@ -4,74 +4,75 @@ import { log } from '@utils'
 import {
   GameTurnAnnotation,
   ArbiterResponseSchema,
-  type EntityAgentContribution,
+  type EntityRecommendation,
   type ArbiterResponse
 } from '@services/agent/state/game-turn-state.js'
+import type { GameEntity } from '@lib/domain/game-entity'
 
 type ArbiterReturnType = Partial<typeof GameTurnAnnotation.State>
 
 export async function arbiter(state: typeof GameTurnAnnotation.State): Promise<ArbiterReturnType> {
   const gameState = state.gameState
-  const userCommand = state.userCommand
-  const agentContributions = state.agentContributions as EntityAgentContribution[]
+  const agentRecommendations = state.agentRecommendations as EntityRecommendation[]
 
   // Basic validation
   if (!gameState) throw new Error('Missing game state')
-  if (!userCommand) throw new Error('Missing user command')
+
+  // Find full entity data for each selected entity
+  const selectedEntityIds = state.selectedEntities.map(entity => entity.entityId)
+  const selectedEntities = gameState.nearbyEntities.filter(entity => selectedEntityIds.includes(entity.entityId))
 
   // Extract useful data
   const { gameId } = gameState
 
   // Log input
-  log(gameId, '⚖️  ARBITER - User command', userCommand)
-  log(gameId, '⚖️  ARBITER - Agent contributions', agentContributions)
+  log(gameId, '⚖️  ARBITER - Selected entities', selectedEntities)
+  log(gameId, '⚖️  ARBITER - Agent recommendations', agentRecommendations)
 
   // Set up LLM with prompt and structured output
   const llm = await fetchLLMClient()
   const structuredLLM = llm.withStructuredOutput(ArbiterResponseSchema)
-  const prompt = buildArbiterPrompt(userCommand, agentContributions)
+  const prompt = buildArbiterPrompt(selectedEntities, agentRecommendations)
   log(gameId, '⚖️  ARBITER - Sending to LLM', prompt)
 
   // Invoke LLM and parse structured output
   const arbiterResponse = (await structuredLLM.invoke(prompt)) as ArbiterResponse
   log(gameId, '⚖️  ARBITER - LLM response', arbiterResponse)
 
-  // Return the structured output directly
-  return { arbiterResponse }
+  // Return the approved changes
+  return { approvedChanges: arbiterResponse.approvedChanges }
 }
 
-function buildArbiterPrompt(userCommand: string, agentContributions: EntityAgentContribution[]) {
+function buildArbiterPrompt(selectedEntities: GameEntity[], agentRecommendations: EntityRecommendation[]) {
   return dedent`
     You are the ARBITER in a multi-agent text adventure game system.
-    
-    TASK: Synthesize agent responses into a concise, engaging game narrative.
-    
+
+    TASK: Review agent state change recommendations and decide what changes should actually happen.
+
     Your role as Arbiter:
-    - Combine insights from multiple agents into one cohesive response
-    - Create the final response that the player will see
-    - Maintain text adventure game tone and immersive storytelling
-    - Weave agent inputs together naturally without revealing the multi-agent structure
-    
+    - Review recommended changes from entity agents
+    - Resolve any conflicts between recommendations
+    - Add cross-entity effects (e.g., lit torch → lit room)
+    - Decide final approved changes based on game logic
+
     Guidelines:
-    - Keep responses brief and focused
-    - If only one agent responded, enhance and polish their response concisely
-    - If multiple agents responded, synthesize them into a unified, terse narrative
-    - If no agents responded (empty agent contributions), the command was about things NOT in the scene:
-      * For help requests: Provide brief gameplay instructions (examine, look, go, take, etc.)
-      * For actions on non-existent items (take sword, examine book, etc.): "You don't see that here."
-      * For movement to non-existent exits (go north, enter cave, etc.): "You can't go that way."
-      * For invalid game commands: "That isn't a valid action."
-      * For abstract questions: "You can't do that right now."
-      * IMPORTANT: Never allow actions on items/locations that agents didn't mention
-      * Keep these responses very brief and direct
-    - Always respond as the omniscient game narrator
-    - Only provide detailed descriptions when the player specifically asks for them
-    - Focus on immediate, actionable information over atmospheric flourishes
+    - Accept most agent recommendations unless they conflict
+    - When conflicts occur, choose the most logical outcome
+    - Add secondary effects that agents couldn't see (cross-entity impacts)
+    - Consider game balance and narrative consistency
+    - If no recommendations were provided, return empty approved changes
+    - For each approved change, provide clear reasoning
 
-    PLAYER COMMAND:
-    ${userCommand}
+    Cross-entity effect examples:
+    - Lit torch/lamp → location gains "lit" status
+    - Triggered trap → player gains "injured" status
+    - Activated magic → area gains magical effect status
+    - Breaking objects → location gains "debris" status
 
-    AGENT CONTRIBUTIONS:
-    ${JSON.stringify(agentContributions)}
+    SELECTED ENTITIES (current state):
+    ${JSON.stringify(selectedEntities)}
+
+    AGENT RECOMMENDATIONS:
+    ${JSON.stringify(agentRecommendations)}
   `
 }

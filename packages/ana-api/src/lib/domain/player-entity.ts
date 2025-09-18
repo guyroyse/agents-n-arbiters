@@ -1,13 +1,10 @@
 import { fetchRedisClient } from '@clients/redis-client.js'
-import { GameEntity } from './game-entity.js'
+import { GameEntity, type BaseEntityData } from './game-entity.js'
 import { LocationEntity } from './location-entity.js'
 
 const redisClient = await fetchRedisClient()
 
-type PlayerData = {
-  name?: string
-  description?: string
-  entityPrompt?: string
+type PlayerData = BaseEntityData & {
   locationId: string
 }
 
@@ -31,6 +28,7 @@ export class PlayerEntity extends GameEntity {
     const player = new PlayerEntity(gameId)
     player.name = data.name ?? 'Player'
     player.description = data.description ?? ''
+    player.statuses = data.statuses ?? []
     player.locationId = data.locationId
     player.entityPrompt = data.entityPrompt
 
@@ -40,7 +38,7 @@ export class PlayerEntity extends GameEntity {
 
   async save(): Promise<void> {
     const key = `game:${this.gameId}:player`
-    await redisClient.json.set(key, '$', this.toJSON())
+    await redisClient.json.merge(key, '$', this.toJSON())
   }
 
   async location(): Promise<LocationEntity | null> {

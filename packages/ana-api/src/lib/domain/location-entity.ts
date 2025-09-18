@@ -1,13 +1,10 @@
 import { fetchRedisClient } from '@clients/redis-client.js'
-import { GameEntity } from './game-entity.js'
+import { GameEntity, type BaseEntityData } from './game-entity.js'
 import { FixtureEntity } from './fixture-entity.js'
 
 const redisClient = await fetchRedisClient()
 
-type LocationData = {
-  name?: string
-  description?: string
-  entityPrompt?: string
+type LocationData = BaseEntityData & {
   fixtureIds?: string[]
 }
 
@@ -28,15 +25,11 @@ export class LocationEntity extends GameEntity {
     const location = new LocationEntity(gameId, entityId)
     location.name = data.name ?? ''
     location.description = data.description ?? ''
+    location.statuses = data.statuses ?? []
     location.fixtureIds = data.fixtureIds ?? []
     location.entityPrompt = data.entityPrompt
 
     return location
-  }
-
-  async save(): Promise<void> {
-    const key = `game:${this.gameId}:entity:${this.entityId}`
-    await redisClient.json.set(key, '$', this.toJSON())
   }
 
   async fixtures(): Promise<FixtureEntity[]> {

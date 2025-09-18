@@ -1,88 +1,61 @@
 import dedent from 'dedent'
-
-import { fetchLLMClient } from '@clients/llm-client.js'
-import { log } from '@utils'
-import {
-  EntityAgentContributionSchema,
-  GameTurnAnnotation,
-  type EntityAgentContribution,
-  type SelectedEntityAgent
-} from '@services/agent/state/game-turn-state.js'
-import type { LocationEntity } from '@domain/location-entity.js'
-
-type LocationAgentReturnType = Partial<typeof GameTurnAnnotation.State>
+import { createAgent } from './entity-agent.js'
+import type { GameEntity } from '@domain/game-entity.js'
 
 export function locationAgent(nodeName: string) {
-  const entityId = nodeName
+  return createAgent(nodeName, buildLocationPrompt)
+}
 
-  return async function (state: typeof GameTurnAnnotation.State): Promise<LocationAgentReturnType> {
-    const gameState = state.gameState
-    const userCommand = state.userCommand
-    const selections = state.selectedAgents as SelectedEntityAgent[]
+function buildLocationPrompt(entity: GameEntity, userCommand: string, reasoning: string) {
+  return dedent`
+    You are a LOCATION AGENT in a multi-agent text adventure game system.
+    Locations are places the player can be in and move between and are the backdrop for other entities.
 
-    // Basic validation
-    if (!gameState) throw new Error('Missing game state')
-    if (!userCommand) throw new Error('Missing user command')
+    TASK: Provide both narrative content and state change recommendations for the current player command.
 
-    // Extract useful data
-    const { gameId, nearbyEntities } = gameState
+    ANALYZE the command and RESPOND with:
+    1. NARRATIVE: Brief, location-specific information about what the player observes or experiences
+    2. RECOMMENDATIONS: Any state changes that should happen to this location
 
-    // Find my entity data
-    const entity = nearbyEntities.find(entity => entity.entityId === entityId) as LocationEntity
-    if (!entity) throw new Error(`Entity not found for node: ${nodeName}`)
+    ANALYZE the command and RESPOND based on:
+    - The current location data provided
+    - The nature of the player's command as it relates to the location or environmental details
+    - The reasoning for why you were selected to respond
 
-    // Find classifier reasoning for selecting me
-    const selection = selections.find((selection: SelectedEntityAgent) => selection.entityId === entityId)
-    const reasoning = selection?.reasoning ?? 'No reasoning provided'
+    LOCATION DATA:
+    ${JSON.stringify(entity)}
 
-    // Log input
-    log(gameId, '🏛️  LOCATION AGENT - User command', userCommand)
-    log(gameId, '🏛️  LOCATION AGENT - Entity', entity)
-    log(gameId, '🏛️  LOCATION AGENT - Entity prompt', entity.entityPrompt ?? 'None')
-    log(gameId, '🏛️  LOCATION AGENT - Reasoning', reasoning)
+    SELECTION REASONING:
+    ${reasoning}
 
-    // Set up LLM with prompt and structured output
-    const llm = await fetchLLMClient()
-    const structuredLLM = llm.withStructuredOutput(EntityAgentContributionSchema)
-    const prompt = buildLocationPrompt(entity, userCommand, reasoning)
-    log(gameId, '🏛️  LOCATION AGENT - Sending to LLM', prompt)
+    ${entity.entityPrompt ? 'LOCATION-SPECIFIC INSTRUCTIONS:' : ''}
+    ${entity.entityPrompt ?? ''}
 
-    // Invoke LLM and parse structured output
-    const agentResponse = (await structuredLLM.invoke(prompt)) as EntityAgentContribution
-    log(gameId, '🏛️  LOCATION AGENT - LLM response', agentResponse)
+    NARRATIVE GUIDELINES:
+    Keep responses concise. Only provide detail when the player specifically asks for it.
+    Include obvious status information when relevant (lighting, accessibility, atmosphere, exits).
+    Focus on environmental descriptions and general area information.
 
-    // Return the structured output directly
-    return { agentContributions: agentResponse }
-  }
+    STATE CHANGE GUIDELINES:
+    IMPORTANT: Statuses represent the current physical/environmental state of the location, not actions being performed.
 
-  function buildLocationPrompt(entity: LocationEntity, userCommand: string, reasoning: string) {
-    return dedent`
-      You are a LOCATION AGENT in a multi-agent text adventure game system.
-      Locations are places the player can be in and move between and are the backdrop for other entities.
+    ONLY recommend status changes when the player's command would logically ALTER the location's environment:
+    - INFORMATIONAL commands ("what can I do?", "look around", "examine room") → NO status changes, provide narrative only
+    - ENVIRONMENTAL commands ("light torch", "break wall") → MAY cause status changes if they alter the location
 
-      TASK: Provide brief, location-specific information for the current player command.
+    Examples of valid status changes:
+    - Lighting a torch in the room → add "lit" status, remove "dark" status
+    - Causing damage to the area → add "damaged" status
+    - Triggering an environmental effect → add relevant atmospheric status
 
-      ANALYZE the command and RESPOND based on:
-      - The current location data provided
-      - The nature of the player's command as it relates to the location or environmental details
-      - The reasoning for why you were selected to respond
+    DO NOT recommend changes for:
+    - Questions about possibilities ("what can I do?")
+    - Simple observations ("look around")
+    - Commands that don't physically alter the location's environment
 
-      LOCATION DATA:
-      ${JSON.stringify(entity)}
+    Each recommended change must include both what should change and why the player's specific action caused it.
 
-      SELECTION REASONING:
-      ${reasoning}
-
-      ${entity.entityPrompt ? 'LOCATION-SPECIFIC INSTRUCTIONS:' : ''}
-      ${entity.entityPrompt ?? ''}
-
-      GENERAL GUIDELINES:
-      Keep responses concise. Only provide detail when the player specifically asks for it.
-      Include obvious status information when relevant (lighting, accessibility, atmosphere, exits).
-      Focus on environmental descriptions and general area information.
-
-      PLAYER COMMAND:
-      ${userCommand}
-    `
-  }
+    PLAYER COMMAND:
+    ${userCommand}
+  `
 }
