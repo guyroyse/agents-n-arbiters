@@ -8,14 +8,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Current architecture:
 
-- **`packages/ana-types/`** (@ana/types) - Pure TypeScript types and Zod schemas
-- **`packages/ana-common/`** (@ana/common) - Shared utilities, Redis/LLM clients, admin functions
-- **`packages/ana-domain/`** (@ana/domain) - Entity classes and game state management
-- **`packages/ana-agents/`** (@ana/agents) - Complete multi-agent LangGraph system
-- **`packages/ana-web/`** (@ana/web) - Svelte 5 frontend with terminal-style game interface
-- **`packages/ana-api/`** (@ana/api) - Azure Functions v4 API endpoints (depends on all packages)
-- **`packages/ana-admin/`** (@ana/admin) - Static admin interface for log viewing and template management
-- **`packages/agent-memory-server/`** - Containerized Agent Memory Server (Python-based placeholder)
+- **`shared/ana-types/`** (@ana/types) - Pure TypeScript types and Zod schemas
+- **`shared/ana-common/`** (@ana/common) - Shared utilities, Redis/LLM clients, admin functions
+- **`shared/ana-domain/`** (@ana/domain) - Entity classes and game state management
+- **`shared/ana-agents/`** (@ana/agents) - Complete multi-agent LangGraph system
+- **`static-web-apps/ana-web/`** (@ana/web) - Svelte 5 frontend with terminal-style game interface
+- **`functions/ana-api/`** (@ana/api) - Azure Functions v4 API endpoints (depends on all packages)
+- **`static-web-apps/ana-admin/`** (@ana/admin) - Static admin interface for log viewing and template management
+- **`containers/agent-memory-server/`** - Containerized Agent Memory Server (Python-based placeholder)
 - **`data/redis/`** - Persistent Redis data storage for local development
 - **`infrastructure/`** - Infrastructure as Code (Bicep templates for Azure deployment)
 
@@ -42,7 +42,7 @@ Current architecture:
 ```bash
 docker compose up                                                        # Start Redis + Agent Memory Server containers
 npm install                                                              # Install all workspace dependencies
-cp packages/ana-api/local.settings.example.json packages/ana-api/local.settings.json  # Copy Azure Functions local settings
+cp functions/ana-api/local.settings.example.json functions/ana-api/local.settings.json  # Copy Azure Functions local settings
 ```
 
 ### Full-stack Development
@@ -223,7 +223,7 @@ The core innovation is the multi-agent collaboration system built with LangGraph
 
 ### Azure Functions Local Development
 
-- Copy `packages/ana-api/local.settings.example.json` to `packages/ana-api/local.settings.json`
+- Copy `functions/ana-api/local.settings.example.json` to `functions/ana-api/local.settings.json`
 - Environment variables accessible via `process.env.NODE_ENV`
 
 ### Static Web App Environment Variables
@@ -234,34 +234,34 @@ The core innovation is the multi-agent collaboration system built with LangGraph
 ## Key File Locations
 
 ### Package Structure
-- **`packages/ana-types/src/`** - All TypeScript types and Zod schemas shared across packages
-- **`packages/ana-common/src/`** - Shared utilities, Redis/LLM clients, admin functions
-- **`packages/ana-domain/src/`** - Entity classes and game state management
-- **`packages/ana-agents/src/`** - Complete multi-agent LangGraph system
-- **`packages/ana-api/src/functions/`** - Azure Functions endpoints that consume all packages
+- **`shared/ana-types/src/`** - All TypeScript types and Zod schemas shared across packages
+- **`shared/ana-common/src/`** - Shared utilities, Redis/LLM clients, admin functions
+- **`shared/ana-domain/src/`** - Entity classes and game state management
+- **`shared/ana-agents/src/`** - Complete multi-agent LangGraph system
+- **`functions/ana-api/src/functions/`** - Azure Functions endpoints that consume all packages
 
 ### Multi-Agent System Core
-- `packages/ana-agents/src/agent/graph-builder.ts` - Main LangGraph orchestration
-- `packages/ana-agents/src/agent/agents/` - All individual agent implementations
-- `packages/ana-agents/src/agent/state/` - GameTurnAnnotation and state management
-- `packages/ana-api/src/functions/games/take-game-turn.ts` - Main game turn API endpoint
+- `shared/ana-agents/src/agent/graph-builder.ts` - Main LangGraph orchestration
+- `shared/ana-agents/src/agent/agents/` - All individual agent implementations
+- `shared/ana-agents/src/agent/state/` - GameTurnAnnotation and state management
+- `functions/ana-api/src/functions/games/take-game-turn.ts` - Main game turn API endpoint
 
 ### Domain Layer
-- `packages/ana-domain/src/domain/` - GameEntity, LocationEntity, PlayerEntity, FixtureEntity classes
-- `packages/ana-domain/src/domain/game-state.ts` - Central game state management
+- `shared/ana-domain/src/domain/` - GameEntity, LocationEntity, PlayerEntity, FixtureEntity classes
+- `shared/ana-domain/src/domain/game-state.ts` - Central game state management
 
 ### Common Utilities
-- `packages/ana-common/src/clients/` - Redis and LLM client configurations
-- `packages/ana-common/src/utils/` - Logging, JSON utilities, date helpers
-- `packages/ana-common/src/admin/` - Template loading functionality
+- `shared/ana-common/src/clients/` - Redis and LLM client configurations
+- `shared/ana-common/src/utils/` - Logging, JSON utilities, date helpers
+- `shared/ana-common/src/admin/` - Template loading functionality
 
 ### Frontend Architecture
-- `packages/ana-web/src/views/` - Feature-based view organization (game/, load-game/, etc.)
-- `packages/ana-web/src/services/api.ts` - Centralized API client with type safety
-- `packages/ana-web/src/components/` - Reusable UI components with unified dialog system
+- `static-web-apps/ana-web/src/views/` - Feature-based view organization (game/, load-game/, etc.)
+- `static-web-apps/ana-web/src/services/api.ts` - Centralized API client with type safety
+- `static-web-apps/ana-web/src/components/` - Reusable UI components with unified dialog system
 
 ### Admin Interface
-- `packages/ana-admin/` - Complete admin dashboard for log viewing and template management
+- `static-web-apps/ana-admin/` - Complete admin dashboard for log viewing and template management
 
 ## Key Development Patterns
 
