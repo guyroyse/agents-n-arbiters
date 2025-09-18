@@ -6,7 +6,9 @@
   "license": "MIT",
   "type": "module",
   "workspaces": [
-    "packages/*"
+    "functions/*",
+    "static-web-apps/*",
+    "shared/*"
   ],
   "devDependencies": {
     "@azure/static-web-apps-cli": "^2.0.6",
