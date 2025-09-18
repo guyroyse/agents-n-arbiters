@@ -18,114 +18,68 @@ Current architecture:
 
 ## Current Implementation Status
 
-### ✅ Completed
+### ✅ Working Systems
 
-- **Basic game loop**: Terminal UI with command input and history display
-- **API endpoints**: `/api/version` and `/api/take-turn` (currently echoes input with 1.5s delay)
-- **Feature-based architecture**: Organized by views/features instead of component types
-- **View-model pattern**: Centralized state management with proper encapsulation
-- **Law of Demeter compliance**: Clean public interfaces hiding implementation details
-- **Data access layer**: Centralized API functions in `services/api.ts`
-- **Game state management**: History loading with mock data simulation
-- **UI/UX features**: Auto-scrolling history, focus management, dual loading states
-- **Modern JavaScript**: Private fields (#) and clean getter/setter patterns
-- **Navigation system**: Complete routing between Welcome, NewGame, LoadGame, and Game views
-- **Load game functionality**: List saved games with delete confirmation dialogs
-- **Component architecture**: Modular components organized in folders with proper separation of concerns
-- **Svelte 5 implementation**: Using runes ($state, $derived, $effect) throughout
-- **Native dialog elements**: Semantic HTML with proper accessibility and form integration
-- **Unified dialog system**: Consolidated Dialog, ConfirmationDialog, ErrorDialog with shared styling
-- **Enhanced loading UX**: LoadingOverlay for initial loads, randomized thinking messages for command processing
-- **Error handling**: Comprehensive ErrorDialog integration across views with retry functionality
-- **Complete REST API**: Full Azure Functions backend with all CRUD operations for game management
-- **HTTP response helpers**: Centralized response utilities eliminating boilerplate across all endpoints
-- **Type-safe API layer**: Comprehensive request/response types with proper error handling using ApiError
-- **Consistent naming**: Unified `gameId` naming convention throughout frontend and backend
-- **Optimized API client**: Generic `apiCall` helper reducing code duplication by ~80%
-- **Docker containerization**: Redis and Agent Memory Server configured for local development
-- **Persistent data storage**: Redis data persists in `data/redis/` with proper .gitignore setup
-- **Project documentation**: Comprehensive README.md with setup instructions and multi-agent collaboration overview
-- **Redis integration**: Complete Redis client abstraction with local Docker and Azure Managed Redis support
-- **Azure authentication**: Entra ID integration for passwordless AMR authentication in production
-- **Environment configuration**: Unified REDIS_URL environment variable for both local and cloud deployments
-- **Redis persistence**: Full game state persistence with RedisJSON and RediSearch
-- **Game service architecture**: Class-based GameService with static factory pattern and private Redis client
-- **Function organization**: Domain-based function organization with separate files and registration
-- **Type safety**: Complete type definitions for Redis operations eliminating any types
-- **Search optimization**: RediSearch index with 100-item limit and date-based sorting
-- **Date handling**: Utility functions for ISO string ↔ Unix timestamp conversion
-- **Multi-agent system**: Complete LangGraph.js implementation with dynamic graph construction
-- **LLM integration**: OpenAI client with structured input/output using Zod schemas
-- **Domain entities**: Class-based GameEntity, LocationEntity, and FixtureEntity with builder pattern
-- **Rich game world**: Atmospheric descriptions for "The Shrine of Forgotten Whispers" with detailed fixtures
-- **Intelligent routing**: LLM-powered classifier for agent selection with reasoning
-- **Parallel execution**: Conditional fan-out supporting single or multiple agent execution
-- **Agent input filtering**: Factory pattern for clean message filtering per agent type
-- **Structured agent output**: All agents (classifier, location, fixture, arbiter) use Zod schemas for consistent output
-- **Arbiter synthesis**: Fan-in node combining agent responses into final narrative with structured output
-- **Dynamic graph building**: Class-based MultiAgentGraph with JavaScript private fields and factory patterns
-- **Clean organization**: Domain-based folders (domain/, agent/, game/) with proper separation of concerns
-- **Comprehensive logging system**: Structured logging with Redis streams and console output for debugging multi-agent workflows
-- **GameState architecture**: Unified GameState class encapsulating gameId and entities with private constructor pattern
-- **Dual logging strategy**: Azure context.log for infrastructure events, structured log() for business logic with gameId association
-- **Rich log metadata**: TypeScript overloads supporting strings, JSON, Mermaid diagrams, and BaseMessages with metadata
-- **Performance optimized logging**: Fire-and-forget Redis streams with error handling, non-blocking application flow
-- **Multi-channel state architecture**: Custom GameTurnAnnotation replacing MessagesAnnotation for clean context engineering
-- **Simplified agent patterns**: Direct function agents reading from dedicated state channels, eliminating message filtering complexity
-- **Unified type system**: Centralized Zod schemas and TypeScript types in game-turn-state.ts for consistency across all agents
-- **Structured agent reasoning**: Individual per-agent reasoning from classifier, enabling precise context extraction
-- **Complete GameTurnAnnotation migration**: All agents (classifier, location, fixture, arbiter) updated to use multi-channel state pattern
-- **Entity type awareness**: JSON serialization includes entity types for improved classifier decision-making
-- **Enhanced logging**: Improved logger handles arrays, objects with toJSON(), and null/undefined values safely
-- **Structured agent contributions**: Agents provide structured output prepared for future state change capabilities
-- **Redis-based domain entities**: Complete refactoring of domain objects to load from Redis with game-specific and template fallback patterns
-- **Entity hierarchy**: Separated GameEntity, PlayerEntity, LocationEntity, FixtureEntity into individual files with proper inheritance
-- **Template management system**: Admin interface for loading world templates with Redis storage using `template:entity:*` keyspace
-- **Batch entity loading**: Optimized Redis operations using JSON.MGET for efficient fixture loading
-- **Admin dashboard**: Complete admin interface (@ana/admin) with log viewer and world template management capabilities
-- **Player agent integration**: Added PlayerEntity agent support to multi-agent workflow for handling player introspection, inventory, status, and abilities
-- **Entity-specific prompts**: Complete entityPrompt system allowing each entity to have custom LLM personality and behavior instructions
-- **Redis mGet optimization**: Fixed data unwrapping issue in FixtureEntity.fetchMany for proper batch loading of entity prompts
-- **Structured agent prompts**: Clear separation between entity-specific instructions and general guidelines in all agent types
-- **Complete state change system**: Full implementation of entity status modification with Set-based storage and clean array interface
-- **Committer component**: Final workflow step that applies arbiter-approved changes to entities and generates narrative responses
-- **Set-based status management**: Private Set storage with public array interface for optimal performance and clean API
-- **Entity persistence**: Elegant save() method preserving entityPrompt while maintaining LLM-safe toJSON() separation
-- **Conservative agent behavior**: Updated prompts with clear guidelines preventing unnecessary status changes on informational commands
+- **Multi-agent game engine**: Complete LangGraph.js workflow with classifier → agents → arbiter → committer flow
+- **Game interfaces**: Web frontend (port 4280), admin dashboard (port 4281), API backend (port 7071)
+- **Persistent state**: Redis-backed entities with game save/load, template management, and structured logging
+- **Agent types**: Location, fixture, player, and arbiter agents with entity-specific prompts and conservative behavior
+- **Game world**: "The Shrine of Forgotten Whispers" with atmospheric descriptions and interactive fixtures
+- **State management**: Multi-channel GameTurnAnnotation system with Set-based status management and entity persistence
 
-### 🚧 Next Steps
+### 🚧 Next Priorities
 
 - Add NPC agent types and implementations
 - Deploy to Azure with AMR and Azure Container Apps
 
 ## Development Commands
 
+### Initial Setup
+
+```bash
+docker compose up                                                        # Start Redis + Agent Memory Server containers
+npm install                                                              # Install all workspace dependencies
+cp packages/ana-api/local.settings.example.json packages/ana-api/local.settings.json  # Copy Azure Functions local settings
+```
+
 ### Full-stack Development
 
 ```bash
-docker compose up     # Start Redis + Agent Memory Server containers
-npm run dev           # Build all packages, then start SWA + Functions in parallel
+npm run dev           # Build all packages, then start all services in parallel (web:4280, admin:4281, api:7071)
 ```
 
 ### Individual Package Development
 
 ```bash
-npm run dev --workspace=@ana/web      # SWA CLI with Functions integration
-npm run dev --workspace=@ana/api      # Azure Functions Core Tools (standalone)
+npm run dev --workspace=@ana/web      # SWA CLI with Functions integration (port 4280)
+npm run dev --workspace=@ana/admin    # Admin interface SWA CLI (port 4281)
+npm run dev --workspace=@ana/api      # Azure Functions Core Tools (port 7071)
 ```
 
 ### Build Commands
 
 ```bash
-npm run build         # Build all packages in parallel
+npm run build                         # Build all packages in dependency order (shared first, then others in parallel)
+npm run build --workspace=@ana/shared # TypeScript compilation for shared types
 npm run build --workspace=@ana/web    # Vite production build
-npm run build --workspace=@ana/api    # TypeScript compilation to dist/
+npm run build --workspace=@ana/admin  # Vite production build for admin interface
+npm run build --workspace=@ana/api    # TypeScript compilation to dist/ with tsc-alias
 ```
 
-### Type Checking
+### Type Checking and Code Quality
 
 ```bash
-npm run check --workspace=@ana/web    # Svelte + TypeScript checking
+npm run check --workspace=@ana/web    # Svelte + TypeScript checking for frontend
+# Note: No linting or testing infrastructure currently configured
+```
+
+### Container Management
+
+```bash
+docker compose up -d                  # Start containers in background
+docker compose logs redis             # View Redis logs
+docker compose logs agent-memory-server  # View AMS logs
+docker compose down                   # Stop and remove containers
 ```
 
 ## Architecture Details
@@ -169,9 +123,37 @@ Both packages share aligned linting standards but different compilation targets:
 - **Custom fonts**: Space Grotesk (sans) and Space Mono (mono) via Google Fonts
 - **CSS variables**: Extensive Redis brand colors (redis-midnight, redis-hyper, etc.)
 
+### Multi-Agent System Architecture (@ana/api)
+
+The core innovation is the multi-agent collaboration system built with LangGraph.js:
+
+- **Game Turn Flow**: `/api/take-turn` endpoint orchestrates the complete multi-agent workflow
+- **LangGraph Implementation**: `MultiAgentGraph` class in `services/agent/graph-builder.ts` constructs dynamic execution graphs
+- **Agent Types**:
+  - `classifier` - LLM-powered routing to determine which agents should respond
+  - `location-agent` - Provides environmental context and atmosphere
+  - `fixture-agent` - Handles item interactions and world object responses
+  - `player-agent` - Manages player introspection, inventory, status, abilities
+  - `arbiter` - Synthesizes all agent responses into coherent narrative
+  - `committer` - Applies entity state changes and persists to Redis
+
+### Multi-Channel State Management
+
+- **GameTurnAnnotation**: Custom LangGraph annotation replacing MessagesAnnotation for clean context engineering
+- **Dedicated State Channels**: Each agent reads from specific state channels (classifier_reasoning, entities, player_input, etc.)
+- **Domain Entities**: Redis-backed `GameEntity`, `LocationEntity`, `FixtureEntity`, `PlayerEntity` with template fallback patterns
+- **State Change System**: Set-based status management with entity persistence and LLM-safe JSON serialization
+
+### Entity and Prompt System
+
+- **Entity Hierarchy**: Base `GameEntity` class with specialized subclasses for different game object types
+- **Template Management**: Admin interface for loading world templates into Redis (`template:entity:*` keyspace)
+- **Entity Prompts**: Per-entity LLM personality instructions via `entityPrompt` field for customized agent behavior
+- **Batch Loading**: Optimized Redis operations using JSON.MGET for efficient fixture loading
+
 ### Container Architecture
 
-- **Redis**: Latest Redis image with persistence to `./data/redis` volume
+- **Redis**: Latest Redis image with persistence to `./data/redis` volume using RedisJSON and RediSearch
 - **Agent Memory Server**: Python 3.12-based container (placeholder HTTP server on port 8000)
 - **Local development**: `docker-compose.yml` orchestrates both services with health checks
 - **Future deployment**: Azure Container Apps for AMS, Azure Managed Redis for production
@@ -209,9 +191,50 @@ Both packages share aligned linting standards but different compilation targets:
 - Build-time only via Vite: `import.meta.env.VITE_*`
 - No runtime server-side variables (static files served from CDN)
 
+## Key File Locations
+
+### Multi-Agent System Core
+- `packages/ana-api/src/lib/services/agent/graph-builder.ts` - Main LangGraph orchestration
+- `packages/ana-api/src/lib/services/agent/agents/` - All individual agent implementations
+- `packages/ana-api/src/lib/domain/` - Entity classes and game state management
+- `packages/ana-api/src/functions/take-turn.ts` - Main game turn API endpoint
+
+### Frontend Architecture
+- `packages/ana-web/src/views/` - Feature-based view organization (game/, load-game/, etc.)
+- `packages/ana-web/src/services/api.ts` - Centralized API client with type safety
+- `packages/ana-web/src/components/` - Reusable UI components with unified dialog system
+
+### Admin Interface
+- `packages/ana-admin/` - Complete admin dashboard for log viewing and template management
+- Template loading functionality for world initialization
+
+### Shared Types
+- `packages/shared/src/` - All TypeScript types and Zod schemas shared across packages
+
+## Key Development Patterns
+
+### Agent Development
+- All agents use Zod schemas for structured input/output
+- Agents read from dedicated GameTurnAnnotation state channels
+- Conservative behavior: avoid unnecessary status changes on informational commands
+- Entity-specific prompts via `entityPrompt` field for personalized LLM behavior
+
+### Entity Management
+- Private constructor pattern with static factory methods (`GameEntity.load()`, `FixtureEntity.fetchMany()`)
+- Template fallback: game-specific entities fall back to template defaults
+- Set-based status management with clean array interface
+- `save()` method preserves `entityPrompt` while maintaining LLM-safe `toJSON()` separation
+
+### Frontend State Management
+- ViewModel pattern with Svelte 5 runes (`$state`, `$derived`, `$effect`)
+- Private fields (#) with clean getter/setter interfaces
+- Law of Demeter compliance: components only interact with ViewModel public interfaces
+- Dual loading states: history loading vs command processing
+
 ## Key Technical Constraints
 
 - **ES Modules**: All packages use `"type": "module"` for consistency
 - **Azure Functions v4**: Modern programming model with `app.http()` registration
 - **Svelte 5**: No SvelteKit - plain Svelte with Vite bundler
 - **No global installations**: All tooling installed locally via npm workspaces
+- **Node.js v20.x**: Required for Azure Functions v4 compatibility (use `nvm use`)
