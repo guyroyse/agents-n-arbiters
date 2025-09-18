@@ -31,12 +31,7 @@
     /* Path mapping */
     "paths": {
       "@functions/*": ["./src/functions/*"],
-      "@lib/*": ["./src/lib/*"],
-      "@admin/*": ["./src/lib/admin/*"],
-      "@clients/*": ["./src/lib/clients/*"],
-      "@domain/*": ["./src/lib/domain/*"],
-      "@services/*": ["./src/lib/services/*"],
-      "@utils": ["./src/lib/utils/index.js"]
+      "@services/*": ["./src/services/*"]
     }
   },
   "include": ["src"],

@@ -3,7 +3,7 @@ import type { HttpRequest, HttpResponseInit, InvocationContext } from '@azure/fu
 import type { TakeGameTurnRequest, TakeGameTurnResponse } from '@ana/types'
 
 import responses from '@functions/http-responses.js'
-import gameService from '@services/game/game-service.js'
+import gameService from '@services/game-service.js'
 import { processCommand } from '@services/agent-service.js'
 import { log } from '@ana/common/utils'
 
