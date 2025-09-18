@@ -1,4 +1,4 @@
-import { fetchRedisClient } from '@clients/redis-client.js'
+import { fetchRedisClient } from '@ana/common/clients'
 import type { TemplateData } from '@ana/types'
 
 export async function loadTemplate(template: TemplateData): Promise<void> {

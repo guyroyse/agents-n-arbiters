@@ -1,13 +1,13 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "ESNext",
+    "module": "nodenext",
     "lib": ["ES2022"],
     "skipLibCheck": true,
     "verbatimModuleSyntax": true,
 
     /* Node.js mode */
-    "moduleResolution": "node",
+    "moduleResolution": "nodenext",
     "moduleDetection": "force",
     "isolatedModules": true,
     "forceConsistentCasingInFileNames": true,

@@ -5,7 +5,7 @@ import type { SavedGame, CreateGameRequest } from '@ana/types'
 
 import responses from '@functions/http-responses.js'
 import gameService from '@services/game/game-service.js'
-import { log } from '@ana/common'
+import { log } from '@ana/common/utils'
 
 export async function createGame(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
   context.log('HTTP trigger function processed a create saved game request.')

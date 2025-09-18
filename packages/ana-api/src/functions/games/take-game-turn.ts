@@ -5,7 +5,7 @@ import type { TakeGameTurnRequest, TakeGameTurnResponse } from '@ana/types'
 import responses from '@functions/http-responses.js'
 import gameService from '@services/game/game-service.js'
 import { processCommand } from '@ana/agents'
-import { log } from '@ana/common'
+import { log } from '@ana/common/utils'
 
 export async function takeGameTurn(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
   context.log('HTTP trigger function processed a take game turn request.')

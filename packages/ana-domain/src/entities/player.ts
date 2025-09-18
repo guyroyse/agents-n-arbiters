@@ -1,4 +1,4 @@
-import { fetchRedisClient } from '@ana/common'
+import { fetchRedisClient } from '@ana/common/clients'
 import { GameEntity, type BaseEntityData } from './game.js'
 import { LocationEntity } from './location.js'
 

@@ -1,6 +1,6 @@
 import dedent from 'dedent'
-import { fetchLLMClient } from '@ana/common'
-import { log } from '@ana/common'
+import { fetchLLMClient } from '@ana/common/clients'
+import { log } from '@ana/common/utils'
 import {
   GameTurnAnnotation,
   ArbiterResponseSchema,

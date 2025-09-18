@@ -1,6 +1,6 @@
 import { MultiAgentGraph } from './graph-builder.js'
 import { GameState } from '@ana/domain'
-import { log } from '@ana/common'
+import { log } from '@ana/common/utils'
 import type { GameTurnAnnotation } from './state/game-turn-state.js'
 
 export async function processCommand(gameId: string, command: string): Promise<string> {

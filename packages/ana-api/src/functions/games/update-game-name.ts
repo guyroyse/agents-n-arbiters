@@ -4,7 +4,7 @@ import type { UpdateGameNameRequest } from '@ana/types'
 
 import responses from '@functions/http-responses.js'
 import gameService from '@services/game/game-service.js'
-import { log } from '@ana/common'
+import { log } from '@ana/common/utils'
 
 export async function updateGameName(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
   context.log('HTTP trigger function processed an update game name request.')

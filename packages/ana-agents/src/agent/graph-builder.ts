@@ -7,7 +7,7 @@ import { arbiter } from './agents/arbiter.js'
 import { committer } from './agents/committer.js'
 import { LocationEntity, FixtureEntity, PlayerEntity, GameState } from '@ana/domain'
 import { GameTurnAnnotation } from './state/game-turn-state.js'
-import { log } from '@ana/common'
+import { log } from '@ana/common/utils'
 
 export class MultiAgentGraph {
   #graph: any
