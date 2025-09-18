@@ -310,6 +310,11 @@ The core innovation is the multi-agent collaboration system built with LangGraph
   }
   ```
 
+### Git Commit Messages
+- **Favor one-line commit messages**: Keep commits concise and focused
+- **No attributions or signatures**: Avoid adding "Generated with Claude Code" or co-author attributions to commit messages
+- **Imperative mood**: Use imperative present tense (e.g., "Add feature" not "Added feature")
+
 ### Dependency Management
 - **Always use npm install**: Install packages using `npm install <package>` or `npm install <package> --workspace=<name>`
 - **Never edit package.json directly**: Let npm manage the package.json and package-lock.json files
