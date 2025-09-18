@@ -1,5 +1,5 @@
 import { fetchRedisClient } from '@ana/common'
-import { GameEntity, type BaseEntityData } from './game-entity.js'
+import { GameEntity, type BaseEntityData } from './game.js'
 
 const redisClient = await fetchRedisClient()
 

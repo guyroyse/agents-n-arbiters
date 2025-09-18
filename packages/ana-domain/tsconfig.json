@@ -16,8 +16,8 @@
     "verbatimModuleSyntax": true,
     "baseUrl": ".",
     "paths": {
-      "@types/*": ["../ana-types/src/*"],
-      "@common/*": ["../ana-common/src/*"]
+      "@entities/*": ["src/entities/*"],
+      "@state/*": ["src/state/*"]
     }
   },
   "include": ["src/**/*"],

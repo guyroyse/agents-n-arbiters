@@ -1,6 +1,6 @@
-import type { GameEntity } from './game-entity.js'
-import { PlayerEntity } from './player-entity.js'
-import { LocationEntity } from './location-entity.js'
+import type { GameEntity } from '@entities/game.js'
+import { PlayerEntity } from '@entities/player.js'
+import { LocationEntity } from '@entities/location.js'
 
 export class GameState {
   readonly gameId: string
