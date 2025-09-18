@@ -5,7 +5,7 @@ import {
   GameTurnAnnotation,
   SelectedEntitiesSchema,
   type SelectedEntities
-} from '../state/game-turn-state.js'
+} from '@/game-turn-state.js'
 import type { GameState } from '@ana/domain'
 import { log } from '@ana/common/utils'
 

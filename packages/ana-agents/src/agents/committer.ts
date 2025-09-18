@@ -1,7 +1,7 @@
 import dedent from 'dedent'
 import { fetchLLMClient } from '@ana/common/clients'
 import { log } from '@ana/common/utils'
-import { GameTurnAnnotation, FinalNarrativeSchema, type EntityNarrative, type ApprovedChange, type FinalNarrative } from '../state/game-turn-state.js'
+import { GameTurnAnnotation, FinalNarrativeSchema, type EntityNarrative, type ApprovedChange, type FinalNarrative } from '@/game-turn-state.js'
 
 type CommitterReturnType = Partial<typeof GameTurnAnnotation.State>
 

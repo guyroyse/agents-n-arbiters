@@ -5,7 +5,7 @@ import {
   EntityAgentResponseSchema,
   type EntityAgentResponse,
   type SelectedEntity
-} from '../state/game-turn-state.js'
+} from '@/game-turn-state.js'
 import type { GameEntity } from '@ana/domain'
 
 const agentLabels: Record<string, string> = {

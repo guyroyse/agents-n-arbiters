@@ -6,7 +6,7 @@ import {
   ArbiterResponseSchema,
   type EntityRecommendation,
   type ArbiterResponse
-} from '../state/game-turn-state.js'
+} from '@/game-turn-state.js'
 import type { GameEntity } from '@ana/domain'
 
 type ArbiterReturnType = Partial<typeof GameTurnAnnotation.State>
