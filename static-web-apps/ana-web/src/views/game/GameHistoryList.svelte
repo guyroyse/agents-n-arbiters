@@ -19,7 +19,7 @@
   })
 </script>
 
-<div bind:this={historyElement} class="flex-1 overflow-y-auto mb-4 space-y-2">
+<div bind:this={historyElement} class="flex-1 overflow-y-auto mb-4 space-y-2 min-h-0">
   {#each viewModel.history as entry}
     <GameHistoryListItem {entry} />
   {/each}

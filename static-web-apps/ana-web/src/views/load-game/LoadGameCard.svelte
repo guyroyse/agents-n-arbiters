@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { SavedGame } from '@ana/shared'
+  import type { SavedGame } from '@ana/types'
   import LoadGameViewModel from './load-game-view-model.svelte.ts'
   import ConfirmationDialog from '@components/ConfirmationDialog.svelte'
   import AppRouter from '@app/app-router.svelte.ts'

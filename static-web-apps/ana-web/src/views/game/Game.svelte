@@ -17,7 +17,7 @@
   })
 </script>
 
-<section class="bg-redis-midnight border border-redis-dusk-10 rounded-lg p-6 font-mono text-sm flex-1 w-full max-w-6xl mx-auto flex flex-col relative">
+<section class="bg-redis-midnight border border-redis-dusk-10 rounded-lg p-6 font-mono text-base flex-1 w-full max-w-6xl mx-auto flex flex-col relative min-h-0">
   <header class="flex justify-between items-center mb-2">
     <h3 class="text-redis-white font-semibold">Game Terminal</h3>
     <button
