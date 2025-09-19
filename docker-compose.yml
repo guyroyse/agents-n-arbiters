@@ -15,7 +15,7 @@ services:
     restart: unless-stopped
 
   agent-memory-server:
-    build: ./packages/agent-memory-server
+    build: ./containers/agent-memory-server
     container_name: ana-ams
     ports:
       - '8000:8000'

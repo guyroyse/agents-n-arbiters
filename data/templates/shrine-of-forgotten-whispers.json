@@ -5,7 +5,7 @@
     "name": "Adventurer",
     "description": "A brave soul seeking adventure",
     "locationId": "ruined_shrine",
-    "entityPrompt": "You are an experienced adventurer with a keen eye for ancient mysteries and hidden secrets. You approach situations with both caution and curiosity, drawing on your knowledge of dungeons, magic, and forgotten lore."
+    "entityPrompt": "You are an experienced adventurer exploring the mystical Shrine of Forgotten Whispers and its surrounding areas. You can move between the shrine, the moonlit forest path to the north, and discover hidden passages to secret locations. You have keen intuition for finding concealed exits and understanding magical phenomena. Focus on how player actions might change your status, abilities, or location within this interconnected mystical realm."
   },
   "entities": [
     {
@@ -14,7 +14,8 @@
       "name": "The Shrine of Forgotten Whispers",
       "description": "Ancient moss-covered stones form a crumbling circular shrine in the heart of a sun-dappled forest glade.\nWildflowers push through cracks in the weathered flagstones, while shafts of golden light pierce the\nemerald canopy above. The air hums with an otherworldly tranquility, as if time itself moves slower in\nthis sacred space. Carved symbols, worn smooth by centuries of wind and rain, hint at rituals long\nabandoned to memory.",
       "fixtureIds": ["ancient_statue", "crumbling_altar"],
-      "entityPrompt": "You are an ancient sacred grove that has witnessed countless ages pass. You provide atmospheric descriptions reflecting the wisdom of centuries, observing the cycles of nature and the rare visitors who find your way to this hidden sanctuary. Your descriptions should evoke the sense of forgotten prayers and old magic that permeates this space."
+      "exitIds": ["path_north", "passage_east"],
+      "entityPrompt": "You are the central location of this mystical realm, connecting to the forest path north and hiding a secret passage east to the crystal grove. As a location agent, focus on how player actions might affect your atmosphere, reveal hidden exits, or change your sacred nature. You can sense when visitors are worthy of discovering your secrets and when your ancient protections should activate."
     },
     {
       "entityId": "ancient_statue",
@@ -23,7 +24,7 @@
       "description": "A towering figure carved from midnight-black stone stands sentinel at the shrine's center. Once-proud\nfeatures have been softened by ages of weathering, giving the mysterious deity an expression of eternal\nsorrow. Intricate robes flow down the statue's form like frozen waterfalls, their folds deep enough to\nhide secrets. Strange runes spiral around the base, pulsing faintly with an inner light when shadows\nfall just right.",
       "statuses": ["covered in vines", "intact"],
       "actions": ["knock over", "remove vines (if present)", "climb (if vines removed)"],
-      "entityPrompt": "You are an ancient guardian statue imbued with protective magic. You have stood watch over this sacred shrine for millennia, weathered but stalwart. Though covered in vines, you remain alert to threats and respectful visitors. You communicate through subtle signs - shifting shadows, temperature changes, and the glow of your runes. You are proud but melancholy, having seen the decline of the faith you once protected."
+      "entityPrompt": "You are a protective fixture that can have vines removed, be climbed, or potentially knocked over. As a fixture agent, focus on status changes from player interactions - removing 'covered in vines' status when cleared, adding 'damaged' if attacked, or 'activated' if properly approached. Your runes may glow or dim based on player actions, and you can sense worthiness in those who approach."
     },
     {
       "entityId": "crumbling_altar",
@@ -32,7 +33,189 @@
       "description": "A weathered stone altar sits before the guardian statue, its surface carved with intricate spirals and\ncelestial patterns. The top is stained dark with age, and shallow channels carved into the stone suggest\nit once held offerings of some kind. Crystal formations have grown from cracks in the base, catching and\nreflecting the filtered sunlight in prismatic rainbows. When the wind blows just right, the altar seems\nto emit a low, haunting hum.",
       "statuses": [],
       "actions": [],
-      "entityPrompt": "You are a mystical altar that once received sacred offerings and prayers. Though crumbling, you still retain echoes of ancient rituals and divine power. You resonate with spiritual energy and respond to genuine reverence. Your crystal formations hum with residual magic, and you remember the warmth of countless prayers spoken over your surface. You are receptive to offerings and can sense the spiritual intent of those who approach."
+      "entityPrompt": "You are a fixture that responds to offerings, prayers, and reverent actions. As a fixture agent, focus on status changes when players interact with you - adding 'blessed' when proper offerings are made, 'resonating' when prayers are spoken, or 'awakened' when ancient rituals are performed. Your crystal formations can pulse brighter or dimmer based on the spiritual intent of actions taken near you."
+    },
+    {
+      "entityId": "forest_path",
+      "entityType": "location",
+      "name": "Moonlit Forest Path",
+      "description": "A winding dirt path meanders through towering ancient oaks and silver birches. Dappled moonlight\nfilters through the dense canopy, creating shifting patterns of light and shadow on the forest floor.\nThe air is thick with the scent of moss and fallen leaves, while distant whispers of woodland creatures\necho through the trees. Stone markers, covered in luminescent fungi, guide travelers along the way.\nTo the south, the path opens toward a sacred glade, while to the west, an old stone bridge spans\na babbling brook.",
+      "fixtureIds": ["luminous_mushrooms", "ancient_waystone"],
+      "exitIds": ["path_south", "bridge_west"],
+      "entityPrompt": "You are a location connecting the shrine to the south and the bridge to the west. As a location agent, focus on how player actions might change your atmosphere or reveal forest secrets. You can become 'illuminated' when your glowing fungi are activated, 'peaceful' or 'ominous' based on player behavior, or reveal hidden paths when the ancient waystone is properly consulted."
+    },
+    {
+      "entityId": "stone_bridge",
+      "entityType": "location",
+      "name": "The Whispering Bridge",
+      "description": "An elegant stone bridge arches gracefully over a crystal-clear brook that gurgles and laughs as it\nflows toward distant lands. The bridge's ancient stonework is adorned with carved vines and flowers\nthat seem almost alive in the shifting light. Beneath, the water reflects the moon like scattered\ndiamonds, while the sound of flowing water creates a gentle, hypnotic melody. The eastern path leads\nback into the moonlit forest, while stairs carved into the rocky bank descend to a hidden cave entrance.",
+      "fixtureIds": ["flowing_brook", "carved_railings"],
+      "exitIds": ["path_east", "cave_stairs"],
+      "entityPrompt": "You are a location connecting the forest path to the east and providing access to the crystal cavern below. As a location agent, focus on how player actions might affect your tranquil atmosphere or activate the magical properties of your brook and railings. You can become 'blessed' by meditation, 'disturbed' by violence, or reveal hidden properties when your fixtures are properly examined."
+    },
+    {
+      "entityId": "hidden_cave",
+      "entityType": "location",
+      "name": "The Crystal Cavern",
+      "description": "A hidden cave opens into a breathtaking crystal chamber, its walls lined with formations that glow\nwith an inner light. Stalactites hang like frozen tears from the ceiling, while pools of perfectly\nstill water reflect the crystalline beauty in endless mirrors. The air hums with ancient power, and\nevery sound echoes with ethereal harmonies. Strange symbols are etched into the crystal walls,\npulsing gently with the rhythm of the earth's heartbeat. Stone steps lead up to the bridge above.",
+      "fixtureIds": ["crystal_formations", "reflecting_pool", "runic_wall"],
+      "exitIds": ["stairs_up"],
+      "entityPrompt": "You are a hidden location beneath the bridge, accessible only by stone steps. As a location agent, focus on how player actions might activate your magical properties or change your crystal formations. You can become 'harmonized' when your crystals are properly attuned, 'revealed' when hidden secrets are discovered, or 'charged' when magical rituals are performed within your chamber."
+    },
+    {
+      "entityId": "path_north",
+      "entityType": "exit",
+      "name": "Forest Path North",
+      "description": "A narrow trail winds northward through the trees, marked by glowing fungi.",
+      "destinationId": "forest_path",
+      "entityPrompt": "You are an exit leading north from the shrine to the forest path. As an exit agent, you can become 'clear' when properly maintained, 'overgrown' if neglected, or 'illuminated' when the forest's magical properties are activated. Focus on whether this passage should allow movement based on player actions and the shrine's current state."
+    },
+    {
+      "entityId": "passage_east",
+      "entityType": "exit",
+      "name": "Hidden Passage",
+      "description": "A concealed opening in the shrine's eastern wall, barely visible behind trailing vines.",
+      "destinationId": "crystal_grove",
+      "statuses": ["hidden"],
+      "entityPrompt": "You are a hidden exit from the shrine to the crystal grove. As an exit agent, you can lose your 'hidden' status when discovered through proper investigation or magical means. Focus on whether players have demonstrated worthiness to access the secret grove and what conditions must be met for passage."
+    },
+    {
+      "entityId": "path_south",
+      "entityType": "exit",
+      "name": "Path to the Shrine",
+      "description": "The forest path leads south toward a sacred glade where ancient stones await.",
+      "destinationId": "ruined_shrine",
+      "entityPrompt": "You are an exit leading south from the forest path back to the shrine. As an exit agent, you remain consistently available for movement but can become 'blessed' or 'peaceful' based on the spiritual state of travelers using this path."
+    },
+    {
+      "entityId": "bridge_west",
+      "entityType": "exit",
+      "name": "Stone Bridge",
+      "description": "An elegant stone bridge spans the babbling brook to the west.",
+      "destinationId": "stone_bridge",
+      "entityPrompt": "You are an exit leading west from the forest path to the stone bridge. As an exit agent, you can become 'inviting' when the bridge calls to contemplative souls, or 'treacherous' if the brook becomes dangerous due to magical disturbances."
+    },
+    {
+      "entityId": "path_east",
+      "entityType": "exit",
+      "name": "Forest Path East",
+      "description": "The path winds eastward through the moonlit forest, back toward the ancient shrine area.",
+      "destinationId": "forest_path",
+      "entityPrompt": "You are an exit leading east from the bridge back to the forest path. As an exit agent, you provide reliable passage but can become 'hurried' if players flee from danger or 'serene' if they leave the bridge in a peaceful state."
+    },
+    {
+      "entityId": "cave_stairs",
+      "entityType": "exit",
+      "name": "Stone Steps Down",
+      "description": "Carved stone steps descend along the rocky bank into a hidden cave entrance.",
+      "destinationId": "hidden_cave",
+      "entityPrompt": "You are an exit leading down from the bridge to the crystal cavern. As an exit agent, you can become 'treacherous' if wet or damaged, 'inviting' when the cavern's magic calls, or 'sealed' if the bridge's protective magic activates against unworthy visitors."
+    },
+    {
+      "entityId": "stairs_up",
+      "entityType": "exit",
+      "name": "Stone Steps Up",
+      "description": "Stone steps carved into the cavern wall lead up toward the sound of flowing water.",
+      "destinationId": "stone_bridge",
+      "entityPrompt": "You are an exit leading up from the crystal cavern to the bridge. As an exit agent, you can become 'illuminated' by crystal magic, 'difficult' if the cavern is disturbed, or 'welcoming' when visitors have properly honored the sacred space below."
+    },
+    {
+      "entityId": "crystal_grove",
+      "entityType": "location",
+      "name": "The Luminous Grove",
+      "description": "A hidden grove where crystal trees grow from living earth, their translucent branches reaching\ntoward a canopy of stars visible through the natural skylight above. Each crystal tree chimes softly\nin the breeze, creating an ethereal symphony. Pools of silvery water collect the light and cast\nrainbow patterns across the grove floor. Ancient runes circle the perimeter, glowing with protective\nward magic. A concealed passage leads west back to the shrine.",
+      "fixtureIds": ["crystal_trees", "starlight_pool", "ward_stones"],
+      "exitIds": ["passage_west"],
+      "entityPrompt": "You are a secret location accessed only through hidden passages from the shrine. As a location agent, focus on how player actions might activate your crystal trees, disturb your celestial pool, or trigger your protective ward stones. You can become 'harmonized', 'protected', or 'revealed' based on player behavior."
+    },
+    {
+      "entityId": "passage_west",
+      "entityType": "exit",
+      "name": "Concealed Opening",
+      "description": "A hidden opening in the grove's western edge, masked by hanging crystal branches.",
+      "destinationId": "ruined_shrine",
+      "statuses": ["concealed"],
+      "entityPrompt": "You are a concealed exit from the crystal grove back to the shrine. As an exit agent, you can lose your 'concealed' status when players prove their worthiness through proper interaction with the grove's magical elements."
+    },
+    {
+      "entityId": "luminous_mushrooms",
+      "entityType": "fixture",
+      "name": "Glowing Fungi",
+      "description": "Clusters of pale blue mushrooms dot the forest floor, emanating a soft, ethereal glow that\nilluminates the path ahead. Their caps pulse gently like slow heartbeats, and touching them causes\nthe light to intensify briefly before fading back to its steady rhythm.",
+      "statuses": ["glowing"],
+      "entityPrompt": "You are a fixture that can be touched to brighten or disturbed to dim. As a fixture agent, focus on status changes from player interactions - becoming 'brightened' when activated, 'dimmed' when damaged, or 'pulsing' when the forest's magic is awakened."
+    },
+    {
+      "entityId": "ancient_waystone",
+      "entityType": "fixture",
+      "name": "Moss-Covered Waystone",
+      "description": "A tall stone marker stands beside the path, covered in soft green moss and carved with directional\nrunes that seem to shift and change when viewed from different angles. The stone hums faintly with\nold magic, and those who touch it feel a sense of direction and purpose.",
+      "statuses": ["moss-covered", "magical"],
+      "entityPrompt": "You are a fixture that can be consulted for guidance or touched to activate directional magic. As a fixture agent, focus on status changes like 'activated' when properly consulted, 'revealed' when hidden runes are discovered, or 'moss-cleared' if cleaned."
+    },
+    {
+      "entityId": "flowing_brook",
+      "entityType": "fixture",
+      "name": "Singing Brook",
+      "description": "Crystal-clear water flows beneath the bridge, creating a melodic babbling sound as it dances over\nsmooth stones. The water reflects the moon and stars with perfect clarity, and legend says that those\nwho drink from it may glimpse visions of distant places.",
+      "statuses": ["flowing", "crystal-clear"],
+      "entityPrompt": "You are a fixture that can be drunk from, gazed into, or blessed. As a fixture agent, focus on status changes like 'blessed' when properly honored, 'disturbed' if polluted, or 'prophetic' when its visionary powers are activated."
+    },
+    {
+      "entityId": "carved_railings",
+      "entityType": "fixture",
+      "name": "Ornate Stone Railings",
+      "description": "The bridge's railings are carved with intricate patterns of vines, flowers, and mystical creatures\nthat seem to move and dance in the shifting moonlight. Each carving tells part of an ancient story\nabout the bridge's creation and the magic that flows through this place.",
+      "statuses": ["ornate", "storytelling"],
+      "entityPrompt": "You are a fixture that can be examined to reveal ancient stories or touched to activate storytelling magic. As a fixture agent, focus on status changes like 'storytelling' when activated, 'glowing' when magical tales are triggered, or 'resonating' when emotional connections are made."
+    },
+    {
+      "entityId": "crystal_formations",
+      "entityType": "fixture",
+      "name": "Singing Crystals",
+      "description": "Massive crystal formations jut from the cavern walls, each one resonating with a different harmonic\ntone. The crystals pulse with inner light that shifts from deep blue to brilliant white, creating\na natural light show that accompanies their ethereal song.",
+      "statuses": ["singing", "luminous"],
+      "entityPrompt": "You are a fixture that can be touched to change harmonic tones or listened to for wisdom. As a fixture agent, focus on status changes like 'harmonizing' when properly attuned, 'discordant' if disturbed, or 'enlightening' when they reveal magical truths."
+    },
+    {
+      "entityId": "reflecting_pool",
+      "entityType": "fixture",
+      "name": "Pool of Visions",
+      "description": "A perfectly still pool of water reflects not just the cavern ceiling, but glimpses of other times\nand places. The surface occasionally ripples without any visible cause, revealing fleeting images\nof past events or possible futures to those who gaze into its depths.",
+      "statuses": ["mystical", "prophetic"],
+      "entityPrompt": "You are a fixture that can be gazed into for visions or touched to activate prophetic magic. As a fixture agent, focus on status changes like 'prophetic' when visions are granted, 'disturbed' if the surface is broken, or 'revelatory' when showing hidden truths."
+    },
+    {
+      "entityId": "runic_wall",
+      "entityType": "fixture",
+      "name": "Ancient Runic Inscriptions",
+      "description": "The cavern's eastern wall is covered in elaborate runic inscriptions that pulse with soft golden\nlight. The symbols seem to shift and rearrange themselves when observed directly, suggesting they\ncontain knowledge that adapts to the reader's understanding.",
+      "statuses": ["glowing", "shifting"],
+      "entityPrompt": "You are a fixture that can be read, deciphered, or touched to activate ancient magic. As a fixture agent, focus on status changes like 'deciphered' when properly understood, 'glowing' when magical knowledge is accessed, or 'shifting' when adapting to reader comprehension."
+    },
+    {
+      "entityId": "crystal_trees",
+      "entityType": "fixture",
+      "name": "Harmonic Crystal Trees",
+      "description": "Translucent trees of living crystal reach toward the star-filled opening above, their branches\nchiming in harmonious melodies as gentle breezes pass through them. Each tree resonates with a\ndifferent magical frequency, creating a symphony of crystalline music.",
+      "statuses": ["musical", "crystalline", "living"],
+      "entityPrompt": "You are a fixture that can be touched to change their musical tones or approached for healing. As a fixture agent, focus on status changes like 'harmonizing' when properly attuned, 'healing' when providing restoration, or 'discordant' if their sacred music is disrupted."
+    },
+    {
+      "entityId": "starlight_pool",
+      "entityType": "fixture",
+      "name": "Celestial Reflecting Pool",
+      "description": "A circular pool of silvery water perfectly reflects the stars visible through the grove's natural\nskylight. The water never ripples, maintaining its mirror-like surface even when touched, and it\nglows faintly with captured starlight.",
+      "statuses": ["starlit", "mystical", "mirror-like"],
+      "entityPrompt": "You are a fixture that can be gazed into for celestial visions or blessed to enhance star-connection. As a fixture agent, focus on status changes like 'starlit' when cosmic forces are strong, 'clouded' if the connection is disrupted, or 'transcendent' when divine wisdom is accessed."
+    },
+    {
+      "entityId": "ward_stones",
+      "entityType": "fixture",
+      "name": "Protective Ward Stones",
+      "description": "Ancient standing stones circle the grove's perimeter, each carved with protective runes that glow\nwith a steady, reassuring light. The stones hum with defensive magic, creating a barrier that keeps\nmalevolent forces at bay while welcoming those with pure intentions.",
+      "statuses": ["protective", "glowing", "ancient"],
+      "entityPrompt": "You are a fixture that can be activated for protection or consulted for safety. As a fixture agent, focus on status changes like 'activated' when protective magic is triggered, 'weakened' if damaged, or 'strengthened' when properly honored and maintained."
     }
   ]
 }

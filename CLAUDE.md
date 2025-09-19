@@ -23,17 +23,17 @@ Current architecture:
 
 ### ✅ Working Systems
 
-- **Multi-agent game engine**: Complete LangGraph.js workflow with classifier → agents → arbiter → committer flow
+- **Multi-agent game engine**: Complete LangGraph.js workflow with classifier → agents → arbiter → committer → narrator flow
 - **Game interfaces**: Web frontend (port 4280), admin dashboard (port 4281), API backend (port 7071)
 - **Persistent state**: Redis-backed entities with game save/load, template management, and structured logging
-- **Agent types**: Location, fixture, player, and arbiter agents with entity-specific prompts and conservative behavior
-- **Game world**: "The Shrine of Forgotten Whispers" with atmospheric descriptions and interactive fixtures
-- **State management**: Multi-channel GameTurnAnnotation system with Set-based status management and entity persistence
+- **Agent types**: Location, fixture, player, exit, and arbiter agents with entity-specific prompts and change-focused behavior
+- **Movement system**: Exit agents handle player location changes with validation and proper state transitions
+- **Game world**: "The Shrine of Forgotten Whispers" expanded with interconnected locations and movement paths
+- **State management**: Multi-channel GameTurnAnnotation system with structured change recommendations and entity persistence
+- **Narrative generation**: Dedicated narrator agent for post-committer storytelling with concise, atmospheric responses
 
 ### 🚧 Next Priorities
 
-- Add exit agent and movement logic to handle player location changes
-- Add narrator agent for enhanced narrative after committer
 - Integrate Agent Memory Server for persistent agent memory
 - Add item entities and item agent types
 - Add NPC agent types and implementations
@@ -177,11 +177,13 @@ The core innovation is the multi-agent collaboration system built with LangGraph
 - **LangGraph Implementation**: `MultiAgentGraph` class in `@ana/agents` constructs dynamic execution graphs
 - **Agent Types**:
   - `classifier` - LLM-powered routing to determine which agents should respond
-  - `location-agent` - Provides environmental context and atmosphere
-  - `fixture-agent` - Handles item interactions and world object responses
-  - `player-agent` - Manages player introspection, inventory, status, abilities
-  - `arbiter` - Synthesizes all agent responses into coherent narrative
-  - `committer` - Applies entity state changes and persists to Redis
+  - `location-agent` - Analyzes location-specific state changes and atmospheric effects
+  - `fixture-agent` - Handles interactive object state changes and responses
+  - `player-agent` - Manages player status, abilities, and introspection changes
+  - `exit-agent` - Handles movement logic and location transitions
+  - `arbiter` - Processes change recommendations and resolves conflicts
+  - `committer` - Applies validated entity changes and persists to Redis
+  - `narrator` - Generates concise narrative responses after state changes
 
 ### Multi-Channel State Management
 
@@ -281,8 +283,9 @@ The core innovation is the multi-agent collaboration system built with LangGraph
 
 - All agents use Zod schemas for structured input/output
 - Agents read from dedicated GameTurnAnnotation state channels
-- Conservative behavior: avoid unnecessary status changes on informational commands
-- Entity-specific prompts via `entityPrompt` field for personalized LLM behavior
+- Change-focused behavior: agents recommend specific status and property modifications
+- Entity-specific prompts via `entityPrompt` field for customized agent behavior
+- Separated concerns: agents recommend changes, arbiter resolves conflicts, committer applies, narrator tells story
 
 ### Entity Management
 

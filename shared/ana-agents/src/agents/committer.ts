@@ -1,98 +1,102 @@
-import dedent from 'dedent'
-import { fetchLLMClient } from '@ana/common/clients'
 import { log } from '@ana/common/utils'
-import { GameTurnAnnotation, FinalNarrativeSchema, type EntityNarrative, type ApprovedChange, type FinalNarrative } from '@/game-turn-state.js'
+import {
+  GameTurnAnnotation,
+  type EntityChange,
+  type EntityPropertyChange,
+  type EntityStatusAddition,
+  type EntityStatusRemoval
+} from '@/game-turn-state.js'
+import { LocationEntity, type GameEntity, type GameState, type PlayerEntity } from '@ana/domain'
 
 type CommitterReturnType = Partial<typeof GameTurnAnnotation.State>
 
 export async function committer(state: typeof GameTurnAnnotation.State): Promise<CommitterReturnType> {
   const gameState = state.gameState
-  const userCommand = state.userCommand
-  const approvedChanges = state.approvedChanges as ApprovedChange[]
-  const agentNarratives = state.agentNarratives as EntityNarrative[]
+  const entityChanges = state.entityChanges as EntityChange[]
 
   // Basic validation
-  if (!userCommand) throw new Error('Missing user command')
   if (!gameState) throw new Error('Missing game state')
 
-  // Useful game data
-  const { gameId, nearbyEntities } = gameState
+  // Apply entity changes to the game state
+  await applyEntityChanges(gameState, entityChanges)
 
-  // Log input
-  log(gameId, '📝 COMMITTER', 'Applying approved changes')
-  log(gameId, '📝 COMMITTER', approvedChanges)
-
-  // Apply approved changes to the game state
-  for (const change of approvedChanges) {
-    // fetch the entity from the game state
-    const entity = gameState.nearbyEntities.find(entity => entity.entityId === change.entityId)
-
-    // log if not found
-    if (!entity) {
-      log(gameId, '📝 COMMITTER', `Entity ${change.entityId} not found in game state, skipping change`)
-      continue
-    }
-
-    // update the statuses
-    entity.addStatus(...change.statusesAdded)
-    entity.removeStatus(...change.statusesRemoved)
-
-    // save it
-    await entity.save()
-  }
-
-  // Generate final narrative based on the changes
-  const llm = await fetchLLMClient()
-  const structuredLLM = llm.withStructuredOutput(FinalNarrativeSchema)
-  const prompt = buildCommitterPrompt(userCommand, nearbyEntities, approvedChanges, agentNarratives)
-  log(gameId, `📝 COMMITTER - Sending to LLM`, prompt)
-
-  // Invoke LLM for final narrative
-  const narrativeResponse = (await structuredLLM.invoke(prompt)) as FinalNarrative
-  log(gameId, '📝 COMMITTER - LLM response', narrativeResponse)
-
-  return { finalNarrative: narrativeResponse.finalNarrative }
+  // Committer does not produce new state, just applies changes
+  return {}
 }
 
-function buildCommitterPrompt(
-  userCommand: string,
-  nearbyEntities: any[],
-  approvedChanges: ApprovedChange[],
-  agentNarratives: EntityNarrative[]
-) {
-  return dedent`
-    You are the COMMITTER in a multi-agent text adventure game system.
+async function applyEntityChanges(gameState: GameState, changes: EntityChange[]): Promise<void> {
+  const { gameId } = gameState
 
-    TASK: Generate a final narrative response that weaves together the approved state changes into a cohesive, engaging story.
+  log(gameId, '📝 COMMITTER - Entity changes', changes)
+  for (const change of changes) {
+    await applyEntityChange(gameState, change)
+  }
+}
 
-    Your role as Committer:
-    - The state changes have already been applied to the game world
-    - Create a narrative that describes what happened as a result of the player's action
-    - Reference the player's specific command to make the response feel connected
-    - Use the nearby entities for environmental context and atmosphere
-    - Integrate agent narrative contributions where relevant
-    - Focus on the immediate consequences and sensory details
-    - Write in present tense, second person ("You...")
+async function applyEntityChange(gameState: GameState, change: EntityChange): Promise<void> {
+  const entity = gameState.nearbyEntities.find((entity: GameEntity) => entity.entityId === change.entityId)
 
-    Guidelines:
-    - Keep the response concise but atmospheric (2-4 sentences)
-    - Start by acknowledging the player's action
-    - Emphasize the results of the changes that were made
-    - Include sensory details (what the player sees, hears, feels)
-    - Reference nearby environment for immersion
-    - Maintain consistency with the approved changes
-    - If no changes were approved, focus on the attempted action's outcome
+  if (!entity) {
+    log(gameState.gameId, '📝 COMMITTER', `Entity ${change.entityId} not found in game state, skipping change`)
+    return
+  }
 
-    PLAYER COMMAND:
-    ${userCommand}
+  // Apply changes
+  applyStatusAdditions(entity, change.addStatuses)
+  applyStatusRemovals(entity, change.removeStatuses)
+  await applyPropertyChanges(gameState, entity, change.entityId, change.setProperties)
 
-    NEARBY ENTITIES (for environmental context):
-    ${JSON.stringify(nearbyEntities)}
+  // Save the entity with all changes applied
+  await entity.save()
+}
 
-    APPROVED CHANGES (already applied):
-    ${JSON.stringify(approvedChanges)}
+function applyStatusAdditions(entity: GameEntity, additions: EntityStatusAddition[]): void {
+  for (const statusToAdd of additions) entity.addStatus(statusToAdd.status)
+}
 
-    AGENT NARRATIVES (for context):
-    ${JSON.stringify(agentNarratives)}
-  `
+function applyStatusRemovals(entity: GameEntity, removals: EntityStatusRemoval[]): void {
+  for (const statusToRemove of removals) entity.removeStatus(statusToRemove.status)
+}
+
+async function applyPropertyChanges(
+  gameState: GameState,
+  entity: GameEntity,
+  entityId: string,
+  changes: EntityPropertyChange[]
+): Promise<void> {
+  for (const change of changes) await applyPropertyChange(gameState, entity, entityId, change)
+}
+
+async function applyPropertyChange(
+  gameState: GameState,
+  entity: GameEntity,
+  entityId: string,
+  change: EntityPropertyChange
+): Promise<void> {
+  if (change.property === 'locationId' && entity.entityType === 'player') {
+    await updatePlayerLocation(gameState, entity as PlayerEntity, change)
+  } else {
+    log(
+      gameState.gameId,
+      '📝 COMMITTER',
+      `Unknown property "${change.property}" for ${entityId}, skipping change: ${change.reasoning}`
+    )
+  }
+}
+
+async function updatePlayerLocation(
+  gameState: GameState,
+  player: PlayerEntity,
+  change: EntityPropertyChange
+): Promise<void> {
+  // Make sure location exists in game state
+  const location = await LocationEntity.fetch(gameState.gameId, change.value)
+  if (!location) {
+    log(gameState.gameId, '📝 COMMITTER', `Invalid location "${change.value}" for player, skipping change`)
+    return
+  }
+
+  // Update player location
+  log(gameState.gameId, '📝 COMMITTER', `Updating player location to "${change.value}"`)
+  player.locationId = change.value
 }

@@ -2,8 +2,8 @@ import { fetchLLMClient } from '@ana/common/clients'
 import { log } from '@ana/common/utils'
 import {
   GameTurnAnnotation,
-  EntityAgentResponseSchema,
-  type EntityAgentResponse,
+  EntityChangeRecommendationSchema,
+  type EntityChangeRecommendation,
   type SelectedEntity
 } from '@/game-turn-state.js'
 import type { GameEntity } from '@ana/domain'
@@ -58,18 +58,17 @@ export function createAgent(
 
     // Set up LLM with prompt and structured output
     const llm = await fetchLLMClient()
-    const structuredLLM = llm.withStructuredOutput(EntityAgentResponseSchema)
+    const structuredLLM = llm.withStructuredOutput(EntityChangeRecommendationSchema)
     const prompt = promptBuilder(entity, userCommand, reasoning)
     log(gameId, `${agentLabel} - Sending to LLM`, prompt)
 
     // Invoke LLM and parse structured output
-    const agentResponse = (await structuredLLM.invoke(prompt)) as EntityAgentResponse
-    log(gameId, `${agentLabel} - LLM response`, agentResponse)
+    const entityChangeRecommendations = (await structuredLLM.invoke(prompt)) as EntityChangeRecommendation
+    log(gameId, `${agentLabel} - LLM response`, entityChangeRecommendations)
 
-    // Return narrative and recommendations to separate channels
+    // Return change recommendations directly
     return {
-      agentNarratives: agentResponse.narrative,
-      agentRecommendations: agentResponse.recommendation
+      entityChangeRecommendations
     }
   }
 }

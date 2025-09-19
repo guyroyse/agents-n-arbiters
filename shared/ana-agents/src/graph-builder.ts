@@ -3,9 +3,11 @@ import { classifier } from './agents/classifier.js'
 import { locationAgent } from './agents/location-agent.js'
 import { fixtureAgent } from './agents/fixture-agent.js'
 import { playerAgent } from './agents/player-agent.js'
+import { exitAgent } from './agents/exit-agent.js'
 import { arbiter } from './agents/arbiter.js'
 import { committer } from './agents/committer.js'
-import { LocationEntity, FixtureEntity, PlayerEntity, GameState } from '@ana/domain'
+import { narrator } from './agents/narrator.js'
+import { LocationEntity, FixtureEntity, PlayerEntity, ExitEntity, GameState } from '@ana/domain'
 import { GameTurnAnnotation } from './game-turn-state.js'
 import { log } from '@ana/common/utils'
 
@@ -22,6 +24,7 @@ export class MultiAgentGraph {
     this.#addClassifier()
     this.#addArbiter()
     this.#addCommitter()
+    this.#addNarrator()
     this.#addAgents()
 
     return this.#graph.compile()
@@ -39,7 +42,12 @@ export class MultiAgentGraph {
 
   #addCommitter() {
     this.#graph.addNode('committer', committer)
-    this.#graph.addEdge('committer', END)
+    this.#graph.addEdge('committer', 'narrator')
+  }
+
+  #addNarrator() {
+    this.#graph.addNode('narrator', narrator)
+    this.#graph.addEdge('narrator', END)
   }
 
   #addAgents() {
@@ -81,6 +89,9 @@ export class MultiAgentGraph {
         break
       case PlayerEntity:
         this.#graph.addNode(nodeName, playerAgent(nodeName))
+        break
+      case ExitEntity:
+        this.#graph.addNode(nodeName, exitAgent(nodeName))
         break
       default:
         throw new Error(`Unknown entity type: ${entity.constructor.name}`)

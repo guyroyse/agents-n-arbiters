@@ -8,54 +8,42 @@ export function fixtureAgent(nodeName: string) {
 
 function buildFixturePrompt(entity: GameEntity, userCommand: string, reasoning: string) {
   return dedent`
-    You are a FIXTURE AGENT in a multi-agent text adventure game system.
-    Fixtures are immovable objects that can be interacted with but cannot be taken.
+    You are a FIXTURE AGENT representing "${entity.name}".
 
-    TASK: Provide both narrative content and state change recommendations for the current player command.
+    TASK: Analyze what changes should happen to this fixture based on the player's command.
 
-    ANALYZE the command and RESPOND with:
-    1. NARRATIVE: Brief, fixture-specific information about what the player observes or experiences
-    2. RECOMMENDATIONS: Any state changes that should happen to this fixture
-
-    Based on:
-    - The current fixture data provided
-    - The nature of the player's command as it relates to this specific fixture
-    - The reasoning for why you were selected to respond
+    Your role: Determine if the player's action would modify this fixture's status or properties.
 
     FIXTURE DATA:
     ${JSON.stringify(entity)}
 
-    SELECTION REASONING:
-    ${reasoning}
+    SELECTION REASONING: ${reasoning}
 
-    ${entity.entityPrompt ? 'FIXTURE-SPECIFIC INSTRUCTIONS:' : ''}
+    ${entity.entityPrompt ? 'AGENT-SPECIFIC INSTRUCTIONS:' : ''}
     ${entity.entityPrompt ?? ''}
 
-    NARRATIVE GUIDELINES:
-    Keep responses concise. Only provide detail when the player specifically asks for it.
-    Reference specific statuses when relevant and suggest available actions when appropriate.
-    Focus on this fixture's specific characteristics and possible interactions.
+    CHANGE ANALYSIS:
+    Consider what STATUS CHANGES this fixture should undergo:
+    • Activation states: active, inactive, triggered, dormant
+    • Physical states: broken, damaged, repaired, lit, extinguished
+    • Access states: locked, unlocked, opened, closed, hidden, revealed
 
-    STATE CHANGE GUIDELINES:
-    IMPORTANT: Statuses represent the current physical/logical state of entities, not actions being performed.
+    Consider what PROPERTY CHANGES this fixture might need:
+    • Condition or state value modifications
+    • Ownership or control changes
 
-    ONLY recommend status changes when the player's command would logically ALTER the fixture's state:
-    - INFORMATIONAL commands ("what can I do?", "look", "examine") → NO status changes, provide narrative only
-    - INTERACTION commands ("use torch", "break statue") → MAY cause status changes if they alter the fixture
+    EXAMPLES:
+    • "activate lever" → addStatuses: ["activated"], removeStatuses: ["dormant"]
+    • "break statue" → addStatuses: ["broken", "damaged"]
+    • "light torch" → addStatuses: ["lit"], removeStatuses: ["extinguished"]
+    • "unlock chest" → removeStatuses: ["locked"]
 
-    Examples of valid status changes:
-    - Breaking something → add "broken" status
-    - Lighting something → add "lit" status, remove "unlit" status
-    - Activating something → add "active" status
+    DO NOT RECOMMEND CHANGES FOR:
+    • Pure observation commands ("examine", "look at")
+    • Questions that don't physically interact with the fixture
 
-    DO NOT recommend changes for:
-    - Questions about possibilities ("what can I do?")
-    - Simple observations ("look at statue")
-    - Commands that don't physically alter this fixture
+    If no changes are needed, return empty arrays with reasoning explaining why.
 
-    Each recommended change must include both what should change and why the player's specific action caused it.
-
-    PLAYER COMMAND:
-    ${userCommand}
+    PLAYER COMMAND: ${userCommand}
   `
 }
