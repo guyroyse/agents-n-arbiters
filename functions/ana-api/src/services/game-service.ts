@@ -153,8 +153,14 @@ class GameService {
     const gameKeyName = this.gameKey(gameId)
     const turnsKeyName = this.turnsKey(gameId)
     const logKeyName = this.logKey(gameId)
+    const gameEntityPattern = this.gameEntityPattern(gameId)
 
-    // not awaiting uses pipelining
+    // Delete game entity keys using SCAN iterator
+    for await (const keys of this.#client.scanIterator({ MATCH: gameEntityPattern })) {
+      if (keys.length > 0) this.#client.del(keys)
+    }
+
+    // not awaiting uses pipelining for concurrent deletion
     this.#client.del(turnsKeyName)
     this.#client.json.del(gameKeyName)
     await this.#client.del(logKeyName)
@@ -189,6 +195,10 @@ class GameService {
 
   private logKey(gameId: string): string {
     return `${this.gameKey(gameId)}:log`
+  }
+
+  private gameEntityPattern(gameId: string): string {
+    return `game:${gameId}*`
   }
 }
 
