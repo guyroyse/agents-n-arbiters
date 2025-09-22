@@ -1,9 +1,10 @@
 import dedent from 'dedent'
 
-import { fetchLLMClient } from '@ana/common/clients'
+import { fetchLLMClient, AmsClient } from '@ana/common/clients'
 import { log } from '@ana/common/utils'
 import { GameTurnAnnotation, FinalNarrativeSchema, type FinalNarrative } from '@/game-turn-state.js'
 import type { GameState } from '@ana/domain'
+import type { WorkingMemory } from '@ana/common/clients'
 
 type NarratorReturnType = Partial<typeof GameTurnAnnotation.State>
 
@@ -23,21 +24,39 @@ export async function narrator(state: typeof GameTurnAnnotation.State): Promise<
   log(gameId, '📖 NARRATOR - User command', userCommand)
   log(gameId, '📖 NARRATOR - Entity changes', entityChanges)
 
+  // Get conversation history from AMS
+  const narratorMemory = await AmsClient.instance().readWorkingMemory(gameId, 'narrator')
+  log(gameId, '📖 NARRATOR - Loaded memory', { messageCount: narratorMemory.messages.length })
+
   // Set up LLM with prompt and structured output
   const llm = await fetchLLMClient()
   const structuredLLM = llm.withStructuredOutput(FinalNarrativeSchema)
-  const prompt = buildNarratorPrompt(gameState, userCommand, entityChanges)
+  const prompt = buildNarratorPrompt(gameState, userCommand, entityChanges, narratorMemory)
   log(gameId, '📖 NARRATOR - Sending to LLM', prompt)
 
   // Invoke LLM and parse structured output
   const narrative = (await structuredLLM.invoke(prompt)) as FinalNarrative
   log(gameId, '📖 NARRATOR - LLM response', narrative)
 
+  // Save this turn to AMS memory
+  const context = narratorMemory.context
+  const messages = [
+    ...narratorMemory.messages,
+    { role: 'user', content: userCommand },
+    { role: 'assistant', content: narrative.finalNarrative }
+  ]
+  await AmsClient.instance().replaceWorkingMemory(gameId, 'narrator', context, messages)
+
   // Return the final narrative
   return { finalNarrative: narrative.finalNarrative }
 }
 
-function buildNarratorPrompt(gameState: GameState, userCommand: string, entityChanges: any[]): string {
+function buildNarratorPrompt(
+  gameState: GameState,
+  userCommand: string,
+  entityChanges: any[],
+  narratorMemory: WorkingMemory
+): string {
   return dedent`
     You are the NARRATOR in a multi-agent text adventure game system.
 
@@ -64,13 +83,20 @@ function buildNarratorPrompt(gameState: GameState, userCommand: string, entityCh
     • For observational commands ("look", "where am I"), give brief, clear descriptions
     • For actions with changes, describe the immediate result simply
     • Avoid flowery language and excessive detail
+    • ALWAYS include the current location name and available exits in your response
+    • Format exits as "Exits: [direction] to [location]" or similar natural phrasing
 
     GAME ENTITIES:
     ${JSON.stringify(gameState.nearbyEntities)}
-
-    PLAYER COMMAND: ${userCommand}
+    
+    RECENT MEMORY:
+    • Summary: ${narratorMemory.context ? narratorMemory.context : 'No summary available'}
+    ${narratorMemory.messages.map(message => `• ${message.role.toUpperCase()}: ${message.content}`).join('\n')}
 
     APPLIED CHANGES:
     ${JSON.stringify(entityChanges)}
+
+    PLAYER COMMAND: ${userCommand}
+
   `
 }

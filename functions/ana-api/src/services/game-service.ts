@@ -2,7 +2,7 @@ import type { RediSearchSchema } from 'redis'
 
 import type { SavedGame, GameTurn, GameLogEntry } from '@ana/types'
 
-import { fetchRedisClient, type RedisClient } from '@ana/common/clients'
+import { fetchRedisClient, AmsClient, type RedisClient } from '@ana/common/clients'
 import { dateToTimestamp, timestampToDate } from '@ana/common/utils'
 
 type GameIndexOptions = {
@@ -159,6 +159,9 @@ class GameService {
     for await (const keys of this.#client.scanIterator({ MATCH: gameEntityPattern })) {
       if (keys.length > 0) this.#client.del(keys)
     }
+
+    // Delete AMS working memory for narrator
+    await AmsClient.instance().removeWorkingMemory(gameId, 'narrator')
 
     // not awaiting uses pipelining for concurrent deletion
     this.#client.del(turnsKeyName)

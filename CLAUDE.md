@@ -31,13 +31,13 @@ Current architecture:
 - **Game world**: "The Shrine of Forgotten Whispers" expanded with interconnected locations and movement paths
 - **State management**: Multi-channel GameTurnAnnotation system with structured change recommendations and entity persistence
 - **Narrative generation**: Dedicated narrator agent for post-committer storytelling with concise, atmospheric responses
-- **Agent Memory Server client**: TypeScript client for conversation history persistence with namespace-based memory management
+- **Agent Memory Server integration**: Complete AMS integration with narrator agent for persistent conversation history and narrative continuity
+- **Spatial awareness**: Narrator always provides location name and available exits for consistent player orientation
 
 ### 🚧 Next Priorities
 
 - Add item entities and item agent types
 - Add NPC agent types and implementations
-- Integrate AMS with multi-agent workflow for persistent agent memory
 - Deploy to Azure with AMS and Azure Container Apps
 
 ## Development Commands

@@ -10,12 +10,6 @@ export type WorkingMemory = {
   messages: ConversationMessage[]
 }
 
-type WorkingMemoryReplacement = {
-  namespace: string
-  messages: ConversationMessage[]
-  context_window_max: number
-}
-
 export class AmsClient {
   static #instance: AmsClient
 
@@ -57,19 +51,20 @@ export class AmsClient {
   /**
    * Replace conversation history for a session
    */
-  async replaceWorkingMemory(sessionId: string, namespace: string, messages: ConversationMessage[]): Promise<void> {
+  async replaceWorkingMemory(
+    sessionId: string,
+    namespace: string,
+    context: string,
+    messages: ConversationMessage[]
+  ): Promise<void> {
     const url = `${this.#baseUrl}/v1/working-memory/${sessionId}`
 
-    const replacement: WorkingMemoryReplacement = {
-      namespace,
-      messages,
-      context_window_max: this.#contextWindowMax
-    }
+    const replacement: WorkingMemory = { session_id: sessionId, namespace, context, messages }
 
     const response = await fetch(url, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(replacement)
+      body: JSON.stringify({ ...replacement, context_window_max: this.#contextWindowMax })
     })
 
     if (!response.ok) {
