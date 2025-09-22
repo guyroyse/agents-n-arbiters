@@ -14,44 +14,59 @@ You can read more about multi-agent collaboration in the [LangGraph documentatio
 
 - [Node.js v20.x](https://nodejs.org/) (run `nvm use` if you have nvm installed)
 - [Docker](https://www.docker.com/)
+- [OpenAI API key](https://platform.openai.com/api-keys) (required for AI functionality)
 
 ## Getting Started
 
-1. **Start services:**
+1. **Copy configuration files:**
 
-   ```bash
-   docker compose up
-   ```
+```bash
+cp .env.example .env
+cp functions/ana-api/local.settings.example.json functions/ana-api/local.settings.json
+```
 
-2. **Install dependencies:**
+Then edit both `.env` and `local.settings.json` to add your OpenAI API key.
 
-   ```bash
-   npm install
-   ```
+2. **Start services**
 
-3. **Copy local settings**:
+```bash
+ docker compose up
+```
 
-   ```bash
-   cp packages/ana-api/local.settings.example.json packages/ana-api/local.settings.json
-   ```
+3. **Install dependencies and start development:**
 
-4. **Start development server:**
-   ```bash
-   npm run dev
-   ```
+```bash
+npm install
+npm run dev
+```
 
 ## Development URLs
 
 - **Frontend:** http://localhost:4280 (Static Web App CLI)
+- **Admin:** http://localhost:4281 (Admin interface)
 - **API:** http://localhost:7071/api/\* (Azure Functions)
+- **Agent Memory Server:** http://localhost:8000 (Redis AMS)
 - **Redis:** localhost:6379
-- **Agent Memory Server:** http://localhost:8000 (placeholder)
 
 ## Project Structure
 
-- **`packages/ana-web/`** - Svelte 5 frontend with terminal-style interface and Tailwind CSS
-- **`packages/ana-api/`** - Azure Functions v4 API backend
-- **`packages/agent-memory-server/`** - Redis-based containerized memory server for AI agents
-- **`packages/shared/`** - Shared TypeScript types
-- **`data/redis/`** - Persistent Redis data (gitignored runtime, committed seed data)
-- **`infrastructure/`** - Infrastructure as Code (Bicep templates)
+This is a TypeScript monorepo built with npm workspaces:
+
+### Core Packages
+
+- **`shared/ana-types/`** (@ana/types) - Pure TypeScript types and Zod schemas
+- **`shared/ana-common/`** (@ana/common) - Shared utilities, Redis/LLM clients, admin functions
+- **`shared/ana-domain/`** (@ana/domain) - Entity classes and game state management
+- **`shared/ana-agents/`** (@ana/agents) - Complete multi-agent LangGraph system
+
+### Applications
+
+- **`static-web-apps/ana-web/`** (@ana/web) - Svelte 5 frontend with terminal-style game interface
+- **`functions/ana-api/`** (@ana/api) - Azure Functions v4 API endpoints
+- **`static-web-apps/ana-admin/`** (@ana/admin) - Admin interface for logs and template management
+
+### Infrastructure
+
+- **`containers/agent-memory-server/`** - Containerized Agent Memory Server (working memory)
+- **`data/redis/`** - Persistent Redis data storage for local development
+- **`infrastructure/`** - Infrastructure as Code (Bicep templates for Azure deployment)

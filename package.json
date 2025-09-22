@@ -16,17 +16,17 @@
     "npm-run-all": "^4.1.5"
   },
   "scripts": {
-    "dev": "npm-run-all --sequential build --parallel dev:api dev:web dev:admin",
-    "dev:web": "npm run dev --workspace=@ana/web",
+    "dev": "npm-run-all --sequential build --parallel dev:api dev:admin dev:web",
     "dev:api": "npm run dev --workspace=@ana/api",
     "dev:admin": "npm run dev --workspace=@ana/admin",
+    "dev:web": "npm run dev --workspace=@ana/web",
     "build": "npm-run-all --sequential build:types build:common build:domain build:agents --parallel build:web build:admin build:api",
     "build:types": "npm run build --workspace=@ana/types",
     "build:common": "npm run build --workspace=@ana/common",
     "build:domain": "npm run build --workspace=@ana/domain",
     "build:agents": "npm run build --workspace=@ana/agents",
-    "build:web": "npm run build --workspace=@ana/web",
     "build:admin": "npm run build --workspace=@ana/admin",
-    "build:api": "npm run build --workspace=@ana/api"
+    "build:api": "npm run build --workspace=@ana/api",
+    "build:web": "npm run build --workspace=@ana/web"
   }
 }

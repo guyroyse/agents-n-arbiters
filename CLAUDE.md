@@ -15,7 +15,7 @@ Current architecture:
 - **`static-web-apps/ana-web/`** (@ana/web) - Svelte 5 frontend with terminal-style game interface
 - **`functions/ana-api/`** (@ana/api) - Azure Functions v4 API endpoints (depends on all packages)
 - **`static-web-apps/ana-admin/`** (@ana/admin) - Static admin interface for log viewing and template management
-- **`containers/agent-memory-server/`** - Containerized Agent Memory Server (Python-based placeholder)
+- **`containers/agent-memory-server/`** - Containerized Agent Memory Server (Redis-backed working memory)
 - **`data/redis/`** - Persistent Redis data storage for local development
 - **`infrastructure/`** - Infrastructure as Code (Bicep templates for Azure deployment)
 
@@ -24,7 +24,7 @@ Current architecture:
 ### ✅ Working Systems
 
 - **Multi-agent game engine**: Complete LangGraph.js workflow with classifier → agents → arbiter → committer → narrator flow
-- **Game interfaces**: Web frontend (port 4280), admin dashboard (port 4281), API backend (port 7071)
+- **Game interfaces**: Web frontend (port 4280), admin dashboard (port 4281), API backend (port 7071), Agent Memory Server (port 8000)
 - **Persistent state**: Redis-backed entities with game save/load, template management, and structured logging
 - **Agent types**: Location, fixture, player, exit, and arbiter agents with entity-specific prompts and change-focused behavior
 - **Movement system**: Exit agents handle player location changes with validation and proper state transitions
@@ -34,19 +34,20 @@ Current architecture:
 
 ### 🚧 Next Priorities
 
-- Integrate Agent Memory Server for persistent agent memory
 - Add item entities and item agent types
 - Add NPC agent types and implementations
-- Deploy to Azure with AMR and Azure Container Apps
+- Integrate AMS with multi-agent workflow for persistent agent memory
+- Deploy to Azure with AMS and Azure Container Apps
 
 ## Development Commands
 
 ### Initial Setup
 
 ```bash
+cp .env.example .env                                                     # Copy environment configuration and add your OpenAI API key
 docker compose up                                                        # Start Redis + Agent Memory Server containers
 npm install                                                              # Install all workspace dependencies
-cp functions/ana-api/local.settings.example.json functions/ana-api/local.settings.json  # Copy Azure Functions local settings
+cp functions/ana-api/local.settings.example.json functions/ana-api/local.settings.json  # Copy Azure Functions local settings and add your API key
 ```
 
 ### Full-stack Development
@@ -202,8 +203,12 @@ The core innovation is the multi-agent collaboration system built with LangGraph
 ### Container Architecture
 
 - **Redis**: Latest Redis image with persistence to `./data/redis` volume using RedisJSON and RediSearch
-- **Agent Memory Server**: Python 3.12-based container (placeholder HTTP server on port 8000)
-- **Local development**: `docker-compose.yml` orchestrates both services with health checks
+- **Agent Memory Server**: Python 3.12-based container running official Redis AMS with working memory configuration
+  - Configured for working memory only (`LONG_TERM_MEMORY=false`)
+  - Authentication disabled for local development (`AUTH_MODE=disabled`)
+  - Health check endpoint at `/v1/health`
+  - Environment-specific configuration via docker-compose overrides
+- **Local development**: `docker-compose.yml` orchestrates both services with container networking and shared environment variables
 - **Future deployment**: Azure Container Apps for AMS, Azure Managed Redis for production
 
 ### Logging Architecture
@@ -229,10 +234,23 @@ The core innovation is the multi-agent collaboration system built with LangGraph
 - Run `nvm use` to switch to the correct version before development
 - Required for Azure Functions v4 compatibility
 
+### Environment Configuration Strategy
+
+- **Root `.env` file**: Shared configuration for Docker containers (AMS, future services)
+- **Azure Functions**: Uses `local.settings.json` for Azure Functions Core Tools compatibility
+- **Docker Compose**: Reads from root `.env` with environment-specific overrides
+
 ### Azure Functions Local Development
 
 - Copy `functions/ana-api/local.settings.example.json` to `functions/ana-api/local.settings.json`
-- Environment variables accessible via `process.env.NODE_ENV`
+- Add your OpenAI API key to the copied file
+- Azure Functions Core Tools doesn't automatically read `.env` files
+
+### Agent Memory Server Configuration
+
+- **Universal defaults**: Hardcoded in Dockerfile (`LONG_TERM_MEMORY=false`, `PORT=8000`)
+- **Environment-specific**: Set via docker-compose.yml (`AUTH_MODE`, `LOG_LEVEL`, `OPENAI_API_KEY`)
+- **Development setup**: Copy `.env.example` to `.env` and add your OpenAI API key
 
 ### Static Web App Environment Variables
 

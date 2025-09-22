@@ -1,6 +1,10 @@
 # Dependencies
 node_modules/
 
+# Local config
+.env
+local.settings.json
+
 # Build output
 dist/
 
@@ -9,9 +13,6 @@ npm-debug.log*
 
 # OS files
 .DS_Store
-
-# Azure Functions local settings
-local.settings.json
 
 # Redis runtime data (keep seed.rdb for dev data)
 /data/redis/dump.rdb

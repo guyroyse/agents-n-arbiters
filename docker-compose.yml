@@ -6,12 +6,6 @@ services:
       - '6379:6379'
     volumes:
       - ./data/redis:/data
-    healthcheck:
-      test: ['CMD', 'redis-cli', 'ping']
-      interval: 10s
-      timeout: 3s
-      retries: 3
-      start_period: 10s
     restart: unless-stopped
 
   agent-memory-server:
@@ -19,10 +13,13 @@ services:
     container_name: ana-ams
     ports:
       - '8000:8000'
+    env_file:
+      - .env
     environment:
       - REDIS_URL=redis://redis:6379
-      - DISABLE_AUTH=true
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - AUTH_MODE=${AUTH_MODE:-disabled}
+      - LOG_LEVEL=${LOG_LEVEL:-DEBUG}
     depends_on:
-      redis:
-        condition: service_healthy
+      - redis
     restart: unless-stopped
