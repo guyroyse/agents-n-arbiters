@@ -7,10 +7,7 @@ import { BaseChatModel } from '@langchain/core/language_models/chat_models'
 let llmClient: BaseChatModel | null = null
 
 export async function fetchLLMClient(): Promise<BaseChatModel> {
-  if (!llmClient) {
-    llmClient = createLLMClient()
-  }
-
+  if (!llmClient) llmClient = createLLMClient()
   return llmClient
 }
 

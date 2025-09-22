@@ -9,7 +9,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Current architecture:
 
 - **`shared/ana-types/`** (@ana/types) - Pure TypeScript types and Zod schemas
-- **`shared/ana-common/`** (@ana/common) - Shared utilities, Redis/LLM clients, admin functions
+- **`shared/ana-common/`** (@ana/common) - Shared utilities, Redis/LLM/AMS clients, admin functions
 - **`shared/ana-domain/`** (@ana/domain) - Entity classes and game state management
 - **`shared/ana-agents/`** (@ana/agents) - Complete multi-agent LangGraph system
 - **`static-web-apps/ana-web/`** (@ana/web) - Svelte 5 frontend with terminal-style game interface
@@ -31,6 +31,7 @@ Current architecture:
 - **Game world**: "The Shrine of Forgotten Whispers" expanded with interconnected locations and movement paths
 - **State management**: Multi-channel GameTurnAnnotation system with structured change recommendations and entity persistence
 - **Narrative generation**: Dedicated narrator agent for post-committer storytelling with concise, atmospheric responses
+- **Agent Memory Server client**: TypeScript client for conversation history persistence with namespace-based memory management
 
 ### 🚧 Next Priorities
 
@@ -131,7 +132,7 @@ The monorepo follows a clean layered architecture with explicit dependency flow:
 **Package responsibilities:**
 
 - **@ana/types**: Pure type definitions and Zod schemas (no runtime dependencies)
-- **@ana/common**: Infrastructure services (Redis, LLM clients, utilities, admin functions)
+- **@ana/common**: Infrastructure services (Redis, LLM, AMS clients, utilities, admin functions)
 - **@ana/domain**: Business logic (entities, game state, domain rules)
 - **@ana/agents**: AI workflow orchestration (LangGraph multi-agent system)
 - **@ana/api**: API endpoints (Azure Functions consuming all business packages)
@@ -262,7 +263,7 @@ The core innovation is the multi-agent collaboration system built with LangGraph
 ### Package Structure
 
 - **`shared/ana-types/src/`** - All TypeScript types and Zod schemas shared across packages
-- **`shared/ana-common/src/`** - Shared utilities, Redis/LLM clients, admin functions
+- **`shared/ana-common/src/`** - Shared utilities, Redis/LLM/AMS clients, admin functions
 - **`shared/ana-domain/src/`** - Entity classes and game state management
 - **`shared/ana-agents/src/`** - Complete multi-agent LangGraph system
 - **`functions/ana-api/src/functions/`** - Azure Functions endpoints that consume all packages
@@ -281,7 +282,7 @@ The core innovation is the multi-agent collaboration system built with LangGraph
 
 ### Common Utilities
 
-- `shared/ana-common/src/clients/` - Redis and LLM client configurations
+- `shared/ana-common/src/clients/` - Redis, LLM, and AMS client configurations
 - `shared/ana-common/src/utils/` - Logging, JSON utilities, date helpers
 - `shared/ana-common/src/admin/` - Template loading functionality
 
