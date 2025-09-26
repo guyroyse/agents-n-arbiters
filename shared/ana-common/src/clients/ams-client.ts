@@ -40,10 +40,20 @@ export class AmsClient {
 
     const response = await fetch(url.toString(), {
       method: 'GET',
-      headers: { 'Content-Type': 'application/json' }
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Client-Version': '0.12.0'
+      }
     })
 
-    if (!response.ok) throw new Error(`Failed to get working memory: ${response.statusText}`)
+    if (!response.ok) {
+      if (response.status === 404) {
+        // Return empty session for new users
+        console.log(`[AMS GET] Session not found, returning empty session`)
+        return { session_id: sessionId, namespace: namespace, context: '', messages: [] }
+      }
+      throw new Error(`Failed to get working memory: ${response.statusText}`)
+    }
 
     return (await response.json()) as WorkingMemory
   }
@@ -57,19 +67,18 @@ export class AmsClient {
     context: string,
     messages: ConversationMessage[]
   ): Promise<void> {
-    const url = `${this.#baseUrl}/v1/working-memory/${sessionId}`
+    const url = new URL(`/v1/working-memory/${sessionId}`, this.#baseUrl)
+    url.searchParams.set('context_window_max', this.#contextWindowMax.toString())
 
     const replacement: WorkingMemory = { session_id: sessionId, namespace, context, messages }
 
-    const response = await fetch(url, {
+    const response = await fetch(url.toString(), {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...replacement, context_window_max: this.#contextWindowMax })
+      body: JSON.stringify(replacement)
     })
 
-    if (!response.ok) {
-      throw new Error(`Failed to replace working memory: ${response.statusText}`)
-    }
+    if (!response.ok) throw new Error(`Failed to replace working memory: ${response.statusText}`)
   }
 
   /**
