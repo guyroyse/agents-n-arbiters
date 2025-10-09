@@ -9,7 +9,7 @@ services:
     restart: unless-stopped
 
   agent-memory-server:
-    build: ./containers/agent-memory-server
+    image: redislabs/agent-memory-server:latest
     container_name: ana-ams
     ports:
       - '8000:8000'
