@@ -1,3 +1,5 @@
+import { DefaultAzureCredential } from '@azure/identity'
+
 export type ConversationMessage = {
   role: string
   content: string
@@ -15,10 +17,18 @@ export class AmsClient {
 
   #baseUrl: string
   #contextWindowMax: number
+  #credential?: DefaultAzureCredential
+  #amsScope?: string
 
   private constructor(baseUrl: string, contextWindowMax: number) {
     this.#baseUrl = baseUrl
     this.#contextWindowMax = contextWindowMax
+
+    // Initialize Azure credentials for production
+    if (process.env.NODE_ENV !== 'development') {
+      this.#credential = new DefaultAzureCredential()
+      this.#amsScope = process.env.AMS_SCOPE ?? 'api://agents-arbiters-ams/.default'
+    }
   }
 
   static instance(): AmsClient {
@@ -32,18 +42,35 @@ export class AmsClient {
   }
 
   /**
+   * Get authentication headers (includes Bearer token in production)
+   */
+  async #getAuthHeaders(): Promise<Record<string, string>> {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json'
+    }
+
+    // Add OAuth2 token in production
+    if (this.#credential && this.#amsScope) {
+      const token = await this.#credential.getToken(this.#amsScope)
+      headers['Authorization'] = `Bearer ${token.token}`
+    }
+
+    return headers
+  }
+
+  /**
    * Retrieve conversation history for a session
    */
   async readWorkingMemory(sessionId: string, namespace: string): Promise<WorkingMemory> {
     const url = new URL(`/v1/working-memory/${sessionId}`, this.#baseUrl)
     url.searchParams.set('namespace', namespace)
 
+    const headers = await this.#getAuthHeaders()
+    headers['X-Client-Version'] = '0.12.0'
+
     const response = await fetch(url.toString(), {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Client-Version': '0.12.0'
-      }
+      headers
     })
 
     if (!response.ok) {
@@ -72,9 +99,11 @@ export class AmsClient {
 
     const replacement: WorkingMemory = { session_id: sessionId, namespace, context, messages }
 
+    const headers = await this.#getAuthHeaders()
+
     const response = await fetch(url.toString(), {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify(replacement)
     })
 
@@ -88,9 +117,11 @@ export class AmsClient {
     const url = new URL(`/v1/working-memory/${sessionId}`, this.#baseUrl)
     url.searchParams.set('namespace', namespace)
 
+    const headers = await this.#getAuthHeaders()
+
     const response = await fetch(url.toString(), {
       method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' }
+      headers
     })
 
     if (!response.ok) {

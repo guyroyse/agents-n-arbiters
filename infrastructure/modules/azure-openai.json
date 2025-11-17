@@ -1,0 +1,161 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.38.33.27573",
+      "templateHash": "16850262541483119506"
+    }
+  },
+  "parameters": {
+    "accountName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the Azure OpenAI account"
+      }
+    },
+    "location": {
+      "type": "string",
+      "metadata": {
+        "description": "The location for the Azure OpenAI account"
+      }
+    },
+    "sku": {
+      "type": "string",
+      "defaultValue": "S0",
+      "metadata": {
+        "description": "The SKU for the Azure OpenAI service"
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.CognitiveServices/accounts",
+      "apiVersion": "2025-09-05",
+      "name": "[parameters('accountName')]",
+      "location": "[parameters('location')]",
+      "kind": "OpenAI",
+      "sku": {
+        "name": "[parameters('sku')]"
+      },
+      "properties": {
+        "customSubDomainName": "[parameters('accountName')]",
+        "publicNetworkAccess": "Enabled",
+        "networkAcls": {
+          "defaultAction": "Allow"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.CognitiveServices/accounts/deployments",
+      "apiVersion": "2025-09-05",
+      "name": "[format('{0}/{1}', parameters('accountName'), 'gpt-4o')]",
+      "properties": {
+        "model": {
+          "format": "OpenAI",
+          "name": "gpt-4o",
+          "version": "2024-08-06"
+        }
+      },
+      "sku": {
+        "name": "Standard",
+        "capacity": 30
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.CognitiveServices/accounts', parameters('accountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.CognitiveServices/accounts/deployments",
+      "apiVersion": "2025-09-05",
+      "name": "[format('{0}/{1}', parameters('accountName'), 'gpt-4o-mini')]",
+      "properties": {
+        "model": {
+          "format": "OpenAI",
+          "name": "gpt-4o-mini",
+          "version": "2024-07-18"
+        }
+      },
+      "sku": {
+        "name": "Standard",
+        "capacity": 30
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.CognitiveServices/accounts/deployments', parameters('accountName'), 'gpt-4o')]",
+        "[resourceId('Microsoft.CognitiveServices/accounts', parameters('accountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.CognitiveServices/accounts/deployments",
+      "apiVersion": "2025-09-05",
+      "name": "[format('{0}/{1}', parameters('accountName'), 'text-embedding-3-small')]",
+      "properties": {
+        "model": {
+          "format": "OpenAI",
+          "name": "text-embedding-3-small",
+          "version": "1"
+        }
+      },
+      "sku": {
+        "name": "Standard",
+        "capacity": 30
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.CognitiveServices/accounts/deployments', parameters('accountName'), 'gpt-4o-mini')]",
+        "[resourceId('Microsoft.CognitiveServices/accounts', parameters('accountName'))]"
+      ]
+    }
+  ],
+  "outputs": {
+    "endpoint": {
+      "type": "string",
+      "metadata": {
+        "description": "The Azure OpenAI endpoint"
+      },
+      "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts', parameters('accountName')), '2025-09-05').endpoint]"
+    },
+    "accountName": {
+      "type": "string",
+      "metadata": {
+        "description": "The Azure OpenAI account name"
+      },
+      "value": "[parameters('accountName')]"
+    },
+    "resourceId": {
+      "type": "string",
+      "metadata": {
+        "description": "The Azure OpenAI resource ID"
+      },
+      "value": "[resourceId('Microsoft.CognitiveServices/accounts', parameters('accountName'))]"
+    },
+    "gpt4oDeploymentName": {
+      "type": "string",
+      "metadata": {
+        "description": "GPT-4o deployment name"
+      },
+      "value": "gpt-4o"
+    },
+    "gpt4oMiniDeploymentName": {
+      "type": "string",
+      "metadata": {
+        "description": "GPT-4o-mini deployment name"
+      },
+      "value": "gpt-4o-mini"
+    },
+    "embeddingDeploymentName": {
+      "type": "string",
+      "metadata": {
+        "description": "Text embedding deployment name"
+      },
+      "value": "text-embedding-3-small"
+    },
+    "apiKey": {
+      "type": "string",
+      "metadata": {
+        "description": "The primary API key for Azure OpenAI"
+      },
+      "value": "[listKeys(resourceId('Microsoft.CognitiveServices/accounts', parameters('accountName')), '2025-09-05').key1]"
+    }
+  }
+}
