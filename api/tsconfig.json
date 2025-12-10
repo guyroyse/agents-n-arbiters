@@ -30,6 +30,7 @@
 
     /* Path mapping */
     "paths": {
+      "@/*": ["./src/*"],
       "@functions/*": ["./src/functions/*"],
       "@services/*": ["./src/services/*"],
       "@agents/*": ["./src/agents/*"],

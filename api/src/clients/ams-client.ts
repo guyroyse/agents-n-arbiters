@@ -1,3 +1,5 @@
+import { config } from '@/config.js'
+
 export type ConversationMessage = {
   role: string
   content: string
@@ -10,14 +12,11 @@ export type WorkingMemory = {
   messages: ConversationMessage[]
 }
 
-const AMS_BASE_URL = process.env.AMS_BASE_URL ?? 'http://localhost:8000'
-const AMS_CONTEXT_WINDOW_MAX = process.env.AMS_CONTEXT_WINDOW_MAX ? parseInt(process.env.AMS_CONTEXT_WINDOW_MAX) : 4000
-
 /**
  * Retrieve conversation history for a session
  */
 export async function readWorkingMemory(sessionId: string, namespace: string): Promise<WorkingMemory> {
-  const url = new URL(`/v1/working-memory/${sessionId}`, AMS_BASE_URL)
+  const url = new URL(`/v1/working-memory/${sessionId}`, config.amsBaseUrl)
   url.searchParams.set('namespace', namespace)
 
   console.log(`[AMS GET] ${url.toString()}`)
@@ -51,8 +50,8 @@ export async function replaceWorkingMemory(
   context: string,
   messages: ConversationMessage[]
 ): Promise<void> {
-  const url = new URL(`/v1/working-memory/${sessionId}`, AMS_BASE_URL)
-  url.searchParams.set('context_window_max', AMS_CONTEXT_WINDOW_MAX.toString())
+  const url = new URL(`/v1/working-memory/${sessionId}`, config.amsBaseUrl)
+  url.searchParams.set('context_window_max', config.amsContextWindowMax.toString())
 
   const replacement: WorkingMemory = { session_id: sessionId, namespace, context, messages }
 
@@ -76,7 +75,7 @@ export async function replaceWorkingMemory(
  * Delete conversation history for a session
  */
 export async function removeWorkingMemory(sessionId: string, namespace: string): Promise<void> {
-  const url = new URL(`/v1/working-memory/${sessionId}`, AMS_BASE_URL)
+  const url = new URL(`/v1/working-memory/${sessionId}`, config.amsBaseUrl)
   url.searchParams.set('namespace', namespace)
 
   console.log(`[AMS DELETE] ${url.toString()}`)
