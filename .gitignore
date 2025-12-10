@@ -15,4 +15,4 @@ npm-debug.log*
 .DS_Store
 
 # Redis runtime data (keep seed.rdb for dev data)
-/data/redis/dump.rdb
+/redis/dump.rdb

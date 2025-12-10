@@ -1,14 +1,15 @@
 {
-  "name": "agents-n-arbiters",
+  "name": "@ana/root",
   "version": "1.0.0",
-  "description": "",
+  "description": "Agents & Arbiters: A multi-agent text adventure game",
   "author": "Guy Royse <guy@guy.dev>",
   "license": "MIT",
   "type": "module",
   "workspaces": [
-    "functions/*",
-    "static-web-apps/*",
-    "shared/*"
+    "api",
+    "web",
+    "admin",
+    "types"
   ],
   "devDependencies": {
     "@azure/static-web-apps-cli": "^2.0.6",
@@ -20,11 +21,8 @@
     "dev:api": "npm run dev --workspace=@ana/api",
     "dev:admin": "npm run dev --workspace=@ana/admin",
     "dev:web": "npm run dev --workspace=@ana/web",
-    "build": "npm-run-all --sequential build:types build:common build:domain build:agents --parallel build:web build:admin build:api",
+    "build": "npm-run-all --sequential build:types --parallel build:web build:admin build:api",
     "build:types": "npm run build --workspace=@ana/types",
-    "build:common": "npm run build --workspace=@ana/common",
-    "build:domain": "npm run build --workspace=@ana/domain",
-    "build:agents": "npm run build --workspace=@ana/agents",
     "build:admin": "npm run build --workspace=@ana/admin",
     "build:api": "npm run build --workspace=@ana/api",
     "build:web": "npm run build --workspace=@ana/web"

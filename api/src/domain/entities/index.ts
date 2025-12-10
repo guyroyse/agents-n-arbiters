@@ -1,0 +1,6 @@
+export { GameEntity } from './game.js'
+export { LocationEntity } from './location.js'
+export { FixtureEntity } from './fixture.js'
+export { PlayerEntity } from './player.js'
+export { ExitEntity } from './exit.js'
+export { GameState } from '../game-state.js'

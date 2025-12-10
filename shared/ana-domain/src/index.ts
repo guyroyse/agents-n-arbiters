@@ -1,6 +1,0 @@
-export * from '@entities/game.js'
-export * from '@entities/location.js'
-export * from '@entities/player.js'
-export * from '@entities/fixture.js'
-export * from '@entities/exit.js'
-export * from '@state/game-state.js'

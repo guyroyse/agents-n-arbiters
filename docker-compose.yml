@@ -5,7 +5,23 @@ services:
     ports:
       - '6379:6379'
     volumes:
-      - ./data/redis:/data
+      - ./redis:/data
+    restart: unless-stopped
+
+  litellm:
+    image: ghcr.io/berriai/litellm:main-stable
+    container_name: ana-litellm
+    ports:
+      - '4000:4000'
+    volumes:
+      - ./litellm.config.yaml:/app/config.yaml:ro
+    env_file:
+      - .env
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - LITELLM_MASTER_KEY=sk-1234
+      - LITELLM_LOG=INFO
+    command: ['--config', '/app/config.yaml', '--port', '4000']
     restart: unless-stopped
 
   agent-memory-server:
@@ -17,9 +33,11 @@ services:
       - .env
     environment:
       - REDIS_URL=redis://redis:6379
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_API_KEY=sk-1234
+      - OPENAI_BASE_URL=http://litellm:4000
       - AUTH_MODE=${AUTH_MODE:-disabled}
       - LOG_LEVEL=${LOG_LEVEL:-DEBUG}
     depends_on:
       - redis
+      - litellm
     restart: unless-stopped

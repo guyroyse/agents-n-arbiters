@@ -1,0 +1,28 @@
+{
+  "name": "@ana/api",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "dist/main.js",
+  "scripts": {
+    "dev": "func start",
+    "build": "tsc && tsc-alias"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.0",
+    "tsc-alias": "^1.8.16",
+    "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "@ana/types": "*",
+    "@azure/functions": "^4.7.2-preview",
+    "@azure/identity": "^4.11.1",
+    "@langchain/core": "^0.3.75",
+    "@langchain/langgraph": "^0.4.9",
+    "@langchain/openai": "^0.6.11",
+    "@redis/entraid": "^5.8.2",
+    "dedent": "^1.7.0",
+    "redis": "^5.8.2",
+    "ulid": "^3.0.1",
+    "zod": "^3.25.76"
+  }
+}
