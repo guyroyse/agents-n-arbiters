@@ -13,8 +13,8 @@ function createLLMClient(): BaseChatModel {
   if (!config.openaiApiKey) throw new Error('OPENAI_API_KEY environment variable is required')
 
   return new ChatOpenAI({
-    model: 'gpt-4o-mini',
-    temperature: 0,
+    model: config.openaiModel,
+    temperature: config.openaiTemperature,
     apiKey: config.openaiApiKey,
     configuration: {
       baseURL: config.openaiBaseUrl
