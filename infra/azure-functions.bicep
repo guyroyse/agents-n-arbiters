@@ -108,10 +108,6 @@ resource functionApp 'Microsoft.Web/sites@2024-04-01' = {
           value: '~20'
         }
         {
-          name: 'NODE_ENV'
-          value: 'production'
-        }
-        {
           name: 'REDIS_URL'
           value: '${redisHostname}:${redisPort}'
         }

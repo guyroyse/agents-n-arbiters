@@ -15,10 +15,8 @@
   {:else if viewModel.error}
     <div class="text-redis-hyper">Unable to load version info</div>
   {:else if viewModel.versionInfo}
-    <div class="text-redis-dusk-30 space-x-4">
+    <div class="text-redis-dusk-30">
       <span>{viewModel.versionInfo.name} v{viewModel.versionInfo.version}</span>
-      <span>•</span>
-      <span class="text-redis-hyper">{viewModel.versionInfo.environment}</span>
     </div>
   {/if}
 </footer>

@@ -15,7 +15,6 @@ export type GameTurn = GameCommand & GameReply
 export type VersionInfo = {
   name: string
   version: string
-  environment: string
 }
 
 // Base template type (mirrors BaseEntityData)

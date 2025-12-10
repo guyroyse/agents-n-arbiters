@@ -7,8 +7,7 @@ export async function version(_request: HttpRequest, context: InvocationContext)
 
   const versionInfo: VersionInfo = {
     name: 'Agents & Arbiters',
-    version: '1.0.0',
-    environment: process.env.NODE_ENV || 'development'
+    version: '1.0.0'
   }
 
   return responses.ok(versionInfo)

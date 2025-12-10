@@ -11,12 +11,11 @@ export async function fetchLLMClient(): Promise<BaseChatModel> {
 function createLLMClient(): BaseChatModel {
   const apiKey = process.env.OPENAI_API_KEY
   const baseURL = process.env.OPENAI_BASE_URL
-  const model = process.env.OPENAI_MODEL || 'gpt-4o-mini'
 
   if (!apiKey) throw new Error('OPENAI_API_KEY environment variable is required')
 
   return new ChatOpenAI({
-    model,
+    model: 'gpt-4o-mini',
     temperature: 0,
     apiKey,
     configuration: {
