@@ -1,5 +1,3 @@
-import { DefaultAzureCredential } from '@azure/identity'
-
 export type ConversationMessage = {
   role: string
   content: string
@@ -12,120 +10,86 @@ export type WorkingMemory = {
   messages: ConversationMessage[]
 }
 
-export class AmsClient {
-  static #instance: AmsClient
+const AMS_BASE_URL = process.env.AMS_BASE_URL ?? 'http://localhost:8000'
+const AMS_CONTEXT_WINDOW_MAX = process.env.AMS_CONTEXT_WINDOW_MAX ? parseInt(process.env.AMS_CONTEXT_WINDOW_MAX) : 4000
 
-  #baseUrl: string
-  #contextWindowMax: number
-  #credential?: DefaultAzureCredential
-  #amsScope?: string
+/**
+ * Retrieve conversation history for a session
+ */
+export async function readWorkingMemory(sessionId: string, namespace: string): Promise<WorkingMemory> {
+  const url = new URL(`/v1/working-memory/${sessionId}`, AMS_BASE_URL)
+  url.searchParams.set('namespace', namespace)
 
-  private constructor(baseUrl: string, contextWindowMax: number) {
-    this.#baseUrl = baseUrl
-    this.#contextWindowMax = contextWindowMax
+  console.log(`[AMS GET] ${url.toString()}`)
 
-    // Initialize Azure credentials for production
-    if (process.env.NODE_ENV !== 'development') {
-      this.#credential = new DefaultAzureCredential()
-      this.#amsScope = process.env.AMS_SCOPE ?? 'api://agents-arbiters-ams/.default'
+  const response = await fetch(url.toString(), {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Client-Version': '0.12.0'
     }
+  })
+
+  if (response.status === 404) {
+    console.log(`[AMS GET] Session not found, returning empty session`)
+    return { session_id: sessionId, namespace, context: '', messages: [] }
   }
 
-  static instance(): AmsClient {
-    if (!AmsClient.#instance) {
-      const baseUrl = process.env.AMS_BASE_URL ?? 'http://localhost:8000'
-      const contextWindowMax = process.env.AMS_CONTEXT_WINDOW_MAX ? parseInt(process.env.AMS_CONTEXT_WINDOW_MAX) : 4000
-      this.#instance = new AmsClient(baseUrl, contextWindowMax)
-    }
-
-    return AmsClient.#instance
+  if (!response.ok) {
+    throw new Error(`Failed to get working memory: ${response.statusText}`)
   }
 
-  /**
-   * Get authentication headers (includes Bearer token in production)
-   */
-  async #getAuthHeaders(): Promise<Record<string, string>> {
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json'
-    }
+  return (await response.json()) as WorkingMemory
+}
 
-    // Add OAuth2 token in production
-    if (this.#credential && this.#amsScope) {
-      const token = await this.#credential.getToken(this.#amsScope)
-      headers['Authorization'] = `Bearer ${token.token}`
-    }
+/**
+ * Replace conversation history for a session
+ */
+export async function replaceWorkingMemory(
+  sessionId: string,
+  namespace: string,
+  context: string,
+  messages: ConversationMessage[]
+): Promise<void> {
+  const url = new URL(`/v1/working-memory/${sessionId}`, AMS_BASE_URL)
+  url.searchParams.set('context_window_max', AMS_CONTEXT_WINDOW_MAX.toString())
 
-    return headers
+  const replacement: WorkingMemory = { session_id: sessionId, namespace, context, messages }
+
+  console.log(`[AMS PUT] ${url.toString()}`)
+
+  const response = await fetch(url.toString(), {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Client-Version': '0.12.0'
+    },
+    body: JSON.stringify(replacement)
+  })
+
+  if (!response.ok) {
+    throw new Error(`Failed to replace working memory: ${response.statusText}`)
   }
+}
 
-  /**
-   * Retrieve conversation history for a session
-   */
-  async readWorkingMemory(sessionId: string, namespace: string): Promise<WorkingMemory> {
-    const url = new URL(`/v1/working-memory/${sessionId}`, this.#baseUrl)
-    url.searchParams.set('namespace', namespace)
+/**
+ * Delete conversation history for a session
+ */
+export async function removeWorkingMemory(sessionId: string, namespace: string): Promise<void> {
+  const url = new URL(`/v1/working-memory/${sessionId}`, AMS_BASE_URL)
+  url.searchParams.set('namespace', namespace)
 
-    const headers = await this.#getAuthHeaders()
-    headers['X-Client-Version'] = '0.12.0'
+  console.log(`[AMS DELETE] ${url.toString()}`)
 
-    const response = await fetch(url.toString(), {
-      method: 'GET',
-      headers
-    })
-
-    if (!response.ok) {
-      if (response.status === 404) {
-        // Return empty session for new users
-        console.log(`[AMS GET] Session not found, returning empty session`)
-        return { session_id: sessionId, namespace: namespace, context: '', messages: [] }
-      }
-      throw new Error(`Failed to get working memory: ${response.statusText}`)
+  const response = await fetch(url.toString(), {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Client-Version': '0.12.0'
     }
+  })
 
-    return (await response.json()) as WorkingMemory
-  }
-
-  /**
-   * Replace conversation history for a session
-   */
-  async replaceWorkingMemory(
-    sessionId: string,
-    namespace: string,
-    context: string,
-    messages: ConversationMessage[]
-  ): Promise<void> {
-    const url = new URL(`/v1/working-memory/${sessionId}`, this.#baseUrl)
-    url.searchParams.set('context_window_max', this.#contextWindowMax.toString())
-
-    const replacement: WorkingMemory = { session_id: sessionId, namespace, context, messages }
-
-    const headers = await this.#getAuthHeaders()
-
-    const response = await fetch(url.toString(), {
-      method: 'PUT',
-      headers,
-      body: JSON.stringify(replacement)
-    })
-
-    if (!response.ok) throw new Error(`Failed to replace working memory: ${response.statusText}`)
-  }
-
-  /**
-   * Delete conversation history for a session
-   */
-  async removeWorkingMemory(sessionId: string, namespace: string): Promise<void> {
-    const url = new URL(`/v1/working-memory/${sessionId}`, this.#baseUrl)
-    url.searchParams.set('namespace', namespace)
-
-    const headers = await this.#getAuthHeaders()
-
-    const response = await fetch(url.toString(), {
-      method: 'DELETE',
-      headers
-    })
-
-    if (!response.ok) {
-      throw new Error(`Failed to delete working memory: ${response.statusText}`)
-    }
+  if (!response.ok) {
+    throw new Error(`Failed to delete working memory: ${response.statusText}`)
   }
 }

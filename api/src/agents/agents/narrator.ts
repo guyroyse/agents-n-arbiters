@@ -1,6 +1,6 @@
 import dedent from 'dedent'
 
-import { fetchLLMClient, AmsClient } from '@clients/index.js'
+import { fetchLLMClient, readWorkingMemory, replaceWorkingMemory } from '@clients/index.js'
 import { log } from '@utils/logger-utils.js'
 import { GameTurnAnnotation, FinalNarrativeSchema, type FinalNarrative } from '../game-turn-state.js'
 import type { GameState } from '@domain/game-state.js'
@@ -25,7 +25,7 @@ export async function narrator(state: typeof GameTurnAnnotation.State): Promise<
   log(gameId, '📖 NARRATOR - Entity changes', entityChanges)
 
   // Get conversation history from AMS
-  const narratorMemory = await AmsClient.instance().readWorkingMemory(gameId, 'narrator')
+  const narratorMemory = await readWorkingMemory(gameId, 'narrator')
   log(gameId, '📖 NARRATOR - Loaded memory', { messageCount: narratorMemory.messages.length })
 
   // Set up LLM with prompt and structured output
@@ -45,7 +45,7 @@ export async function narrator(state: typeof GameTurnAnnotation.State): Promise<
     { role: 'user', content: userCommand },
     { role: 'assistant', content: narrative.finalNarrative }
   ]
-  await AmsClient.instance().replaceWorkingMemory(gameId, 'narrator', context, messages)
+  await replaceWorkingMemory(gameId, 'narrator', context, messages)
 
   // Return the final narrative
   return { finalNarrative: narrative.finalNarrative }

@@ -2,7 +2,7 @@ import type { RediSearchSchema } from 'redis'
 
 import type { SavedGame, GameTurn, GameLogEntry } from '@ana/types'
 
-import { fetchRedisClient, AmsClient, type RedisClient } from '@clients/index.js'
+import { fetchRedisClient, removeWorkingMemory, type RedisClient } from '@clients/index.js'
 import { dateToTimestamp, timestampToDate } from '@utils/date-utils.js'
 
 type GameIndexOptions = {
@@ -161,7 +161,7 @@ class GameService {
     }
 
     // Delete AMS working memory for narrator
-    await AmsClient.instance().removeWorkingMemory(gameId, 'narrator')
+    await removeWorkingMemory(gameId, 'narrator')
 
     // not awaiting uses pipelining for concurrent deletion
     this.#client.del(turnsKeyName)
