@@ -1,19 +1,34 @@
 import { fetchRedisClient } from '@clients/index.js'
-import type { LoadTemplateRequest } from '@ana/types'
+import type { PlayerTemplateData, LocationTemplateData, FixtureTemplateData, ExitTemplateData } from '@ana/types'
 
-export async function loadTemplate(template: LoadTemplateRequest): Promise<void> {
-  const redisClient = await fetchRedisClient()
+const redisClient = await fetchRedisClient()
 
-  // Clear ALL Redis data - this will delete all saved games and templates
-  await redisClient.flushAll()
+class TemplateService {
+  private constructor() {}
 
-  // Save player template
-  await redisClient.json.set('template:entity:player', '$', template.player)
-
-  // Save all other entities
-  for (const entity of template.entities) {
-    await redisClient.json.set(`template:entity:${entity.entityId}`, '$', entity)
+  static async create(): Promise<TemplateService> {
+    return new TemplateService()
   }
 
-  console.log(`Template entities loaded successfully! (1 player, ${template.entities.length} entities)`)
+  async clearAllTemplates(): Promise<void> {
+    await redisClient.flushAll()
+  }
+
+  async savePlayerTemplate(player: PlayerTemplateData): Promise<void> {
+    await redisClient.json.set('template:entity:player', '$', player)
+  }
+
+  async saveLocationTemplate(location: LocationTemplateData): Promise<void> {
+    await redisClient.json.set(`template:entity:${location.entityId}`, '$', location)
+  }
+
+  async saveFixtureTemplate(fixture: FixtureTemplateData): Promise<void> {
+    await redisClient.json.set(`template:entity:${fixture.entityId}`, '$', fixture)
+  }
+
+  async saveExitTemplate(exit: ExitTemplateData): Promise<void> {
+    await redisClient.json.set(`template:entity:${exit.entityId}`, '$', exit)
+  }
 }
+
+export default await TemplateService.create()

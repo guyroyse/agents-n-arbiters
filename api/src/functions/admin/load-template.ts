@@ -1,30 +1,41 @@
 import type { HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions'
 import type { LoadTemplateRequest, LoadTemplateResponse } from '@ana/types'
 import responses from '@functions/http-responses.js'
-import { loadTemplate } from '@services/template-service.js'
+import templateService from '@services/template-service.js'
 
-export async function loadTemplateHandler(
-  request: HttpRequest,
-  context: InvocationContext
-): Promise<HttpResponseInit> {
+export async function loadTemplate(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
   try {
     context.log('HTTP trigger function processed a load-template request.')
 
-    // Parse the request body
     const templateData = (await request.json()) as LoadTemplateRequest
 
-    if (!templateData) {
-      return responses.badRequest('Template data is required')
-    }
-
     // Validate required fields
-    if (!templateData.player || !templateData.entities) {
+    if (!templateData) return responses.badRequest('Template data is required')
+    if (!templateData.player || !templateData.entities)
       return responses.badRequest('Template data must include player and entities')
+
+    // Clear all existing templates
+    await templateService.clearAllTemplates()
+
+    // Save player template
+    await templateService.savePlayerTemplate(templateData.player)
+
+    // Save all entity templates
+    for (const entity of templateData.entities) {
+      switch (entity.entityType) {
+        case 'location':
+          await templateService.saveLocationTemplate(entity)
+          break
+        case 'fixture':
+          await templateService.saveFixtureTemplate(entity)
+          break
+        case 'exit':
+          await templateService.saveExitTemplate(entity)
+          break
+      }
     }
 
-    await loadTemplate(templateData)
-
-    context.log('Template entities loaded successfully!')
+    context.log(`Template entities loaded successfully! (1 player, ${templateData.entities.length} entities)`)
 
     const response: LoadTemplateResponse = {
       message: 'Template entities loaded successfully!',
