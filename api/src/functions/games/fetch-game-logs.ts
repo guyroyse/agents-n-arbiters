@@ -1,4 +1,5 @@
 import type { HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions'
+import type { FetchGameLogsResponse } from '@ana/types'
 
 import responses from '@functions/http-responses.js'
 import gameService from '@services/game-service.js'
@@ -14,8 +15,21 @@ export async function fetchGameLogs(request: HttpRequest, context: InvocationCon
     const url = new URL(request.url)
     const count = parseInt(url.searchParams.get('count') ?? '50')
 
-    const logEntries = await gameService.fetchGameLogs(gameId, count)
-    return responses.ok(logEntries)
+    const gameLogs = await gameService.fetchGameLogs(gameId, count)
+
+    const response: FetchGameLogsResponse = gameLogs.map(log => ({
+      id: log.id,
+      timestamp: log.timestamp,
+      gameId: log.gameId,
+      contentType: log.contentType,
+      prefix: log.prefix,
+      content: log.content,
+      messageType: log.messageType,
+      messageName: log.messageName,
+      messageIndex: log.messageIndex
+    }))
+
+    return responses.ok(response)
   } catch (error) {
     context.error('Error fetching game logs:', error)
     if (error instanceof Error && error.message === 'Count must be between 1 and 1000')

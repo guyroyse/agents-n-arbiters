@@ -1,4 +1,4 @@
-import { fetchRedisClient } from '@clients/redis-client.js'
+import { GameLog } from '@domain/game-log.js'
 
 export interface Mermaidable {
   drawMermaid(): string
@@ -76,8 +76,5 @@ function logToConsole(gameId: string, contentType: LogEventType, prefix: string,
 }
 
 async function logToStream(gameId: string, contentType: LogEventType, prefix: string, content: string): Promise<void> {
-  const client = await fetchRedisClient()
-  const key = `saved:game:${gameId}:log`
-
-  await client.xAdd(key, '*', { gameId, contentType, prefix, content })
+  await GameLog.append(gameId, contentType, prefix, content)
 }

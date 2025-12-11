@@ -7,8 +7,8 @@ export async function fetchGames(_request: HttpRequest, context: InvocationConte
   context.log('HTTP trigger function processed a get saved games request.')
 
   try {
-    const games = await gameService.fetchAllGames()
-    return responses.ok(games)
+    const savedGames = await gameService.fetchAllGames()
+    return responses.ok(savedGames.map(game => game.toJSON()))
   } catch (error) {
     context.error('Error fetching games:', error)
     return responses.serverError('Failed to fetch games')

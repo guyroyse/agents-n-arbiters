@@ -33,8 +33,8 @@ export async function updateGameName(request: HttpRequest, context: InvocationCo
     context.log(`Updated game: "${trimmedGameName}" with ID: ${gameId}`)
     log(gameId, 'update-game-name', `Game name updated: "${trimmedGameName}"`)
 
-    const updatedGame = await gameService.fetchGame(gameId)
-    return responses.ok(updatedGame)
+    const savedGame = await gameService.fetchGame(gameId)
+    return responses.ok(savedGame?.toJSON())
   } catch (error) {
     context.error('Error updating game name:', error)
     return responses.badRequest('Invalid request format')

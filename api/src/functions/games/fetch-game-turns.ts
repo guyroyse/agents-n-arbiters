@@ -1,4 +1,5 @@
 import type { HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions'
+import type { FetchGameTurnsResponse } from '@ana/types'
 
 import responses from '@functions/http-responses.js'
 import gameService from '@services/game-service.js'
@@ -10,9 +11,14 @@ export async function fetchGameTurns(request: HttpRequest, context: InvocationCo
     const gameId = request.params.gameId
     if (!gameId) return responses.badRequest('Game ID is required')
 
-    const turns = await gameService.fetchGameTurns(gameId)
+    const gameTurns = await gameService.fetchGameTurns(gameId)
 
-    return responses.ok(turns)
+    const response: FetchGameTurnsResponse = gameTurns.map(turn => ({
+      command: turn.command,
+      reply: turn.reply
+    }))
+
+    return responses.ok(response)
   } catch (error) {
     context.error('Error fetching game turns:', error)
     return responses.serverError('Failed to fetch game turns')

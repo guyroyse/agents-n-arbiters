@@ -1,7 +1,7 @@
 import type { HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions'
 import { ulid } from 'ulid'
 
-import type { SavedGame, CreateGameRequest } from '@ana/types'
+import type { CreateGameRequest } from '@ana/types'
 
 import responses from '@functions/http-responses.js'
 import gameService from '@services/game-service.js'
@@ -19,18 +19,15 @@ export async function createGame(request: HttpRequest, context: InvocationContex
     }
 
     const gameId = ulid()
-    const newGame: SavedGame = {
-      gameId,
-      gameName: gameName.trim(),
-      lastPlayed: new Date().toISOString()
-    }
+    const trimmedGameName = gameName.trim()
+    const lastPlayed = new Date().toISOString()
 
-    await gameService.saveGame(newGame)
+    const savedGame = await gameService.saveGame(gameId, trimmedGameName, lastPlayed)
 
-    context.log(`Created new game: "${gameName}" with ID: ${gameId}`)
-    log(gameId, 'create-game', `Game created: "${gameName}"`)
+    context.log(`Created new game: "${trimmedGameName}" with ID: ${gameId}`)
+    log(gameId, 'create-game', `Game created: "${trimmedGameName}"`)
 
-    return responses.created(newGame)
+    return responses.created(savedGame.toJSON())
   } catch (error) {
     context.error('Error creating game:', error)
     return responses.badRequest('Invalid request format')

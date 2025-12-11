@@ -23,12 +23,12 @@ export async function takeGameTurn(request: HttpRequest, context: InvocationCont
     // Process command through LLM agent service
     const reply = await processCommand(gameId, command)
 
-    const response: TakeGameTurnResponse = {
-      command,
-      reply
-    }
+    const gameTurn = await gameService.saveTurn(gameId, command, reply)
 
-    await gameService.saveTurn(gameId, response)
+    const response: TakeGameTurnResponse = {
+      command: gameTurn.command,
+      reply: gameTurn.reply
+    }
 
     return responses.ok(response)
   } catch (error) {
