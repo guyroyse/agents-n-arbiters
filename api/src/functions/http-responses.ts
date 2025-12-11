@@ -1,5 +1,4 @@
 import type { HttpResponseInit } from '@azure/functions'
-import type { ApiError } from '@ana/types'
 
 const responses = {
   ok: <T>(data: T): HttpResponseInit => ({
@@ -22,19 +21,19 @@ const responses = {
   badRequest: (message: string): HttpResponseInit => ({
     status: 400,
     headers: { 'Content-Type': 'application/json' },
-    jsonBody: { error: message } as ApiError
+    jsonBody: { error: message }
   }),
 
   notFound: (message: string): HttpResponseInit => ({
     status: 404,
     headers: { 'Content-Type': 'application/json' },
-    jsonBody: { error: message } as ApiError
+    jsonBody: { error: message }
   }),
 
   serverError: (message: string): HttpResponseInit => ({
     status: 500,
     headers: { 'Content-Type': 'application/json' },
-    jsonBody: { error: message } as ApiError
+    jsonBody: { error: message }
   })
 }
 

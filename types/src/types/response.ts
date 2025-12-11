@@ -1,19 +1,36 @@
-import type { SavedGame, GameTurn, GameLogEntry, VersionInfo, ApiError } from './api.js'
+// Error response type
+export type ApiError = { error: string }
 
-// Success response types
-export type FetchGamesResponse = SavedGame[]
-export type CreateGameResponse = SavedGame
-export type FetchGameResponse = SavedGame
-export type FetchGameTurnsResponse = GameTurn[]
-export type FetchGameLogsResponse = GameLogEntry[]
-export type UpdateGameNameResponse = SavedGame
-export type DeleteGameResponse = void
+// Data types used in responses
+export type SavedGameData = {
+  gameId: string
+  gameName: string
+  lastPlayed: string
+}
 
-export type TakeGameTurnResponse = GameTurn
+export type GameTurnData = {
+  command: string
+  reply: string
+}
 
-export type FetchVersionResponse = VersionInfo
+export type GameLogData = {
+  id: string
+  timestamp: number
+  gameId: string
+  contentType: string
+  prefix: string
+  content: string
+  messageType?: string
+  messageName?: string
+  messageIndex?: number
+}
 
-export type LoadTemplateResponse = {
+export type VersionData = {
+  name: string
+  version: string
+}
+
+export type LoadTemplateData = {
   message: string
   timestamp: string
   entitiesLoaded: {
@@ -22,16 +39,17 @@ export type LoadTemplateResponse = {
   }
 }
 
-// Union types for API responses (success | error)
-export type FetchVersionApiResponse = FetchVersionResponse | ApiError
-export type TakeGameTurnApiResponse = TakeGameTurnResponse | ApiError
+// Game management response types
+export type CreateGameResponse = SavedGameData | ApiError
+export type FetchGameResponse = SavedGameData | ApiError
+export type FetchGamesResponse = SavedGameData[] | ApiError
+export type DeleteGameResponse = void | ApiError
 
-export type FetchGamesApiResponse = FetchGamesResponse | ApiError
-export type CreateGameApiResponse = CreateGameResponse | ApiError
-export type FetchGameApiResponse = FetchGameResponse | ApiError
-export type FetchGameTurnsApiResponse = FetchGameTurnsResponse | ApiError
-export type FetchGameLogsApiResponse = FetchGameLogsResponse | ApiError
-export type UpdateGameNameApiResponse = UpdateGameNameResponse | ApiError
-export type DeleteGameApiResponse = DeleteGameResponse | ApiError
+// Game turn response types
+export type FetchGameTurnsResponse = GameTurnData[] | ApiError
+export type TakeGameTurnResponse = GameTurnData | ApiError
 
-export type LoadTemplateApiResponse = LoadTemplateResponse | ApiError
+// Other response types
+export type FetchGameLogsResponse = GameLogData[] | ApiError
+export type FetchVersionResponse = VersionData | ApiError
+export type LoadTemplateResponse = LoadTemplateData | ApiError

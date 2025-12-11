@@ -1,12 +1,12 @@
 <script lang="ts">
-  import type { SavedGame } from '@ana/types'
+  import type { SavedGameData } from '@ana/types'
   import LoadGameViewModel from './load-game-view-model.svelte.ts'
   import ConfirmationDialog from '@components/ConfirmationDialog.svelte'
   import AppRouter from '@app/app-router.svelte.ts'
   import AppState from '@app/app-state.svelte.ts'
 
   interface Props {
-    game: SavedGame
+    game: SavedGameData
     viewModel: LoadGameViewModel
   }
 

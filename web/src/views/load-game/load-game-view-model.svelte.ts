@@ -1,13 +1,13 @@
-import type { SavedGame } from '@ana/types'
+import type { SavedGameData } from '@ana/types'
 import { fetchSavedGames, deleteGame } from '@services/api'
 
 export default class LoadGameViewModel {
-  #savedGames = $state<SavedGame[]>([])
+  #savedGames = $state<SavedGameData[]>([])
   #isLoading = $state(true)
   #error = $state<string | null>(null)
   #deletingGameId = $state<string | null>(null)
   #showDeleteConfirmation = $state(false)
-  #gameToDelete = $state<SavedGame | null>(null)
+  #gameToDelete = $state<SavedGameData | null>(null)
 
   get savedGames() {
     return this.#savedGames
@@ -50,7 +50,7 @@ export default class LoadGameViewModel {
     }
   }
 
-  confirmDeleteGame(game: SavedGame) {
+  confirmDeleteGame(game: SavedGameData) {
     this.#gameToDelete = game
     this.#showDeleteConfirmation = true
   }
@@ -65,11 +65,9 @@ export default class LoadGameViewModel {
 
     try {
       await deleteGame(gameId)
-      
+
       // Remove from local array
-      this.#savedGames = this.#savedGames.filter(
-        game => game.gameId !== gameId
-      )
+      this.#savedGames = this.#savedGames.filter(game => game.gameId !== gameId)
     } catch (error) {
       this.#error = error instanceof Error ? error.message : 'Failed to delete game'
     } finally {
@@ -85,11 +83,9 @@ export default class LoadGameViewModel {
 
     try {
       await deleteGame(this.#gameToDelete.gameId)
-      
+
       // Remove from local array
-      this.#savedGames = this.#savedGames.filter(
-        game => game.gameId !== this.#gameToDelete!.gameId
-      )
+      this.#savedGames = this.#savedGames.filter(game => game.gameId !== this.#gameToDelete!.gameId)
     } catch (error) {
       this.#error = error instanceof Error ? error.message : 'Failed to delete game'
     } finally {

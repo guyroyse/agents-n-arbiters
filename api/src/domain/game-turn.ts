@@ -58,4 +58,12 @@ export class GameTurn {
 
     return new GameTurn(gameId, command, reply)
   }
+
+  /**
+   * Delete all turns for a specific game
+   */
+  static async deleteAll(gameId: string): Promise<void> {
+    const key = `${GAME_KEY_PREFIX}:${gameId}:turns`
+    await redisClient.del(key)
+  }
 }

@@ -1,7 +1,7 @@
 import { fetchRedisClient } from '@clients/index.js'
-import type { TemplateData } from '@ana/types'
+import type { LoadTemplateRequest } from '@ana/types'
 
-export async function loadTemplate(template: TemplateData): Promise<void> {
+export async function loadTemplate(template: LoadTemplateRequest): Promise<void> {
   const redisClient = await fetchRedisClient()
 
   // Clear ALL Redis data - this will delete all saved games and templates

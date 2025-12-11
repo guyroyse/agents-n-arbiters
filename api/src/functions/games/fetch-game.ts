@@ -1,4 +1,5 @@
 import type { HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions'
+import type { FetchGameResponse } from '@ana/types'
 
 import responses from '@functions/http-responses.js'
 import gameService from '@services/game-service.js'
@@ -13,7 +14,13 @@ export async function fetchGame(request: HttpRequest, context: InvocationContext
     const savedGame = await gameService.fetchGame(gameId)
     if (!savedGame) return responses.notFound('Game not found')
 
-    return responses.ok(savedGame.toJSON())
+    const response: FetchGameResponse = {
+      gameId: savedGame.gameId,
+      gameName: savedGame.gameName,
+      lastPlayed: savedGame.lastPlayed
+    }
+
+    return responses.ok(response)
   } catch (error) {
     context.error('Error fetching game:', error)
     return responses.serverError('Failed to fetch game')

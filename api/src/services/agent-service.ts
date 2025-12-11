@@ -2,27 +2,47 @@ import { MultiAgentGraph, GameTurnAnnotation } from '@agents/index.js'
 import { GameState } from '@domain/game-state.js'
 import { log } from '@utils/logger-utils.js'
 
+/**
+ * Process a user command through the multi-agent workflow
+ */
 export async function processCommand(gameId: string, command: string): Promise<string> {
-  // Fetch the current game state
+  const gameState = await fetchGameState(gameId)
+  const workflow = buildWorkflow(gameState)
+  return await executeWorkflow(workflow, command, gameState)
+}
+
+/**
+ * Fetch and log the current game state
+ */
+async function fetchGameState(gameId: string): Promise<GameState> {
   const gameState = await GameState.fetch(gameId)
   log(gameId, 'CURRENT GAME STATE:', gameState)
 
-  // Build the multi-agent workflow graph
-  const multiAgentGraph = new MultiAgentGraph(gameState)
-  const workflow = multiAgentGraph.build()
-  log(gameId, 'MULTI-AGENT WORKFLOW STRUCTURE', workflow.getGraph())
+  return gameState
+}
 
-  // Create the initial state for the workflow
+/**
+ * Build and log the multi-agent workflow graph
+ */
+function buildWorkflow(gameState: GameState) {
+  const workflow = new MultiAgentGraph(gameState).build()
+  log(gameState.gameId, 'MULTI-AGENT WORKFLOW STRUCTURE', workflow.getGraph())
+
+  return workflow
+}
+
+/**
+ * Execute the workflow and return the final narrative
+ */
+async function executeWorkflow(workflow: any, command: string, gameState: GameState): Promise<string> {
   const initialState: Partial<typeof GameTurnAnnotation.State> = {
     userCommand: command,
     gameState: gameState
   }
-  log(gameId, 'MULTI-AGENT WORKFLOW STARTING with state:', initialState)
+  log(gameState.gameId, 'MULTI-AGENT WORKFLOW STARTING with state:', initialState)
 
-  // Invoke the workflow
   const result = await workflow.invoke(initialState)
-  log(gameId, 'MULTI-AGENT WORKFLOW COMPLETE with final state:', result)
+  log(gameState.gameId, 'MULTI-AGENT WORKFLOW COMPLETE with final state:', result)
 
-  // Extract the final response from the custom state
   return result.finalNarrative
 }

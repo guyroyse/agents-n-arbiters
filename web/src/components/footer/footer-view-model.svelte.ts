@@ -1,8 +1,8 @@
-import type { VersionInfo } from '@ana/types'
+import type { VersionData } from '@ana/types'
 import { fetchVersionInfo } from '@services/api'
 
 export default class FooterViewModel {
-  #versionInfo = $state<VersionInfo | null>(null)
+  #versionInfo = $state<VersionData | null>(null)
   #loading = $state(true)
   #error = $state<string | null>(null)
 
@@ -21,7 +21,7 @@ export default class FooterViewModel {
   async loadVersionInfo() {
     this.#loading = true
     this.#error = null
-    
+
     try {
       this.#versionInfo = await fetchVersionInfo()
     } catch (err) {

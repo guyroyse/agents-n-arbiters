@@ -123,6 +123,30 @@ export class SavedGame {
     await redisClient.json.set(key, '$', redisGame)
   }
 
+  /**
+   * Update the lastPlayed timestamp for a game
+   */
+  static async updateLastPlayed(gameId: string, lastPlayed: string): Promise<void> {
+    const key = `${GAME_KEY_PREFIX}:${gameId}`
+    await redisClient.json.set(key, '$.lastPlayed', dateToTimestamp(lastPlayed))
+  }
+
+  /**
+   * Delete a saved game and all its associated entities
+   */
+  static async delete(gameId: string): Promise<void> {
+    const key = `${GAME_KEY_PREFIX}:${gameId}`
+    const entityPattern = `game:${gameId}*`
+
+    // Delete game entity keys using SCAN iterator
+    for await (const keys of redisClient.scanIterator({ MATCH: entityPattern })) {
+      if (keys.length > 0) await redisClient.del(keys)
+    }
+
+    // Delete the saved game document
+    await redisClient.json.del(key)
+  }
+
   toJSON() {
     return {
       gameId: this.gameId,

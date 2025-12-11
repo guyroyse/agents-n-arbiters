@@ -1,7 +1,7 @@
 import type {
-  VersionInfo,
-  GameTurn,
-  SavedGame,
+  VersionData,
+  GameTurnData,
+  SavedGameData,
   ApiError,
   TakeGameTurnRequest,
   CreateGameRequest,
@@ -12,37 +12,37 @@ import type {
   FetchGamesResponse
 } from '@ana/types'
 
-export async function fetchVersionInfo(): Promise<VersionInfo> {
+export async function fetchVersionInfo(): Promise<VersionData> {
   const response: FetchVersionResponse = await apiCall('/api/version')
-  return response as VersionInfo
+  return response
 }
 
-export async function takeTurn(gameId: string, command: string): Promise<GameTurn> {
+export async function takeTurn(gameId: string, command: string): Promise<GameTurnData> {
   const request: TakeGameTurnRequest = { command }
   const response: TakeGameTurnResponse = await apiCall(`/api/games/${gameId}/take-turn`, {
     method: 'POST',
     body: JSON.stringify(request)
   })
-  return response as GameTurn
+  return response
 }
 
-export async function fetchGameTurns(gameId: string): Promise<GameTurn[]> {
+export async function fetchGameTurns(gameId: string): Promise<GameTurnData[]> {
   const response: FetchGameTurnsResponse = await apiCall(`/api/games/${gameId}/turns`)
-  return response as GameTurn[]
+  return response
 }
 
-export async function createNewGame(gameName: string): Promise<SavedGame> {
+export async function createNewGame(gameName: string): Promise<SavedGameData> {
   const request: CreateGameRequest = { gameName }
   const response: CreateGameResponse = await apiCall('/api/games', {
     method: 'POST',
     body: JSON.stringify(request)
   })
-  return response as SavedGame
+  return response
 }
 
-export async function fetchSavedGames(): Promise<SavedGame[]> {
+export async function fetchSavedGames(): Promise<SavedGameData[]> {
   const response: FetchGamesResponse = await apiCall('/api/games')
-  return response as SavedGame[]
+  return response
 }
 
 export async function deleteGame(gameId: string): Promise<void> {

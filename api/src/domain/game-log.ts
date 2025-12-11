@@ -150,4 +150,12 @@ export class GameLog {
       messageIndex
     )
   }
+
+  /**
+   * Delete all log entries for a specific game
+   */
+  static async deleteAll(gameId: string): Promise<void> {
+    const key = `${GAME_KEY_PREFIX}:${gameId}:log`
+    await redisClient.del(key)
+  }
 }

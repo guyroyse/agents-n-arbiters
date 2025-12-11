@@ -1,13 +1,13 @@
-import type { SavedGame, GameLogEntry, LoadTemplateRequest, LoadTemplateResponse } from '@ana/types'
+import type { SavedGameData, GameLogData, LoadTemplateRequest, LoadTemplateResponse } from '@ana/types'
 
-export async function fetchGames(): Promise<SavedGame[]> {
+export async function fetchGames(): Promise<SavedGameData[]> {
   const response = await fetch('/api/games')
   if (!response.ok) throw new Error(`Failed to fetch games: ${response.status} ${response.statusText}`)
 
   return response.json()
 }
 
-export async function fetchGameLogs(gameId: string, count: number = 50): Promise<GameLogEntry[]> {
+export async function fetchGameLogs(gameId: string, count: number = 50): Promise<GameLogData[]> {
   const response = await fetch(`/api/games/${gameId}/logs?count=${count}`)
   if (!response.ok) throw new Error(`Failed to fetch game logs: ${response.status} ${response.statusText}`)
 

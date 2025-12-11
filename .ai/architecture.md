@@ -9,6 +9,7 @@ Functions → Services → Domain Objects → Clients
 ```
 
 ### Function Layer (`api/src/functions/`)
+
 - **Responsibility:** HTTP concerns (parsing requests, building responses)
 - **Accepts:** Request types from `@ana/types`
 - **Returns:** Response types from `@ana/types`
@@ -20,6 +21,7 @@ Functions → Services → Domain Objects → Clients
   5. Return Response type via `responses.ok()`, `responses.created()`, etc.
 
 ### Service Layer (`api/src/services/`)
+
 - **Responsibility:** Business logic and orchestration
 - **Accepts:** Discrete parameters (primitives, not Request types)
 - **Returns:** Domain objects OR void
@@ -30,6 +32,7 @@ Functions → Services → Domain Objects → Clients
   - Orchestrates domain objects and clients
 
 ### Domain Layer (`api/src/domain/`)
+
 - **Responsibility:** Business entities and their behavior
 - **Pattern:**
   - Private constructors
@@ -40,6 +43,7 @@ Functions → Services → Domain Objects → Clients
   - Module-level Redis client and infrastructure setup
 
 ### Client Layer (`api/src/clients/`)
+
 - **Responsibility:** External service communication
 - **Pattern:**
   - Redis, LLM, AMS clients
@@ -49,22 +53,23 @@ Functions → Services → Domain Objects → Clients
 ## Type System
 
 ### Request Types (`types/src/types/request.ts`)
+
 - Define HTTP request body shapes
+- Include template data types for admin interface
 - Used by **function layer** to parse input
 - Used by **web/admin clients** to build requests
-- Examples: `CreateGameRequest`, `TakeGameTurnRequest`
+- Examples: `CreateGameRequest`, `TakeGameTurnRequest`, `LoadTemplateRequest`
+- Template types: `TemplateData`, `PlayerTemplateData`, `EntityTemplateData`, etc.
 
 ### Response Types (`types/src/types/response.ts`)
-- Define HTTP response body shapes
-- Used by **function layer** to construct output
-- Used by **web/admin clients** to type responses
-- Examples: `CreateGameResponse`, `FetchGamesResponse`
 
-### API Types (`types/src/types/api.ts`)
-- Define domain data shapes
-- Used by **web/admin clients** for local state
-- **NOT used by backend** - backend uses domain objects
-- Examples: `SavedGame`, `GameTurn`, `GameLogEntry`
+- Define HTTP response body shapes
+- Include data types used in responses (with `Data` suffix)
+- Used by **function layer** to construct output
+- Used by **web/admin clients** to type responses and local state
+- Response types: `CreateGameResponse`, `FetchGamesResponse`, etc.
+- Data types: `SavedGameData`, `GameTurnData`, `GameLogData`, `VersionData`, `LoadTemplateData`
+- **NOTE**: Backend uses domain objects internally, NOT these data types
 
 ## Key Principles
 
@@ -93,16 +98,16 @@ Functions → Services → Domain Objects → Clients
 // Function layer (create-game.ts)
 export async function createGame(request: HttpRequest): Promise<HttpResponseInit> {
   const { gameName } = await request.json() as CreateGameRequest
-  
+
   const gameId = ulid()
   const savedGame = await gameService.saveGame(gameId, gameName.trim(), new Date().toISOString())
-  
+
   const response: CreateGameResponse = {
     gameId: savedGame.gameId,
     gameName: savedGame.gameName,
     lastPlayed: savedGame.lastPlayed
   }
-  
+
   return responses.created(response)
 }
 
@@ -118,7 +123,7 @@ export class SavedGame {
   static async create(gameId: string, gameName: string, lastPlayed: string): Promise<SavedGame> {
     return new SavedGame(gameId, gameName, lastPlayed)
   }
-  
+
   async save(): Promise<void> {
     await redisClient.json.set(key, '$', redisGame)
   }
@@ -133,4 +138,3 @@ export class SavedGame {
 - ⏳ Functions still call `.toJSON()` - need to map to Response types directly
 - ⏳ game-service still imports API types - should be removed
 - ⏳ Turns and logs still use direct Redis - need domain objects
-

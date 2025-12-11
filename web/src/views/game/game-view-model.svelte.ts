@@ -1,8 +1,8 @@
-import type { GameTurn } from '@ana/types'
+import type { GameTurnData } from '@ana/types'
 import { takeTurn, fetchGameTurns } from '@services/api'
 
 export default class GameViewModel {
-  #history = $state<GameTurn[]>([])
+  #history = $state<GameTurnData[]>([])
   #currentCommand = $state('')
   #isLoadingHistory = $state(false)
   #isProcessingCommand = $state(false)
@@ -69,7 +69,7 @@ export default class GameViewModel {
   }
 
   private async takeTurn(command: string) {
-    const gameTurn: GameTurn = await takeTurn(this.#gameId, command)
+    const gameTurn: GameTurnData = await takeTurn(this.#gameId, command)
     this.#history.push(gameTurn)
   }
 
@@ -89,5 +89,4 @@ export default class GameViewModel {
   private clearInput() {
     this.#currentCommand = ''
   }
-
 }

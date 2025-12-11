@@ -6,7 +6,6 @@ import { fetchGame } from './games/fetch-game.js'
 import { fetchGameTurns } from './games/fetch-game-turns.js'
 import { fetchGameLogs } from './games/fetch-game-logs.js'
 import { takeGameTurn } from './games/take-game-turn.js'
-import { updateGameName } from './games/update-game-name.js'
 import { deleteGame } from './games/delete-game.js'
 
 const { app } = azureFunctions
@@ -44,13 +43,6 @@ app.http('takeGameTurn', {
   authLevel: 'anonymous',
   route: 'games/{gameId}/take-turn',
   handler: takeGameTurn
-})
-
-app.http('updateGameName', {
-  methods: ['PUT'],
-  authLevel: 'anonymous',
-  route: 'games/{gameId}/name',
-  handler: updateGameName
 })
 
 app.http('fetchGameLogs', {

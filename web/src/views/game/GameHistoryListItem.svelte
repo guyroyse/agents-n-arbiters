@@ -1,8 +1,8 @@
 <script lang="ts">
-  import type { GameTurn } from '@ana/types'
+  import type { GameTurnData } from '@ana/types'
 
   interface Props {
-    entry: GameTurn
+    entry: GameTurnData
   }
 
   let { entry }: Props = $props()
