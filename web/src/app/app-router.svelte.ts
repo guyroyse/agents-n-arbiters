@@ -2,7 +2,8 @@ export enum Route {
   Welcome = 'welcome',
   NewGame = 'new-game',
   Load = 'load',
-  Game = 'game'
+  Game = 'game',
+  GameLog = 'game-log'
 }
 
 export default class AppRouter {
@@ -33,5 +34,9 @@ export default class AppRouter {
 
   routeToLoad() {
     this.#currentRoute = Route.Load
+  }
+
+  routeToGameLog() {
+    this.#currentRoute = Route.GameLog
   }
 }

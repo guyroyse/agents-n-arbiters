@@ -1,6 +1,7 @@
 import type {
   VersionData,
   GameTurnData,
+  GameLogData,
   SavedGameData,
   ApiError,
   TakeGameTurnRequest,
@@ -8,6 +9,7 @@ import type {
   FetchVersionResponse,
   TakeGameTurnResponse,
   FetchGameTurnsResponse,
+  FetchGameLogsResponse,
   CreateGameResponse,
   FetchGamesResponse
 } from '@ana/types'
@@ -28,6 +30,11 @@ export async function takeTurn(gameId: string, command: string): Promise<GameTur
 
 export async function fetchGameTurns(gameId: string): Promise<GameTurnData[]> {
   const response: FetchGameTurnsResponse = await apiCall(`/api/games/${gameId}/turns`)
+  return response
+}
+
+export async function fetchGameLogs(gameId: string, count: number = 1000): Promise<GameLogData[]> {
+  const response: FetchGameLogsResponse = await apiCall(`/api/games/${gameId}/logs?count=${count}`)
   return response
 }
 

@@ -51,7 +51,10 @@
 
 <div class="bg-redis-dusk/20 border border-redis-dusk-10 rounded-lg p-4 hover:bg-redis-dusk/30 transition-colors group">
   <div class="flex items-center justify-between">
-    <button onclick={handleSelectGame} class="flex-1 text-left group-hover:text-redis-white transition-colors">
+    <button
+      onclick={handleSelectGame}
+      class="flex-1 text-left group-hover:text-redis-white transition-colors cursor-pointer"
+    >
       <h3 class="text-redis-white font-semibold text-lg">{game.gameName}</h3>
       <p class="text-redis-dusk-30 text-sm">
         Last played: {formatLastPlayed(game.lastPlayed)}
@@ -61,7 +64,7 @@
     <button
       onclick={handleDelete}
       disabled={isDeleting}
-      class="ml-4 text-redis-dusk-30 hover:text-red-400 transition-colors disabled:opacity-50 p-2"
+      class="ml-4 text-redis-dusk-30 hover:text-red-400 transition-colors disabled:opacity-50 p-2 cursor-pointer"
       title="Delete game"
     >
       {#if isDeleting}

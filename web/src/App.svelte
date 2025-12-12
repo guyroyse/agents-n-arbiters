@@ -4,6 +4,7 @@
   import Welcome from '@views/welcome/Welcome.svelte'
   import NewGame from '@views/new-game/NewGame.svelte'
   import Game from '@views/game/Game.svelte'
+  import GameLog from '@views/game-log/GameLog.svelte'
   import LoadGame from '@views/load-game/LoadGame.svelte'
   import AppRouter, { Route } from '@app/app-router.svelte.ts'
   import AppState from '@app/app-state.svelte.ts'
@@ -21,6 +22,8 @@
     <NewGame />
   {:else if appRouter.currentRoute === Route.Game && appState.currentGameId}
     <Game />
+  {:else if appRouter.currentRoute === Route.GameLog && appState.currentGameId}
+    <GameLog />
   {:else if appRouter.currentRoute === Route.Load}
     <LoadGame />
   {:else}

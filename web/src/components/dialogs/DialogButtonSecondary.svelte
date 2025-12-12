@@ -10,7 +10,7 @@
 
 <button
   value={action}
-  class="flex-1 border-2 border-redis-dusk-10 hover:bg-redis-dusk text-redis-white font-bold py-2 px-4 rounded-lg transition-colors"
+  class="flex-1 border-2 border-redis-dusk-10 hover:bg-redis-dusk text-redis-white font-bold py-2 px-4 rounded-lg transition-colors cursor-pointer"
 >
   {getButtonText(action)}
 </button>

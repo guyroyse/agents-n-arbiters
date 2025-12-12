@@ -21,7 +21,9 @@
     "vite": "^7.1.4"
   },
   "dependencies": {
+    "@alenaksu/json-viewer": "^2.1.2",
     "@ana/types": "*",
+    "mermaid": "^11.12.2",
     "ulid": "^3.0.1"
   }
 }

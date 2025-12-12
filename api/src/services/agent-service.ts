@@ -26,7 +26,21 @@ async function fetchGameState(gameId: string): Promise<GameState> {
  */
 function buildWorkflow(gameState: GameState) {
   const workflow = new MultiAgentGraph(gameState).build()
-  log(gameState.gameId, 'MULTI-AGENT WORKFLOW STRUCTURE', workflow.getGraph())
+  const graph = workflow.getGraph()
+
+  // Create a wrapper that calls drawMermaid with dark-theme-friendly colors
+  const graphWithDarkTheme = {
+    drawMermaid: () =>
+      graph.drawMermaid({
+        nodeColors: {
+          default: 'fill:#1e3a5f,stroke:#4a90e2,stroke-width:2px,color:#ffffff',
+          first: 'fill:#2d5a3d,stroke:#5cb85c,stroke-width:2px',
+          last: 'fill:#5a2d2d,stroke:#d9534f,stroke-width:2px'
+        }
+      })
+  }
+
+  log(gameState.gameId, 'MULTI-AGENT WORKFLOW STRUCTURE', graphWithDarkTheme)
 
   return workflow
 }

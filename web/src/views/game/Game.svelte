@@ -17,19 +17,30 @@
   })
 </script>
 
-<section class="bg-redis-midnight border border-redis-dusk-10 rounded-lg p-6 font-mono text-base flex-1 w-full max-w-6xl mx-auto flex flex-col relative min-h-0">
+<section
+  class="bg-redis-midnight border border-redis-dusk-10 rounded-lg p-6 font-mono text-base flex-1 w-full max-w-6xl mx-auto flex flex-col relative min-h-0"
+>
   <header class="flex justify-between items-center mb-2">
     <h3 class="text-redis-white font-semibold">Game Terminal</h3>
-    <button
-      onclick={() => appRouter.routeToWelcome()}
-      class="text-redis-dusk-30 hover:text-redis-white text-sm transition-colors"
-    >
-      ← Back to Menu
-    </button>
+    <div class="flex gap-3 items-center text-sm">
+      <button
+        onclick={() => appRouter.routeToWelcome()}
+        class="text-redis-dusk-30 hover:text-redis-white transition-colors cursor-pointer"
+      >
+        ← Back to Menu
+      </button>
+      <span class="text-redis-dusk-50">|</span>
+      <button
+        onclick={() => appRouter.routeToGameLog()}
+        class="text-redis-dusk-30 hover:text-redis-white transition-colors cursor-pointer"
+      >
+        Log
+      </button>
+    </div>
   </header>
   <GameHistoryList {viewModel} />
   <GameInput {viewModel} />
-  
+
   {#if viewModel.isLoadingHistory}
     <LoadingOverlay message="Loading game history..." />
   {/if}
