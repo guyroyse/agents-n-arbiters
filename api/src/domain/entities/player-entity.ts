@@ -1,6 +1,6 @@
 import { fetchRedisClient } from '@clients/index.js'
-import { GameEntity, type BaseEntityData } from './game.js'
-import { LocationEntity } from './location.js'
+import { GameEntity, type BaseEntityData } from './game-entity.js'
+import { LocationEntity } from './location-entity.js'
 
 const redisClient = await fetchRedisClient()
 

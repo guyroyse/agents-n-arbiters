@@ -1,7 +1,7 @@
 import { fetchRedisClient } from '@clients/index.js'
-import { GameEntity, type BaseEntityData } from './game.js'
-import { FixtureEntity } from './fixture.js'
-import { ExitEntity } from './exit.js'
+import { GameEntity, type BaseEntityData } from './game-entity.js'
+import { FixtureEntity } from './fixture-entity.js'
+import { ExitEntity } from './exit-entity.js'
 
 const redisClient = await fetchRedisClient()
 
@@ -45,10 +45,7 @@ export class LocationEntity extends GameEntity {
   }
 
   async entities(): Promise<GameEntity[]> {
-    const [fixtures, exits] = await Promise.all([
-      this.fixtures(),
-      this.exits()
-    ])
+    const [fixtures, exits] = await Promise.all([this.fixtures(), this.exits()])
     return [...fixtures, ...exits]
   }
 
