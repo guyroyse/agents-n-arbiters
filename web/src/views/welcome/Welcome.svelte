@@ -10,6 +10,10 @@
   function handleLoadGame() {
     appRouter.routeToLoad()
   }
+
+  function handleLoadTemplate() {
+    appRouter.routeToLoadTemplate()
+  }
 </script>
 
 <section class="flex flex-col items-center justify-center min-h-96 space-y-8">
@@ -27,6 +31,12 @@
     >
       Load Game
     </button>
-  </div>
 
+    <button
+      onclick={handleLoadTemplate}
+      class="border-2 border-redis-dusk-10 hover:bg-redis-dusk text-redis-dusk-10 hover:text-redis-white font-bold text-lg tracking-wide py-4 px-8 rounded-lg transition-colors duration-200 cursor-pointer shadow-md"
+    >
+      Load World Template
+    </button>
+  </div>
 </section>

@@ -6,12 +6,14 @@ import type {
   ApiError,
   TakeGameTurnRequest,
   CreateGameRequest,
+  LoadTemplateRequest,
   FetchVersionResponse,
   TakeGameTurnResponse,
   FetchGameTurnsResponse,
   FetchGameLogsResponse,
   CreateGameResponse,
-  FetchGamesResponse
+  FetchGamesResponse,
+  LoadTemplateResponse
 } from '@ana/types'
 
 export async function fetchVersionInfo(): Promise<VersionData> {
@@ -57,6 +59,14 @@ export async function deleteGame(gameId: string): Promise<void> {
     method: 'DELETE'
   })
   return result
+}
+
+export async function loadTemplate(templateData: LoadTemplateRequest): Promise<LoadTemplateResponse> {
+  const response: LoadTemplateResponse = await apiCall('/api/load-template', {
+    method: 'POST',
+    body: JSON.stringify(templateData)
+  })
+  return response
 }
 
 async function apiCall<T>(url: string, options?: RequestInit): Promise<T> {
