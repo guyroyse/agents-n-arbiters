@@ -1,7 +1,5 @@
-import { fetchRedisClient } from '@clients/index.js'
-import type { PlayerTemplateData, LocationTemplateData, FixtureTemplateData, ExitTemplateData } from '@ana/types'
-
-const redisClient = await fetchRedisClient()
+import { PlayerTemplate, LocationTemplate, FixtureTemplate, ExitTemplate } from '@domain/templates/index.js'
+import { Admin } from '@domain/admin.js'
 
 class TemplateService {
   private constructor() {}
@@ -11,23 +9,55 @@ class TemplateService {
   }
 
   async clearAllTemplates(): Promise<void> {
-    await redisClient.flushAll()
+    await Admin.clearAll()
   }
 
-  async savePlayerTemplate(player: PlayerTemplateData): Promise<void> {
-    await redisClient.json.set('template:entity:player', '$', player)
+  async savePlayerTemplate(
+    name: string,
+    description: string,
+    locationId: string,
+    statuses?: string[],
+    entityPrompt?: string
+  ): Promise<void> {
+    const template = PlayerTemplate.create(name, description, locationId, statuses, entityPrompt)
+    await template.save()
   }
 
-  async saveLocationTemplate(location: LocationTemplateData): Promise<void> {
-    await redisClient.json.set(`template:entity:${location.entityId}`, '$', location)
+  async saveLocationTemplate(
+    entityId: string,
+    name: string,
+    description: string,
+    fixtureIds: string[],
+    exitIds: string[],
+    statuses?: string[],
+    entityPrompt?: string
+  ): Promise<void> {
+    const template = LocationTemplate.create(entityId, name, description, fixtureIds, exitIds, statuses, entityPrompt)
+    await template.save()
   }
 
-  async saveFixtureTemplate(fixture: FixtureTemplateData): Promise<void> {
-    await redisClient.json.set(`template:entity:${fixture.entityId}`, '$', fixture)
+  async saveFixtureTemplate(
+    entityId: string,
+    name: string,
+    description: string,
+    actions: string[],
+    statuses?: string[],
+    entityPrompt?: string
+  ): Promise<void> {
+    const template = FixtureTemplate.create(entityId, name, description, actions, statuses, entityPrompt)
+    await template.save()
   }
 
-  async saveExitTemplate(exit: ExitTemplateData): Promise<void> {
-    await redisClient.json.set(`template:entity:${exit.entityId}`, '$', exit)
+  async saveExitTemplate(
+    entityId: string,
+    name: string,
+    description: string,
+    destinationId: string,
+    statuses?: string[],
+    entityPrompt?: string
+  ): Promise<void> {
+    const template = ExitTemplate.create(entityId, name, description, destinationId, statuses, entityPrompt)
+    await template.save()
   }
 }
 

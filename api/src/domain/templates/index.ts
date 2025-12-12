@@ -1,0 +1,5 @@
+export { GameTemplate, type BaseTemplateData } from './game-template.js'
+export { PlayerTemplate } from './player-template.js'
+export { LocationTemplate } from './location-template.js'
+export { FixtureTemplate } from './fixture-template.js'
+export { ExitTemplate } from './exit-template.js'

@@ -18,19 +18,48 @@ export async function loadTemplate(request: HttpRequest, context: InvocationCont
     await templateService.clearAllTemplates()
 
     // Save player template
-    await templateService.savePlayerTemplate(templateData.player)
+    const player = templateData.player
+    await templateService.savePlayerTemplate(
+      player.name,
+      player.description,
+      player.locationId,
+      player.statuses,
+      player.entityPrompt
+    )
 
     // Save all entity templates
     for (const entity of templateData.entities) {
       switch (entity.entityType) {
         case 'location':
-          await templateService.saveLocationTemplate(entity)
+          await templateService.saveLocationTemplate(
+            entity.entityId,
+            entity.name,
+            entity.description,
+            entity.fixtureIds,
+            entity.exitIds,
+            entity.statuses,
+            entity.entityPrompt
+          )
           break
         case 'fixture':
-          await templateService.saveFixtureTemplate(entity)
+          await templateService.saveFixtureTemplate(
+            entity.entityId,
+            entity.name,
+            entity.description,
+            entity.actions,
+            entity.statuses,
+            entity.entityPrompt
+          )
           break
         case 'exit':
-          await templateService.saveExitTemplate(entity)
+          await templateService.saveExitTemplate(
+            entity.entityId,
+            entity.name,
+            entity.description,
+            entity.destinationId,
+            entity.statuses,
+            entity.entityPrompt
+          )
           break
       }
     }
