@@ -1,0 +1,202 @@
+{
+  "player": {
+    "entityId": "player",
+    "entityType": "player",
+    "name": "Commander",
+    "description": "A starship commander exploring the far reaches of known space",
+    "locationId": "bridge",
+    "entityPrompt": "You are the commanding officer of a deep-space exploration vessel. You're experienced in first contact protocols, crisis management, and making difficult decisions in the void of space. You understand ship systems, alien cultures, and the dangers of unexplored space. Focus on how your actions affect crew morale, ship status, and diplomatic relations with alien species."
+  },
+  "entities": [
+    {
+      "entityId": "bridge",
+      "entityType": "location",
+      "name": "Command Bridge",
+      "description": "The nerve center of the starship hums with activity. Holographic displays float above sleek control stations, showing star charts, system diagnostics, and sensor readings. The main viewscreen dominates the forward wall, currently displaying the swirling colors of a nearby nebula. Soft blue lighting illuminates the command chair at the center of the bridge. Doors lead aft to the corridor and forward to the observation deck.",
+      "fixtureIds": ["command-console", "viewscreen"],
+      "exitIds": ["corridor-aft", "observation-forward"],
+      "statuses": ["operational", "alert-green"]
+    },
+    {
+      "entityId": "command-console",
+      "entityType": "fixture",
+      "name": "Command Console",
+      "description": "The captain's console displays ship-wide status, communications, and tactical information. Touch-sensitive controls respond to the slightest gesture, and a neural interface port allows direct connection to ship systems.",
+      "actions": ["access systems", "hail", "scan"],
+      "statuses": ["active", "connected"]
+    },
+    {
+      "entityId": "viewscreen",
+      "entityType": "fixture",
+      "name": "Main Viewscreen",
+      "description": "A massive high-resolution display shows the space ahead of the ship. Advanced sensors can overlay tactical data, stellar cartography, or magnified views of distant objects.",
+      "actions": ["magnify", "tactical overlay", "stellar map"],
+      "statuses": ["active", "clear"]
+    },
+    {
+      "entityId": "corridor-aft",
+      "entityType": "exit",
+      "name": "Corridor Aft",
+      "description": "A sliding door leads aft into the main corridor.",
+      "destinationId": "main-corridor",
+      "statuses": []
+    },
+    {
+      "entityId": "observation-forward",
+      "entityType": "exit",
+      "name": "Observation Deck",
+      "description": "A forward passage leads to the observation deck.",
+      "destinationId": "observation-deck",
+      "statuses": []
+    },
+    {
+      "entityId": "main-corridor",
+      "entityType": "location",
+      "name": "Main Corridor",
+      "description": "The ship's primary corridor stretches fore and aft, its walls lined with status panels and emergency equipment lockers. Soft lighting guides the way, and the gentle hum of the ship's engines vibrates through the deck plates. Crew members pass by on their duties. Doors lead forward to the bridge, down to engineering, and aft to the cargo bay.",
+      "fixtureIds": ["status-panel", "emergency-locker"],
+      "exitIds": ["bridge-forward", "engineering-down", "cargo-aft"],
+      "statuses": ["pressurized", "lit"]
+    },
+    {
+      "entityId": "status-panel",
+      "entityType": "fixture",
+      "name": "Ship Status Panel",
+      "description": "A wall-mounted display shows real-time status of all ship systems: life support, propulsion, shields, and weapons. Warning lights indicate any anomalies.",
+      "actions": ["check status", "run diagnostics"],
+      "statuses": ["functional", "monitoring"]
+    },
+    {
+      "entityId": "emergency-locker",
+      "entityType": "fixture",
+      "name": "Emergency Equipment Locker",
+      "description": "A sealed locker contains emergency supplies: EVA suits, medical kits, emergency rations, and portable oxygen generators.",
+      "actions": ["open", "take supplies"],
+      "statuses": ["sealed", "stocked"]
+    },
+    {
+      "entityId": "bridge-forward",
+      "entityType": "exit",
+      "name": "Bridge Access",
+      "description": "The corridor leads forward to the command bridge.",
+      "destinationId": "bridge",
+      "statuses": []
+    },
+    {
+      "entityId": "engineering-down",
+      "entityType": "exit",
+      "name": "Engineering Deck",
+      "description": "A ladder descends to the engineering deck below.",
+      "destinationId": "engineering",
+      "statuses": []
+    },
+    {
+      "entityId": "cargo-aft",
+      "entityType": "exit",
+      "name": "Cargo Bay",
+      "description": "The corridor extends aft toward the cargo bay.",
+      "destinationId": "cargo-bay",
+      "statuses": []
+    },
+    {
+      "entityId": "observation-deck",
+      "entityType": "location",
+      "name": "Observation Deck",
+      "description": "A transparent dome provides a breathtaking 360-degree view of space. Stars stretch to infinity in all directions, and the nearby nebula paints the void in shades of purple and gold. Comfortable seating allows crew members to contemplate the cosmos. A passage leads back to the bridge.",
+      "fixtureIds": ["telescope", "star-chart"],
+      "exitIds": ["bridge-aft"],
+      "statuses": ["peaceful", "scenic"]
+    },
+    {
+      "entityId": "telescope",
+      "entityType": "fixture",
+      "name": "Observation Telescope",
+      "description": "A powerful telescope can focus on distant stellar phenomena, alien vessels, or planetary surfaces. Its advanced optics can detect details across vast distances.",
+      "actions": ["observe", "scan", "record"],
+      "statuses": ["calibrated", "active"]
+    },
+    {
+      "entityId": "star-chart",
+      "entityType": "fixture",
+      "name": "Interactive Star Chart",
+      "description": "A holographic star chart displays known space, trade routes, and unexplored regions. It can be updated with new discoveries and plot courses to distant systems.",
+      "actions": ["plot course", "update", "search"],
+      "statuses": ["current", "interactive"]
+    },
+    {
+      "entityId": "bridge-aft",
+      "entityType": "exit",
+      "name": "Return to Bridge",
+      "description": "The passage leads back to the command bridge.",
+      "destinationId": "bridge",
+      "statuses": []
+    },
+    {
+      "entityId": "engineering",
+      "entityType": "location",
+      "name": "Engineering Bay",
+      "description": "The heart of the ship pulses with barely contained energy. The warp core glows with blue-white light at the center of the chamber, surrounded by control stations and diagnostic equipment. Engineers monitor power distribution, propulsion systems, and life support. The air smells of ozone and lubricant. A ladder leads up to the main corridor.",
+      "fixtureIds": ["warp-core", "engineering-console"],
+      "exitIds": ["corridor-up"],
+      "statuses": ["operational", "hot"]
+    },
+    {
+      "entityId": "warp-core",
+      "entityType": "fixture",
+      "name": "Warp Core",
+      "description": "The ship's primary power source and faster-than-light drive. Magnetic containment fields barely contain the matter-antimatter reaction that powers the vessel. Status indicators show power output and containment integrity.",
+      "actions": ["adjust power", "emergency shutdown", "boost"],
+      "statuses": ["stable", "active"]
+    },
+    {
+      "entityId": "engineering-console",
+      "entityType": "fixture",
+      "name": "Engineering Station",
+      "description": "The chief engineer's console provides complete control over ship systems: propulsion, power distribution, shields, and environmental controls.",
+      "actions": ["run diagnostics", "reroute power", "repair"],
+      "statuses": ["operational", "monitoring"]
+    },
+    {
+      "entityId": "corridor-up",
+      "entityType": "exit",
+      "name": "Ladder Up",
+      "description": "A ladder leads up to the main corridor.",
+      "destinationId": "main-corridor",
+      "statuses": []
+    },
+    {
+      "entityId": "cargo-bay",
+      "entityType": "location",
+      "name": "Cargo Bay",
+      "description": "A cavernous space holds the ship's cargo, supplies, and equipment. Magnetic clamps secure containers to the deck, and a massive airlock dominates the outer wall. Loading equipment stands ready, and environmental suits hang in racks near the airlock. The corridor leads forward to the main ship.",
+      "fixtureIds": ["cargo-containers", "airlock"],
+      "exitIds": ["corridor-forward"],
+      "statuses": ["pressurized", "secured"]
+    },
+    {
+      "entityId": "cargo-containers",
+      "entityType": "fixture",
+      "name": "Cargo Containers",
+      "description": "Standardized shipping containers hold supplies, trade goods, and scientific equipment. Manifest displays show contents and destination.",
+      "actions": ["open", "inventory", "secure"],
+      "statuses": ["sealed", "catalogued"]
+    },
+    {
+      "entityId": "airlock",
+      "entityType": "fixture",
+      "name": "Cargo Airlock",
+      "description": "A large airlock allows cargo transfer and EVA operations. Safety interlocks prevent accidental decompression, and status lights show current pressure and seal integrity.",
+      "actions": ["cycle", "emergency decompress", "seal"],
+      "statuses": ["sealed", "pressurized"]
+    },
+    {
+      "entityId": "corridor-forward",
+      "entityType": "exit",
+      "name": "Main Corridor",
+      "description": "The corridor leads forward to the main ship.",
+      "destinationId": "main-corridor",
+      "statuses": []
+    }
+  ]
+}
+

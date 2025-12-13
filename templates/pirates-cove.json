@@ -1,0 +1,202 @@
+{
+  "player": {
+    "entityId": "player",
+    "entityType": "player",
+    "name": "Captain",
+    "description": "A cunning pirate captain seeking fortune on the high seas",
+    "locationId": "ship-deck",
+    "entityPrompt": "You are a notorious pirate captain commanding a crew of cutthroats and scoundrels. You're skilled in naval combat, treasure hunting, and navigating treacherous waters. You understand the pirate code, know every hidden cove in the Caribbean, and have a reputation for both cunning and ruthlessness. Focus on how your actions affect crew loyalty, ship condition, and your standing among other pirates."
+  },
+  "entities": [
+    {
+      "entityId": "ship-deck",
+      "entityType": "location",
+      "name": "Main Deck",
+      "description": "The weathered planks of the ship's main deck creak beneath your boots as the vessel rocks gently on the waves. Salt spray mists the air, and the Jolly Roger snaps in the wind above. Rigging stretches up to the masts, and cannons line the rails, ready for action. The crew bustles about their duties, casting occasional glances your way. Stairs lead down to the lower deck, and a ladder climbs to the crow's nest.",
+      "fixtureIds": ["ship-wheel", "cannons"],
+      "exitIds": ["stairs-down", "ladder-up"],
+      "statuses": ["sailing", "armed"]
+    },
+    {
+      "entityId": "ship-wheel",
+      "entityType": "fixture",
+      "name": "Ship's Wheel",
+      "description": "The massive wooden wheel controls the ship's rudder. Its worn handles bear the marks of countless voyages, and a compass is mounted at its center showing current heading.",
+      "actions": ["steer", "check heading", "adjust course"],
+      "statuses": ["functional", "steady"]
+    },
+    {
+      "entityId": "cannons",
+      "entityType": "fixture",
+      "name": "Deck Cannons",
+      "description": "A row of iron cannons point out from the gun ports, their barrels cleaned and ready. Powder kegs and cannonballs are secured nearby, and the gun crews keep them maintained.",
+      "actions": ["fire", "load", "aim"],
+      "statuses": ["loaded", "ready"]
+    },
+    {
+      "entityId": "stairs-down",
+      "entityType": "exit",
+      "name": "Stairs to Lower Deck",
+      "description": "Wooden stairs descend into the dimly lit lower deck.",
+      "destinationId": "lower-deck",
+      "statuses": []
+    },
+    {
+      "entityId": "ladder-up",
+      "entityType": "exit",
+      "name": "Ladder to Crow's Nest",
+      "description": "A rope ladder climbs up the main mast to the crow's nest high above.",
+      "destinationId": "crows-nest",
+      "statuses": ["swaying"]
+    },
+    {
+      "entityId": "lower-deck",
+      "entityType": "location",
+      "name": "Lower Deck",
+      "description": "The cramped lower deck smells of tar, gunpowder, and unwashed sailors. Hammocks swing with the ship's motion, and barrels of supplies are lashed to the bulkheads. Lanterns cast flickering light across the rough wooden walls. The crew's quarters are here, along with storage for provisions and ammunition. Stairs lead up to the main deck and down to the hold.",
+      "fixtureIds": ["supply-barrels", "crew-hammocks"],
+      "exitIds": ["stairs-up", "hatch-down"],
+      "statuses": ["crowded", "dim"]
+    },
+    {
+      "entityId": "supply-barrels",
+      "entityType": "fixture",
+      "name": "Supply Barrels",
+      "description": "Wooden barrels contain the ship's provisions: salted meat, hardtack, rum, fresh water, and gunpowder. They're secured with rope to prevent shifting in rough seas.",
+      "actions": ["inventory", "open", "secure"],
+      "statuses": ["stocked", "lashed"]
+    },
+    {
+      "entityId": "crew-hammocks",
+      "entityType": "fixture",
+      "name": "Crew Hammocks",
+      "description": "Rows of canvas hammocks hang from the ceiling beams, swaying with the ship's movement. Personal belongings are stowed in sea chests beneath them.",
+      "actions": ["search", "rest"],
+      "statuses": ["occupied", "swaying"]
+    },
+    {
+      "entityId": "stairs-up",
+      "entityType": "exit",
+      "name": "Stairs to Main Deck",
+      "description": "Wooden stairs lead up to the main deck and fresh air.",
+      "destinationId": "ship-deck",
+      "statuses": []
+    },
+    {
+      "entityId": "hatch-down",
+      "entityType": "exit",
+      "name": "Hatch to Hold",
+      "description": "A heavy hatch in the floor opens to the cargo hold below.",
+      "destinationId": "cargo-hold",
+      "statuses": []
+    },
+    {
+      "entityId": "crows-nest",
+      "entityType": "location",
+      "name": "Crow's Nest",
+      "description": "High above the deck, the crow's nest offers a commanding view of the surrounding seas. The wind whips fiercely at this height, and the ship's motion is exaggerated. A spyglass rests in a holder, and the lookout keeps constant watch for ships, land, or danger. The horizon stretches endlessly in all directions. The ladder leads back down to the deck.",
+      "fixtureIds": ["spyglass", "signal-flags"],
+      "exitIds": ["ladder-down"],
+      "statuses": ["windy", "high"]
+    },
+    {
+      "entityId": "spyglass",
+      "entityType": "fixture",
+      "name": "Captain's Spyglass",
+      "description": "A brass spyglass extends to reveal distant ships, coastlines, and weather patterns. Its lenses are kept meticulously clean for maximum clarity.",
+      "actions": ["scan horizon", "identify ship", "spot land"],
+      "statuses": ["clean", "functional"]
+    },
+    {
+      "entityId": "signal-flags",
+      "entityType": "fixture",
+      "name": "Signal Flags",
+      "description": "Colorful flags used to communicate with other ships. Different combinations convey messages ranging from friendly greetings to declarations of war.",
+      "actions": ["raise", "signal", "lower"],
+      "statuses": ["ready", "furled"]
+    },
+    {
+      "entityId": "ladder-down",
+      "entityType": "exit",
+      "name": "Ladder to Deck",
+      "description": "The rope ladder descends back to the main deck far below.",
+      "destinationId": "ship-deck",
+      "statuses": []
+    },
+    {
+      "entityId": "cargo-hold",
+      "entityType": "location",
+      "name": "Cargo Hold",
+      "description": "The ship's hold is dark and damp, with water sloshing in the bilge. Crates and chests are stacked and secured, containing plundered treasure, trade goods, and contraband. The smell of seawater and rotting wood permeates the air. Rats scurry in the shadows. A heavy hatch above leads back to the lower deck, and a hidden panel in the wall conceals the captain's secret cache.",
+      "fixtureIds": ["treasure-chests", "hidden-panel"],
+      "exitIds": ["hatch-up", "secret-cache"],
+      "statuses": ["dark", "damp"]
+    },
+    {
+      "entityId": "treasure-chests",
+      "entityType": "fixture",
+      "name": "Plundered Treasure",
+      "description": "Iron-bound chests contain the crew's ill-gotten gains: gold doubloons, silver pieces, precious gems, and valuable trade goods. Heavy locks protect the most valuable items.",
+      "actions": ["open", "count", "lock"],
+      "statuses": ["locked", "heavy"]
+    },
+    {
+      "entityId": "hidden-panel",
+      "entityType": "fixture",
+      "name": "Hidden Wall Panel",
+      "description": "A section of the hull wall appears slightly different from the rest. Close inspection reveals it's a cunningly concealed panel that can be slid aside.",
+      "actions": ["examine", "open", "close"],
+      "statuses": ["hidden", "closed"]
+    },
+    {
+      "entityId": "hatch-up",
+      "entityType": "exit",
+      "name": "Hatch to Lower Deck",
+      "description": "The hatch leads back up to the lower deck.",
+      "destinationId": "lower-deck",
+      "statuses": []
+    },
+    {
+      "entityId": "secret-cache",
+      "entityType": "exit",
+      "name": "Secret Cache",
+      "description": "The hidden panel slides aside to reveal a secret compartment.",
+      "destinationId": "captains-cache",
+      "statuses": ["hidden", "secret"]
+    },
+    {
+      "entityId": "captains-cache",
+      "entityType": "location",
+      "name": "Captain's Secret Cache",
+      "description": "A small hidden compartment contains the captain's personal treasures and secrets. Maps to buried treasure, letters of marque, a journal of voyages, and the most valuable pieces of plunder are secured here. A single lantern provides dim light. The hidden panel leads back to the cargo hold.",
+      "fixtureIds": ["treasure-maps", "captains-journal"],
+      "exitIds": ["panel-out"],
+      "statuses": ["secret", "secure"]
+    },
+    {
+      "entityId": "treasure-maps",
+      "entityType": "fixture",
+      "name": "Treasure Maps",
+      "description": "Rolled parchments marked with cryptic symbols, compass bearings, and landmarks. Each map leads to buried treasure on some distant island or hidden cove.",
+      "actions": ["read", "decipher", "follow"],
+      "statuses": ["aged", "cryptic"]
+    },
+    {
+      "entityId": "captains-journal",
+      "entityType": "fixture",
+      "name": "Captain's Journal",
+      "description": "A leather-bound journal contains records of voyages, battles, plundered ships, and personal reflections. The pages are stained with salt water and rum.",
+      "actions": ["read", "write", "hide"],
+      "statuses": ["worn", "private"]
+    },
+    {
+      "entityId": "panel-out",
+      "entityType": "exit",
+      "name": "Hidden Panel",
+      "description": "The concealed panel leads back to the cargo hold.",
+      "destinationId": "cargo-hold",
+      "statuses": []
+    }
+  ]
+}
+

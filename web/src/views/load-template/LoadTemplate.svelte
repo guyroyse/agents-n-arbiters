@@ -7,36 +7,44 @@
   const appRouter = AppRouter.instance
   const viewModel = new LoadTemplateViewModel()
 
+  let fileInput: HTMLInputElement
   let showConfirmation = $state(false)
+  let selectedFile = $state<File | null>(null)
 
   function handleBack() {
     appRouter.routeToWelcome()
   }
 
-  function handleLoadSample() {
-    viewModel.loadSampleTemplate()
+  function handleSelectFile() {
+    fileInput.click()
   }
 
-  function handleClear() {
-    viewModel.clearTemplate()
-  }
-
-  function handleSubmit(event: Event) {
-    event.preventDefault()
-    showConfirmation = true
+  async function handleFileChange(event: Event) {
+    const input = event.target as HTMLInputElement
+    const file = input.files?.[0]
+    if (file) {
+      selectedFile = file
+      showConfirmation = true
+      // Reset the input so the same file can be selected again
+      input.value = ''
+    }
   }
 
   async function handleConfirmLoad() {
     showConfirmation = false
-    const success = await viewModel.loadTemplateData()
-    if (success) {
-      // Auto-dismiss success message after 3 seconds
-      setTimeout(() => viewModel.clearSuccess(), 3000)
+    if (selectedFile) {
+      const success = await viewModel.loadTemplateFromFile(selectedFile)
+      if (success) {
+        // Auto-dismiss success message after 3 seconds
+        setTimeout(() => viewModel.clearSuccess(), 3000)
+      }
+      selectedFile = null
     }
   }
 
   function handleCancelLoad() {
     showConfirmation = false
+    selectedFile = null
   }
 
   function handleRetry() {
@@ -90,52 +98,35 @@
     </div>
   {/if}
 
-  <!-- Template Upload Section -->
-  <div class="bg-redis-midnight border border-redis-dusk-10 rounded-lg p-6 flex-1 flex flex-col overflow-hidden">
-    <form onsubmit={handleSubmit} class="flex flex-col flex-1 min-h-0">
-      <div class="flex-1 flex flex-col mb-4 min-h-0">
-        <label for="template-data" class="block text-redis-white font-semibold mb-2">Template JSON Data</label>
-        <textarea
-          id="template-data"
-          bind:value={viewModel.templateJson}
-          disabled={viewModel.isLoading}
-          class="flex-1 bg-redis-dusk border border-redis-dusk-10 text-redis-white px-3 py-2 rounded focus:border-redis-dusk-30 focus:outline-none font-mono text-sm disabled:opacity-50 resize-none"
-          placeholder="Paste your world template JSON here..."
-          required
-        ></textarea>
-        <p class="text-redis-dusk-30 text-sm mt-2">
+  <!-- Template Selection Section -->
+  <div
+    class="bg-redis-midnight border border-redis-dusk-10 rounded-lg p-6 flex-1 flex flex-col items-center justify-center"
+  >
+    <div class="text-center space-y-6">
+      <div class="text-redis-dusk-30">
+        <p class="text-lg mb-2">Select a world template file to load</p>
+        <p class="text-sm">
           Expected format: <code class="text-redis-dusk-10">{'{ "player": {...}, "entities": [...] }'}</code>
         </p>
       </div>
 
-      <div class="flex gap-4">
-        <button
-          type="submit"
-          disabled={viewModel.isLoading}
-          class="bg-redis-dusk hover:bg-redis-dusk-70 border-2 border-redis-dusk-10 text-redis-white font-bold text-lg tracking-wide py-4 px-8 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-lg"
-        >
-          {viewModel.isLoading ? 'Loading...' : 'Load Template'}
-        </button>
+      <input
+        bind:this={fileInput}
+        type="file"
+        accept=".json,application/json"
+        onchange={handleFileChange}
+        disabled={viewModel.isLoading}
+        class="hidden"
+      />
 
-        <button
-          type="button"
-          onclick={handleLoadSample}
-          disabled={viewModel.isLoading}
-          class="border-2 border-redis-dusk-10 hover:bg-redis-dusk text-redis-dusk-10 hover:text-redis-white font-bold text-lg tracking-wide py-4 px-8 rounded-lg transition-colors duration-200 disabled:opacity-50 cursor-pointer shadow-md"
-        >
-          Load Sample
-        </button>
-
-        <button
-          type="button"
-          onclick={handleClear}
-          disabled={viewModel.isLoading}
-          class="border-2 border-redis-dusk-10 hover:bg-redis-dusk text-redis-dusk-10 hover:text-redis-white font-bold text-lg tracking-wide py-4 px-8 rounded-lg transition-colors duration-200 disabled:opacity-50 cursor-pointer shadow-md"
-        >
-          Clear
-        </button>
-      </div>
-    </form>
+      <button
+        onclick={handleSelectFile}
+        disabled={viewModel.isLoading}
+        class="bg-redis-dusk hover:bg-redis-dusk-70 border-2 border-redis-dusk-10 text-redis-white font-bold text-lg tracking-wide py-4 px-8 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-lg"
+      >
+        {viewModel.isLoading ? 'Loading...' : '📁 Select Template File'}
+      </button>
+    </div>
   </div>
 </section>
 

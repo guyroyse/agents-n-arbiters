@@ -1,0 +1,161 @@
+{
+  "player": {
+    "entityId": "player",
+    "entityType": "player",
+    "name": "Runner",
+    "description": "A street-smart netrunner navigating the neon-soaked underbelly of the megacity",
+    "locationId": "downtown-alley",
+    "entityPrompt": "You are a skilled netrunner and street operative in a dystopian cyberpunk megacity. You're adept at hacking, stealth, and navigating the dangerous streets controlled by megacorps. You understand both the physical and digital worlds, and can interface with technology through your neural implants. Focus on how your actions might affect your reputation, cyberware status, and relationships with various factions."
+  },
+  "entities": [
+    {
+      "entityId": "downtown-alley",
+      "entityType": "location",
+      "name": "Rain-Slicked Alley",
+      "description": "Neon signs cast flickering red and blue light across puddles of oily water in this narrow downtown alley. Steam rises from grates in the cracked pavement, and the constant hum of hovercars overhead mingles with the bass-heavy music bleeding from nearby clubs. Graffiti tags glow with bioluminescent paint on the grimy walls. A rusted fire escape leads up to the rooftops, while a reinforced door marks the entrance to the underground market.",
+      "fixtureIds": ["data-terminal", "dumpster"],
+      "exitIds": ["fire-escape-up", "market-door"],
+      "statuses": ["rainy", "neon-lit"]
+    },
+    {
+      "entityId": "data-terminal",
+      "entityType": "fixture",
+      "name": "Public Data Terminal",
+      "description": "A battered public access terminal flickers with corrupted advertisements and system warnings. The cracked screen displays a login prompt, and someone has jury-rigged additional ports into its base. Corporate security protocols are visible but outdated.",
+      "actions": ["hack", "access", "upload virus"],
+      "statuses": ["active", "unsecured"]
+    },
+    {
+      "entityId": "dumpster",
+      "entityType": "fixture",
+      "name": "Recycling Dumpster",
+      "description": "A massive industrial dumpster overflows with discarded tech components, food containers, and unidentifiable corporate waste. The smell is overwhelming, but valuable salvage often ends up here.",
+      "actions": ["search", "hide behind"],
+      "statuses": ["full", "smelly"]
+    },
+    {
+      "entityId": "fire-escape-up",
+      "entityType": "exit",
+      "name": "Fire Escape",
+      "description": "A rusty metal fire escape zigzags up the side of the building, leading to the rooftops.",
+      "destinationId": "rooftop-access",
+      "statuses": []
+    },
+    {
+      "entityId": "market-door",
+      "entityType": "exit",
+      "name": "Reinforced Door",
+      "description": "A heavy steel door with a biometric scanner and multiple deadbolts. Muffled voices and electronic music pulse from beyond.",
+      "destinationId": "underground-market",
+      "statuses": ["locked"]
+    },
+    {
+      "entityId": "rooftop-access",
+      "entityType": "location",
+      "name": "Neon Rooftop",
+      "description": "The city sprawls endlessly in all directions, a sea of glowing advertisements and towering arcologies piercing the smog-choked sky. Wind whips across the rooftop, carrying the scent of ozone and fried food. Satellite dishes and antenna arrays cluster around a small maintenance shed. The fire escape leads back down to the alley.",
+      "fixtureIds": ["antenna-array", "maintenance-shed"],
+      "exitIds": ["fire-escape-down"],
+      "statuses": ["windy", "exposed"]
+    },
+    {
+      "entityId": "antenna-array",
+      "entityType": "fixture",
+      "name": "Satellite Array",
+      "description": "A cluster of satellite dishes and communication antennas, all pointed at different sectors of the city. Signal lights blink in complex patterns, and exposed wiring suggests someone has been tapping into the feeds.",
+      "actions": ["tap signal", "redirect", "examine"],
+      "statuses": ["active", "modified"]
+    },
+    {
+      "entityId": "maintenance-shed",
+      "entityType": "fixture",
+      "name": "Maintenance Shed",
+      "description": "A small corrugated metal shed houses electrical panels and climate control systems for the building below. The lock has been forced open multiple times.",
+      "actions": ["open", "search", "hide in"],
+      "statuses": ["unlocked", "weathered"]
+    },
+    {
+      "entityId": "fire-escape-down",
+      "entityType": "exit",
+      "name": "Fire Escape Down",
+      "description": "The metal fire escape descends back to the alley below.",
+      "destinationId": "downtown-alley",
+      "statuses": []
+    },
+    {
+      "entityId": "underground-market",
+      "entityType": "location",
+      "name": "Black Market Hub",
+      "description": "The underground market thrums with activity beneath the city streets. Vendors hawk illegal cyberware, stolen corporate data, and black-market pharmaceuticals from makeshift stalls. Holographic displays flicker with contraband goods, and the air is thick with cigarette smoke and the ozone smell of active neural interfaces. Armed guards watch from the shadows. A narrow passage leads deeper into the underground network.",
+      "fixtureIds": ["vendor-stall", "security-drone"],
+      "exitIds": ["door-up", "tunnel-passage"],
+      "statuses": ["crowded", "illegal"]
+    },
+    {
+      "entityId": "vendor-stall",
+      "entityType": "fixture",
+      "name": "Cyberware Vendor",
+      "description": "A cluttered stall displays an array of neural implants, optical enhancements, and reflex boosters. The vendor, a heavily augmented woman with chrome arms, eyes you suspiciously.",
+      "actions": ["browse", "haggle", "purchase"],
+      "statuses": ["open", "suspicious"]
+    },
+    {
+      "entityId": "security-drone",
+      "entityType": "fixture",
+      "name": "Patrol Drone",
+      "description": "A small security drone hovers near the ceiling, its camera eye sweeping the market in regular patterns. Red warning lights blink on its chassis.",
+      "actions": ["hack", "avoid", "disable"],
+      "statuses": ["active", "patrolling"]
+    },
+    {
+      "entityId": "door-up",
+      "entityType": "exit",
+      "name": "Exit to Alley",
+      "description": "The reinforced door leads back up to the rain-slicked alley.",
+      "destinationId": "downtown-alley",
+      "statuses": []
+    },
+    {
+      "entityId": "tunnel-passage",
+      "entityType": "exit",
+      "name": "Service Tunnel",
+      "description": "A dark passage leads deeper into the underground maintenance tunnels beneath the city.",
+      "destinationId": "data-haven",
+      "statuses": ["dark", "hidden"]
+    },
+    {
+      "entityId": "data-haven",
+      "entityType": "location",
+      "name": "Netrunner's Haven",
+      "description": "A hidden chamber deep in the maintenance tunnels serves as a secret data haven for netrunners. Banks of servers hum with activity, their cooling fans creating a constant white noise. Multiple screens display scrolling code and network traffic. The walls are lined with stolen corporate hardware and custom-built rigs. A single tunnel leads back to the market.",
+      "fixtureIds": ["server-bank", "hacking-rig"],
+      "exitIds": ["tunnel-back"],
+      "statuses": ["secure", "hidden"]
+    },
+    {
+      "entityId": "server-bank",
+      "entityType": "fixture",
+      "name": "Data Servers",
+      "description": "Rows of humming servers store terabytes of stolen corporate data, encrypted communications, and black-market software. Status lights blink in mesmerizing patterns.",
+      "actions": ["access", "download", "upload"],
+      "statuses": ["active", "encrypted"]
+    },
+    {
+      "entityId": "hacking-rig",
+      "entityType": "fixture",
+      "name": "Custom Cyberdeck",
+      "description": "A state-of-the-art hacking rig with multiple neural interface ports and holographic displays. Someone has left it running, with several active connections to corporate networks.",
+      "actions": ["jack in", "trace connections", "disconnect"],
+      "statuses": ["active", "connected"]
+    },
+    {
+      "entityId": "tunnel-back",
+      "entityType": "exit",
+      "name": "Tunnel to Market",
+      "description": "The service tunnel leads back to the underground market.",
+      "destinationId": "underground-market",
+      "statuses": []
+    }
+  ]
+}
+

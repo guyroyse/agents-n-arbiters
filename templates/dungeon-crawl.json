@@ -1,0 +1,242 @@
+{
+  "player": {
+    "entityId": "player",
+    "entityType": "player",
+    "name": "Adventurer",
+    "description": "A brave adventurer delving into the depths of an ancient dungeon",
+    "locationId": "dungeon-entrance",
+    "entityPrompt": "You are a seasoned adventurer exploring a dangerous dungeon filled with monsters, traps, and treasure. You're skilled in combat, trap detection, and dungeon navigation. You carry a torch, weapons, and basic supplies. Focus on how your actions affect your health, equipment condition, and progress through the dungeon's challenges."
+  },
+  "entities": [
+    {
+      "entityId": "dungeon-entrance",
+      "entityType": "location",
+      "name": "Dungeon Entrance",
+      "description": "A crumbling stone archway marks the entrance to the ancient dungeon. Moss and vines cover the weathered walls, and the air grows noticeably colder as it flows from the darkness within. Old bones and rusted weapons litter the ground near the entrance, grim warnings from previous adventurers. Your torch flickers in the draft. A heavy wooden door leads deeper into the dungeon.",
+      "fixtureIds": ["warning-sign", "old-bones"],
+      "exitIds": ["door-north"],
+      "statuses": ["dim", "ominous"]
+    },
+    {
+      "entityId": "warning-sign",
+      "entityType": "fixture",
+      "name": "Weathered Warning Sign",
+      "description": "A wooden sign hangs crookedly from a rusted chain. Faded letters warn: 'Turn back, ye who value life. Only death awaits below.'",
+      "actions": ["read", "examine"],
+      "statuses": ["weathered", "ominous"]
+    },
+    {
+      "entityId": "old-bones",
+      "entityType": "fixture",
+      "name": "Skeletal Remains",
+      "description": "The scattered bones of previous adventurers lie among broken weapons and torn leather armor. Something killed them before they even entered the dungeon proper.",
+      "actions": ["search", "examine"],
+      "statuses": ["ancient", "picked-clean"]
+    },
+    {
+      "entityId": "door-north",
+      "entityType": "exit",
+      "name": "Heavy Wooden Door",
+      "description": "A reinforced wooden door bound with iron bands. It stands slightly ajar, darkness beyond.",
+      "destinationId": "torch-hall",
+      "statuses": ["ajar"]
+    },
+    {
+      "entityId": "torch-hall",
+      "entityType": "location",
+      "name": "Hall of Torches",
+      "description": "A long stone corridor stretches ahead, lined with ancient torch sconces. Some still hold the charred remains of torches from long ago. The walls are carved with faded murals depicting battles between heroes and monsters. The floor is covered in dust and debris. A door to the south leads back to the entrance, while a passage continues north into darkness. An iron gate blocks the way east.",
+      "fixtureIds": ["torch-sconces", "ancient-murals"],
+      "exitIds": ["door-south", "passage-north", "gate-east"],
+      "statuses": ["dusty", "dark"]
+    },
+    {
+      "entityId": "torch-sconces",
+      "entityType": "fixture",
+      "name": "Iron Torch Sconces",
+      "description": "Rusted iron brackets line the walls, designed to hold torches. Most are empty, but a few still contain ancient, unlit torches.",
+      "actions": ["light torch", "take torch", "examine"],
+      "statuses": ["rusted", "empty"]
+    },
+    {
+      "entityId": "ancient-murals",
+      "entityType": "fixture",
+      "name": "Carved Murals",
+      "description": "Faded carvings depict armored warriors fighting dragons, demons, and undead creatures. One section shows a great treasure vault guarded by a fearsome beast.",
+      "actions": ["examine", "decipher"],
+      "statuses": ["faded", "ancient"]
+    },
+    {
+      "entityId": "door-south",
+      "entityType": "exit",
+      "name": "Door to Entrance",
+      "description": "The heavy wooden door leads back to the dungeon entrance.",
+      "destinationId": "dungeon-entrance",
+      "statuses": []
+    },
+    {
+      "entityId": "passage-north",
+      "entityType": "exit",
+      "name": "Dark Passage",
+      "description": "A narrow passage continues north into complete darkness.",
+      "destinationId": "guard-room",
+      "statuses": ["dark"]
+    },
+    {
+      "entityId": "gate-east",
+      "entityType": "exit",
+      "name": "Iron Gate",
+      "description": "A heavy iron gate blocks the eastern passage. It appears to be locked, but the mechanism looks old and possibly breakable.",
+      "destinationId": "treasure-room",
+      "statuses": ["locked", "rusted"]
+    },
+    {
+      "entityId": "guard-room",
+      "entityType": "location",
+      "name": "Ancient Guard Room",
+      "description": "This chamber once served as a guard post. Stone benches line the walls, and weapon racks stand empty. A large table in the center is covered in dust and cobwebs. Strange scratching sounds echo from the shadows. The passage south leads back to the torch hall, while stairs descend deeper into the dungeon to the north.",
+      "fixtureIds": ["weapon-racks", "guard-table"],
+      "exitIds": ["passage-south", "stairs-down"],
+      "statuses": ["abandoned", "eerie"]
+    },
+    {
+      "entityId": "weapon-racks",
+      "entityType": "fixture",
+      "name": "Empty Weapon Racks",
+      "description": "Wooden racks that once held spears, swords, and shields. Most are empty, but a few rusted weapons remain.",
+      "actions": ["search", "take weapon"],
+      "statuses": ["empty", "rotted"]
+    },
+    {
+      "entityId": "guard-table",
+      "entityType": "fixture",
+      "name": "Dusty Table",
+      "description": "A heavy wooden table covered in thick dust. Old dice, playing cards, and empty bottles suggest guards once passed time here. A leather-bound logbook lies open.",
+      "actions": ["search", "read logbook", "clear dust"],
+      "statuses": ["dusty", "cluttered"]
+    },
+    {
+      "entityId": "passage-south",
+      "entityType": "exit",
+      "name": "Passage to Hall",
+      "description": "The passage leads back south to the hall of torches.",
+      "destinationId": "torch-hall",
+      "statuses": []
+    },
+    {
+      "entityId": "stairs-down",
+      "entityType": "exit",
+      "name": "Stone Stairs Down",
+      "description": "Worn stone steps descend into deeper darkness. Cold air rises from below, carrying a faint smell of decay.",
+      "destinationId": "crypt",
+      "statuses": ["dark", "steep"]
+    },
+    {
+      "entityId": "treasure-room",
+      "entityType": "location",
+      "name": "Treasure Vault",
+      "description": "Beyond the iron gate lies a small vault. Gold coins are scattered across the floor, and a wooden chest sits against the far wall. The room glitters in your torchlight, but something feels wrong. The air is unnaturally still. The iron gate leads back west to the hall.",
+      "fixtureIds": ["gold-coins", "treasure-chest"],
+      "exitIds": ["gate-west"],
+      "statuses": ["glittering", "trapped"]
+    },
+    {
+      "entityId": "gold-coins",
+      "entityType": "fixture",
+      "name": "Scattered Gold",
+      "description": "Gold coins lie scattered across the floor, as if someone dropped them in haste. They gleam temptingly in the torchlight.",
+      "actions": ["collect", "examine", "count"],
+      "statuses": ["scattered", "tempting"]
+    },
+    {
+      "entityId": "treasure-chest",
+      "entityType": "fixture",
+      "name": "Ornate Chest",
+      "description": "A wooden chest bound with brass fittings sits against the wall. It's unlocked but appears undisturbed. Too easy?",
+      "actions": ["open", "examine for traps", "search"],
+      "statuses": ["unlocked", "suspicious"]
+    },
+    {
+      "entityId": "gate-west",
+      "entityType": "exit",
+      "name": "Iron Gate",
+      "description": "The iron gate leads back west to the hall of torches.",
+      "destinationId": "torch-hall",
+      "statuses": []
+    },
+    {
+      "entityId": "crypt",
+      "entityType": "location",
+      "name": "Burial Crypt",
+      "description": "The stairs open into a large crypt filled with stone sarcophagi. Carved effigies of ancient warriors lie atop each tomb, their stone faces stern and watchful. The air is thick with the smell of death and ancient dust. Shadows dance in your torchlight, and you swear you hear whispers. Stone stairs lead back up, and a dark archway leads deeper into the crypt to the east.",
+      "fixtureIds": ["sarcophagi", "stone-effigies"],
+      "exitIds": ["stairs-up", "archway-east"],
+      "statuses": ["dark", "haunted"]
+    },
+    {
+      "entityId": "sarcophagi",
+      "entityType": "fixture",
+      "name": "Ancient Tombs",
+      "description": "Stone sarcophagi line the walls, each sealed with heavy lids. Ancient runes warn against disturbing the dead.",
+      "actions": ["open", "read runes", "examine"],
+      "statuses": ["sealed", "cursed"]
+    },
+    {
+      "entityId": "stone-effigies",
+      "entityType": "fixture",
+      "name": "Warrior Effigies",
+      "description": "Carved stone warriors lie atop the tombs, clutching stone swords and shields. Their eyes seem to follow you in the flickering torchlight.",
+      "actions": ["examine", "touch"],
+      "statuses": ["watchful", "ancient"]
+    },
+    {
+      "entityId": "stairs-up",
+      "entityType": "exit",
+      "name": "Stairs Up",
+      "description": "Stone stairs lead back up to the guard room.",
+      "destinationId": "guard-room",
+      "statuses": []
+    },
+    {
+      "entityId": "archway-east",
+      "entityType": "exit",
+      "name": "Dark Archway",
+      "description": "A carved archway leads deeper into the crypt. Strange symbols glow faintly around its edges.",
+      "destinationId": "boss-chamber",
+      "statuses": ["ominous", "glowing"]
+    },
+    {
+      "entityId": "boss-chamber",
+      "entityType": "location",
+      "name": "Chamber of the Guardian",
+      "description": "A vast circular chamber with a domed ceiling. Ancient pillars support the roof, and a raised dais dominates the center of the room. Upon the dais sits a massive stone throne, and upon that throne... something stirs in the darkness. Piles of treasure surround the throne: gold, gems, weapons, and armor. The archway west leads back to the crypt.",
+      "fixtureIds": ["stone-throne", "treasure-hoard"],
+      "exitIds": ["archway-west"],
+      "statuses": ["dangerous", "treasure-filled"]
+    },
+    {
+      "entityId": "stone-throne",
+      "entityType": "fixture",
+      "name": "Ancient Throne",
+      "description": "A massive throne carved from black stone sits atop the dais. It radiates an aura of power and menace. Something ancient and powerful has claimed this seat.",
+      "actions": ["examine", "approach", "sit"],
+      "statuses": ["occupied", "powerful"]
+    },
+    {
+      "entityId": "treasure-hoard",
+      "entityType": "fixture",
+      "name": "Guardian's Hoard",
+      "description": "Mountains of gold coins, precious gems, enchanted weapons, and magical artifacts surround the throne. This is the accumulated wealth of centuries, guarded by whatever lurks in this chamber.",
+      "actions": ["examine", "take treasure", "appraise"],
+      "statuses": ["vast", "guarded"]
+    },
+    {
+      "entityId": "archway-west",
+      "entityType": "exit",
+      "name": "Archway to Crypt",
+      "description": "The carved archway leads back west to the burial crypt.",
+      "destinationId": "crypt",
+      "statuses": []
+    }
+  ]
+}

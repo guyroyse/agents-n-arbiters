@@ -24,22 +24,24 @@ const INDEX_NAME = `${GAME_KEY_PREFIX}:index`
 
 const redisClient = await fetchRedisClient()
 
-// Ensure the game index exists at module load time
-try {
-  await redisClient.ft.info(INDEX_NAME)
-} catch (error) {
-  const schema: RediSearchSchema = {
-    '$.gameId': { type: 'TAG', AS: 'gameId' },
-    '$.gameName': { type: 'TEXT', SORTABLE: true, AS: 'gameName' },
-    '$.lastPlayed': { type: 'NUMERIC', SORTABLE: true, AS: 'lastPlayed' }
-  }
+async function ensureIndex(): Promise<void> {
+  try {
+    await redisClient.ft.info(INDEX_NAME)
+  } catch (error) {
+    // Index doesn't exist, create it
+    const schema: RediSearchSchema = {
+      '$.gameId': { type: 'TAG', AS: 'gameId' },
+      '$.gameName': { type: 'TEXT', SORTABLE: true, AS: 'gameName' },
+      '$.lastPlayed': { type: 'NUMERIC', SORTABLE: true, AS: 'lastPlayed' }
+    }
 
-  const options: GameIndexOptions = {
-    ON: 'JSON',
-    PREFIX: `${GAME_KEY_PREFIX}:`
-  }
+    const options: GameIndexOptions = {
+      ON: 'JSON',
+      PREFIX: `${GAME_KEY_PREFIX}:`
+    }
 
-  await redisClient.ft.create(INDEX_NAME, schema, options)
+    await redisClient.ft.create(INDEX_NAME, schema, options)
+  }
 }
 
 export class SavedGame {
@@ -96,6 +98,8 @@ export class SavedGame {
    * Fetch all saved games
    */
   static async fetchAll(): Promise<SavedGame[]> {
+    await ensureIndex()
+
     const result = (await redisClient.ft.search(INDEX_NAME, '*', {
       SORTBY: { BY: 'lastPlayed', DIRECTION: 'DESC' },
       LIMIT: { from: 0, size: 100 }
