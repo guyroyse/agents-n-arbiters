@@ -43,7 +43,6 @@ npm run dev
 ## Development URLs
 
 - **Frontend:** http://localhost:4280 (Static Web App CLI)
-- **Admin:** http://localhost:4281 (Admin interface)
 - **API:** http://localhost:7071/api/\* (Azure Functions)
 - **Agent Memory Server:** http://localhost:8000 (Redis AMS)
 - **Redis:** localhost:6379
@@ -63,7 +62,6 @@ This is a TypeScript monorepo built with npm workspaces:
 
 - **`static-web-apps/ana-web/`** (@ana/web) - Svelte 5 frontend with terminal-style game interface
 - **`functions/ana-api/`** (@ana/api) - Azure Functions v4 API endpoints
-- **`static-web-apps/ana-admin/`** (@ana/admin) - Admin interface for logs and template management
 
 ### Infrastructure
 

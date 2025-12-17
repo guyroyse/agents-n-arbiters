@@ -8,23 +8,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Current architecture:
 
-- **`shared/ana-types/`** (@ana/types) - Pure TypeScript types and Zod schemas
-- **`shared/ana-common/`** (@ana/common) - Shared utilities, Redis/LLM/AMS clients, admin functions
-- **`shared/ana-domain/`** (@ana/domain) - Entity classes and game state management
-- **`shared/ana-agents/`** (@ana/agents) - Complete multi-agent LangGraph system
-- **`static-web-apps/ana-web/`** (@ana/web) - Svelte 5 frontend with terminal-style game interface
-- **`functions/ana-api/`** (@ana/api) - Azure Functions v4 API endpoints (depends on all packages)
-- **`static-web-apps/ana-admin/`** (@ana/admin) - Static admin interface for log viewing and template management
-- **`containers/agent-memory-server/`** - Containerized Agent Memory Server (Redis-backed working memory)
-- **`data/redis/`** - Persistent Redis data storage for local development
-- **`infrastructure/`** - Infrastructure as Code (Bicep templates for Azure deployment)
+- **`types/`** (@ana/types) - Pure TypeScript types and Zod schemas
+- **`api/`** (@ana/api) - Azure Functions v4 API endpoints
+- **`web/`** (@ana/web) - Svelte 5 frontend with terminal-style game interface
+- **`templates/`** - World template JSON files for game initialization
+- **`infra/`** - Infrastructure as Code (Bicep templates for Azure deployment)
 
 ## Current Implementation Status
 
 ### ✅ Working Systems
 
 - **Multi-agent game engine**: Complete LangGraph.js workflow with classifier → agents → arbiter → committer → narrator flow
-- **Game interfaces**: Web frontend (port 4280), admin dashboard (port 4281), API backend (port 7071), Agent Memory Server (port 8000)
+- **Game interfaces**: Web frontend (port 4280) with game play, log viewing, and template loading; API backend (port 7071)
 - **Persistent state**: Redis-backed entities with game save/load, template management, and structured logging
 - **Agent types**: Location, fixture, player, exit, and arbiter agents with entity-specific prompts and change-focused behavior
 - **Movement system**: Exit agents handle player location changes with validation and proper state transitions
@@ -54,27 +49,22 @@ cp functions/ana-api/local.settings.example.json functions/ana-api/local.setting
 ### Full-stack Development
 
 ```bash
-npm run dev           # Build all packages, then start all services in parallel (web:4280, admin:4281, api:7071)
+npm run dev           # Build all packages, then start all services in parallel (web:4280, api:7071)
 ```
 
 ### Individual Package Development
 
 ```bash
 npm run dev --workspace=@ana/web      # SWA CLI with Functions integration (port 4280)
-npm run dev --workspace=@ana/admin    # Admin interface SWA CLI (port 4281)
 npm run dev --workspace=@ana/api      # Azure Functions Core Tools (port 7071)
 ```
 
 ### Build Commands
 
 ```bash
-npm run build                         # Build all packages in dependency order (types → common → domain → agents, then web/admin/api in parallel)
+npm run build                         # Build all packages in dependency order (types first, then web/api in parallel)
 npm run build --workspace=@ana/types  # TypeScript compilation for shared types
-npm run build --workspace=@ana/common # TypeScript compilation for shared utilities and clients
-npm run build --workspace=@ana/domain # TypeScript compilation for entity classes
-npm run build --workspace=@ana/agents # TypeScript compilation for multi-agent system
 npm run build --workspace=@ana/web    # Vite production build
-npm run build --workspace=@ana/admin  # Vite production build for admin interface
 npm run build --workspace=@ana/api    # TypeScript compilation to dist/ with tsc-alias
 ```
 
@@ -132,11 +122,8 @@ The monorepo follows a clean layered architecture with explicit dependency flow:
 **Package responsibilities:**
 
 - **@ana/types**: Pure type definitions and Zod schemas (no runtime dependencies)
-- **@ana/common**: Infrastructure services (Redis, LLM, AMS clients, utilities, admin functions)
-- **@ana/domain**: Business logic (entities, game state, domain rules)
-- **@ana/agents**: AI workflow orchestration (LangGraph multi-agent system)
-- **@ana/api**: API endpoints (Azure Functions consuming all business packages)
-- **@ana/web/@ana/admin**: Frontend applications (consume types only, communicate via API)
+- **@ana/api**: API endpoints (Azure Functions with domain logic, Redis/LLM clients, and utilities)
+- **@ana/web**: Frontend application (Svelte 5, consumes types only, communicates via API)
 
 ### Frontend Architecture (@ana/web)
 
@@ -275,26 +262,20 @@ The core innovation is the multi-agent collaboration system built with LangGraph
 - `shared/ana-agents/src/agent/state/` - GameTurnAnnotation and state management
 - `functions/ana-api/src/functions/games/take-game-turn.ts` - Main game turn API endpoint
 
-### Domain Layer
+### API Layer
 
-- `shared/ana-domain/src/domain/` - GameEntity, LocationEntity, PlayerEntity, FixtureEntity classes
-- `shared/ana-domain/src/domain/game-state.ts` - Central game state management
-
-### Common Utilities
-
-- `shared/ana-common/src/clients/` - Redis, LLM, and AMS client configurations
-- `shared/ana-common/src/utils/` - Logging, JSON utilities, date helpers
-- `shared/ana-common/src/admin/` - Template loading functionality
+- `api/src/domain/` - Domain objects (SavedGame, GameTurn, GameLog, entities, templates)
+- `api/src/services/` - Service layer (game-service, template-service)
+- `api/src/clients/` - Redis, LLM, and AMS client configurations
+- `api/src/functions/` - Azure Functions HTTP endpoints
+- `api/src/utils/` - Logging, JSON utilities, date helpers
 
 ### Frontend Architecture
 
-- `static-web-apps/ana-web/src/views/` - Feature-based view organization (game/, load-game/, etc.)
-- `static-web-apps/ana-web/src/services/api.ts` - Centralized API client with type safety
-- `static-web-apps/ana-web/src/components/` - Reusable UI components with unified dialog system
-
-### Admin Interface
-
-- `static-web-apps/ana-admin/` - Complete admin dashboard for log viewing and template management
+- `web/src/views/` - Feature-based view organization (game/, load-game/, load-template/, game-log/)
+- `web/src/services/api.ts` - Centralized API client with type safety
+- `web/src/components/` - Reusable UI components with unified dialog system
+- `web/src/app/` - App-level state (AppRouter, AppState)
 
 ## Key Development Patterns
 

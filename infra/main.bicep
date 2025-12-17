@@ -93,17 +93,6 @@ module webApp './modules/static-web-app-web.bicep' = {
   }
 }
 
-// Module: Static Web App for admin dashboard
-module adminApp './modules/static-web-app-admin.bicep' = {
-  name: 'admin-app-deployment'
-  dependsOn: [functions]
-  params: {
-    appName: appName
-    location: location
-    functionAppUrl: functions.outputs.functionAppUrl
-  }
-}
-
 // Outputs
 @description('Azure OpenAI endpoint')
 output openAiEndpoint string = openai.outputs.endpoint
@@ -140,6 +129,3 @@ output functionAppName string = functions.outputs.functionAppName
 
 @description('Game frontend URL')
 output webAppUrl string = webApp.outputs.staticWebAppUrl
-
-@description('Admin dashboard URL')
-output adminAppUrl string = adminApp.outputs.staticWebAppUrl
