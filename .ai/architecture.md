@@ -130,11 +130,156 @@ export class SavedGame {
 }
 ```
 
-## Current Refactoring Status
+## Domain Objects
 
-- ✅ SavedGame domain object created
-- ✅ game-service refactored to use SavedGame domain object
-- ✅ Functions updated to call domain object methods
-- ⏳ Functions still call `.toJSON()` - need to map to Response types directly
-- ⏳ game-service still imports API types - should be removed
-- ⏳ Turns and logs still use direct Redis - need domain objects
+### Current Domain Objects
+
+- **SavedGame** - Game metadata (gameId, gameName, lastPlayed) with RediSearch index
+- **GameTurn** - Turn history stored in Redis Streams
+- **GameLog** - Structured logging to Redis Streams with content type support
+- **Admin** - System-level operations (clearAll)
+- **Templates** - PlayerTemplate, LocationTemplate, FixtureTemplate, ExitTemplate with base class
+
+### Domain Object Patterns
+
+- **Private constructors** - Prevent direct instantiation
+- **Static factory methods** - `create()`, `fetch()`, `fetchAll()`
+- **Instance methods** - `save()`, `toJSON()`
+- **Module-level setup** - Redis client and index creation at module load
+- **On-demand index creation** - `ensureIndex()` called before searches to handle missing indexes
+
+### Example: SavedGame with Index Management
+
+```typescript
+// Module-level Redis client
+const redisClient = await fetchRedisClient()
+
+// Module-level helper for index management
+async function ensureIndex(): Promise<void> {
+  try {
+    await redisClient.ft.info(INDEX_NAME)
+  } catch (error) {
+    // Index doesn't exist, create it
+    await redisClient.ft.create(INDEX_NAME, schema, options)
+  }
+}
+
+export class SavedGame {
+  static async fetchAll(): Promise<SavedGame[]> {
+    await ensureIndex()  // Ensure index exists before searching
+    const result = await redisClient.ft.search(INDEX_NAME, '*', {...})
+    return result.documents.map(doc => new SavedGame(...))
+  }
+}
+```
+
+## Frontend Architecture
+
+### Feature-Based Organization
+
+Views are organized by feature with co-located components and ViewModels:
+
+```
+web/src/views/
+  game/                    - Main game play view
+    Game.svelte
+    game-view-model.svelte.ts
+  load-game/              - Game selection view
+    LoadGame.svelte
+    LoadGameCard.svelte
+    LoadGameList.svelte
+    LoadGameEmpty.svelte
+    load-game-view-model.svelte.ts
+  load-template/          - Template loading view
+    LoadTemplate.svelte
+    load-template-view-model.svelte.ts
+  game-log/               - Log viewer
+    GameLog.svelte
+    GameLogEntry.svelte
+    game-log-view-model.svelte.ts
+```
+
+### ViewModel Pattern
+
+ViewModels manage state and business logic using Svelte 5 runes:
+
+```typescript
+export class GameViewModel {
+  #gameId = $state<string>('')
+  #history = $state<GameTurnData[]>([])
+  #isLoadingHistory = $state(false)
+  #isProcessingCommand = $state(false)
+
+  // Public getters
+  get gameId() {
+    return this.#gameId
+  }
+  get history() {
+    return this.#history
+  }
+  get isLoadingHistory() {
+    return this.#isLoadingHistory
+  }
+  get isProcessingCommand() {
+    return this.#isProcessingCommand
+  }
+
+  // Public methods
+  async loadHistory(gameId: string) {
+    this.#isLoadingHistory = true
+    try {
+      const turns = await api.fetchGameTurns(gameId)
+      this.#history = turns
+    } finally {
+      this.#isLoadingHistory = false
+    }
+  }
+}
+```
+
+### Component Patterns
+
+- **Law of Demeter** - Components only interact with ViewModel public interfaces
+- **Autonomous components** - Components handle their own navigation without prop drilling
+- **Component extraction** - Break complex views into focused, reusable sub-components
+- **Dual loading states** - Separate tracking for history loading vs command processing
+
+### API Layer
+
+Centralized API client in `web/src/services/api.ts`:
+
+```typescript
+export const api = {
+  async createGame(gameName: string): Promise<CreateGameResponse> {
+    const response = await fetch('/api/games', {
+      method: 'POST',
+      body: JSON.stringify({ gameName })
+    })
+    return response.json()
+  }
+}
+```
+
+### Routing
+
+App router with enum-based routes:
+
+```typescript
+export enum Route {
+  WELCOME = 'welcome',
+  GAME = 'game',
+  LOAD_GAME = 'load-game',
+  LOAD_TEMPLATE = 'load-template',
+  GAME_LOG = 'game-log'
+}
+
+export class AppRouter {
+  #currentRoute = $state<Route>(Route.WELCOME)
+  #params = $state<Record<string, string>>({})
+
+  navigate(route: Route, params?: Record<string, string>) {
+    this.#currentRoute = route
+    this.#params = params ?? {}
+  }
+}
+```
