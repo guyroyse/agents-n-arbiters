@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+
+name: agents-n-arbiters
+
+infra:
+  provider: bicep
+  path: infra
+  module: main
+
+hooks:
+  predeploy:
+    posix:
+      shell: sh
+      run: npm install && npm run build
+    windows:
+      shell: pwsh
+      run: npm install && npm run build
+
+services:
+  api:
+    project: ./api
+    dist: .
+    language: ts
+    host: function
+    module: functions
+  web:
+    project: ./web
+    dist: dist
+    language: ts
+    host: staticwebapp
+    module: web
+

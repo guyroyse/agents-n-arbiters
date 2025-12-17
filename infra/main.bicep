@@ -1,131 +1,164 @@
-// Main deployment file for Agents & Arbiters
-// Orchestrates all Azure resources needed for the game
+targetScope = 'resourceGroup'
 
-@description('The name prefix for all resources')
-param appName string
+@description('Name of the environment which is used to generate a short unique hash used in all resources.')
+@allowed(['stage', 'prod'])
+param environmentName string
 
-@description('The location for all resources')
+@minLength(1)
+@description('Primary location for all resources')
 param location string = resourceGroup().location
 
-@description('Redis SKU (e.g., Balanced_B1, Balanced_B10, Memory_M10)')
-param redisSku string = 'Balanced_B1'
+var resourceToken = toLower(uniqueString(resourceGroup().id, environmentName, location))
 
-@description('AMS App Registration Client ID (from create-app-registration.sh)')
-param amsAppId string
+// Generate secure master key for LiteLLM (shared across LiteLLM, AMS, and Functions)
+var litellmMasterKey = 'sk-${uniqueString(resourceGroup().id, resourceToken, 'litellm-master-key')}'
 
-@description('Azure AD Tenant ID (from create-app-registration.sh)')
-param amsTenantId string
+// ==============================================================================
+// Shared Infrastructure & Services
+// ==============================================================================
 
-// Module: Azure OpenAI Service
-module openai './modules/azure-openai.bicep' = {
-  name: 'openai-deployment'
+// Container Apps environment for hosting AMS and LiteLLM
+module containerAppsEnvironment './containers.bicep' = {
+  name: 'container-apps-env'
   params: {
-    accountName: '${appName}-openai'
-    location: location
+    resourceToken: resourceToken
+    logAnalyticsWorkspaceId: monitoring.outputs.logAnalyticsWorkspaceId
   }
 }
 
-// Module: Azure Managed Redis
-module redis './modules/azure-managed-redis.bicep' = {
-  name: 'redis-deployment'
+// Monitor application with Azure Monitor (Application Insights)
+module monitoring './monitoring.bicep' = {
+  name: 'monitoring'
   params: {
-    redisName: '${appName}-redis'
-    location: location
-    skuName: redisSku
+    resourceToken: resourceToken
   }
 }
 
-// Note: We need existing resource references to call listKeys()
-// Reference the Redis Enterprise resource
-resource existingRedis 'Microsoft.Cache/redisEnterprise@2025-07-01' existing = {
-  name: '${appName}-redis'
-}
-
-// Reference the OpenAI account
-resource existingOpenAi 'Microsoft.CognitiveServices/accounts@2025-09-05' existing = {
-  name: '${appName}-openai'
-}
-
-// Module: Container Apps (Agent Memory Server)
-module containerApps './modules/container-apps.bicep' = {
-  name: 'container-apps-deployment'
-  dependsOn: [redis, openai]
+// User-assigned managed identities
+module identities './identities.bicep' = {
+  name: 'identities'
   params: {
-    appName: appName
-    location: location
-    redisHostname: redis.outputs.hostname
-    redisPort: redis.outputs.port
-    redisAccessKey: existingRedis.listKeys().primaryKey
-    openAiEndpoint: openai.outputs.endpoint
-    openAiEmbeddingDeployment: openai.outputs.embeddingDeploymentName
-    openAiChatDeployment: openai.outputs.gpt4oMiniDeploymentName
-    openAiApiKey: existingOpenAi.listKeys().key1
-    oauth2IssuerUrl: 'https://login.microsoftonline.com/${amsTenantId}/v2.0'
-    oauth2Audience: amsAppId
+    resourceToken: resourceToken
   }
 }
 
-// Module: Azure Functions (API Backend)
-module functions './modules/azure-functions.bicep' = {
-  name: 'functions-deployment'
-  dependsOn: [redis, openai, containerApps]
+// ==============================================================================
+// Core Services
+// ==============================================================================
+
+// Azure OpenAI Service
+module openAi './openai.bicep' = {
+  name: 'openai'
   params: {
-    appName: appName
-    location: location
-    redisHostname: redis.outputs.hostname
-    redisPort: redis.outputs.port
-    openAiEndpoint: openai.outputs.endpoint
-    openAiDeploymentName: openai.outputs.gpt4oMiniDeploymentName
-    openAiApiKey: existingOpenAi.listKeys().key1
-    amsUrl: containerApps.outputs.amsUrl
-    amsScope: 'api://${amsAppId}/.default'
+    resourceToken: resourceToken
   }
 }
 
-// Module: Static Web App for game frontend
-module webApp './modules/static-web-app-web.bicep' = {
-  name: 'web-app-deployment'
-  dependsOn: [functions]
+// Azure Managed Redis
+module redis './redis.bicep' = {
+  name: 'redis'
   params: {
-    appName: appName
-    location: location
-    functionAppUrl: functions.outputs.functionAppUrl
+    resourceToken: resourceToken
   }
 }
 
-// Outputs
-@description('Azure OpenAI endpoint')
-output openAiEndpoint string = openai.outputs.endpoint
+// LiteLLM Proxy (OpenAI-compatible gateway for Azure OpenAI)
+module litellm './litellm.bicep' = {
+  name: 'litellm'
+  params: {
+    resourceToken: resourceToken
+    containerAppsEnvironmentId: containerAppsEnvironment.outputs.id
+    litellmMasterKey: litellmMasterKey
+    azureOpenAiApiKey: openAi.outputs.apiKey
+    azureOpenAiEndpoint: openAi.outputs.endpoint
+    gpt4oDeploymentName: openAi.outputs.gpt4oDeploymentName
+    gpt4oMiniDeploymentName: openAi.outputs.gpt4oMiniDeploymentName
+    embeddingDeploymentName: openAi.outputs.embeddingDeploymentName
+  }
+}
 
-@description('Azure OpenAI account name for key retrieval')
-output openAiAccountName string = openai.outputs.accountName
+// Agent Memory Server Container App
+module ams './ams.bicep' = {
+  name: 'ams'
+  params: {
+    resourceToken: resourceToken
+    containerAppsEnvironmentId: containerAppsEnvironment.outputs.id
+    redisConnectionString: redis.outputs.connectionString
+    openAiApiKey: litellmMasterKey  // LiteLLM master key for internal auth
+    openAiEndpoint: litellm.outputs.uri
+    tenantId: tenant().tenantId
+  }
+}
 
-@description('GPT-4o deployment name')
-output gpt4oDeploymentName string = openai.outputs.gpt4oDeploymentName
+// ==============================================================================
+// Application Services
+// ==============================================================================
 
-@description('GPT-4o-mini deployment name')
-output gpt4oMiniDeploymentName string = openai.outputs.gpt4oMiniDeploymentName
+// Static Web App
+module web './web.bicep' = {
+  name: 'web'
+  params: {
+    resourceToken: resourceToken
+  }
+}
 
-@description('Text embedding deployment name')
-output embeddingDeploymentName string = openai.outputs.embeddingDeploymentName
+// Reference the Static Web App from the module
+resource staticWebApp 'Microsoft.Web/staticSites@2025-03-01' existing = {
+  name: 'swa-${resourceToken}'
+  dependsOn: [
+    web
+  ]
+}
 
-@description('Redis hostname')
-output redisHostname string = redis.outputs.hostname
+// Azure Function App
+module functions './functions.bicep' = {
+  name: 'functions'
+  params: {
+    resourceToken: resourceToken
+    redisConnectionString: redis.outputs.connectionString
+    openAiConfig: {
+      endpoint: litellm.outputs.uri  // Use LiteLLM proxy instead of direct Azure OpenAI
+      deploymentName: 'gpt-4o'  // Standard OpenAI model name (LiteLLM translates)
+      apiKey: litellmMasterKey  // LiteLLM master key
+    }
+    amsConfig: {
+      baseUrl: ams.outputs.uri
+    }
+    functionsIdentityId: identities.outputs.functionsIdentityId
+    applicationInsightsConnectionString: monitoring.outputs.applicationInsightsConnectionString
+  }
+}
 
-@description('Redis port')
-output redisPort int = redis.outputs.port
+// Link Function App to Static Web App
+resource staticWebAppBackend 'Microsoft.Web/staticSites/linkedBackends@2025-03-01' = {
+  parent: staticWebApp
+  name: 'backend'
+  properties: {
+    backendResourceId: functions.outputs.id
+    region: location
+  }
+  dependsOn: [
+    web
+  ]
+}
 
-@description('Agent Memory Server URL')
-output amsUrl string = containerApps.outputs.amsUrl
+// ==============================================================================
+// OUTPUTS: Deployment Information
+// ==============================================================================
 
-@description('AMS OAuth2 Scope')
-output amsScope string = 'api://${appName}-ams/.default'
+output AZURE_LOCATION string = location
+output AZURE_TENANT_ID string = tenant().tenantId
+output AZURE_RESOURCE_GROUP string = resourceGroup().name
 
-@description('Azure Functions URL')
-output functionAppUrl string = functions.outputs.functionAppUrl
+output AZURE_OPENAI_ENDPOINT string = openAi.outputs.endpoint
 
-@description('Azure Functions name')
-output functionAppName string = functions.outputs.functionAppName
+output REDIS_HOSTNAME string = redis.outputs.hostName
+output REDIS_PORT int = redis.outputs.port
 
-@description('Game frontend URL')
-output webAppUrl string = webApp.outputs.staticWebAppUrl
+output LITELLM_URI string = litellm.outputs.uri
+output LITELLM_MASTER_KEY string = litellmMasterKey
+output AMS_URI string = ams.outputs.uri
+
+output API_URI string = functions.outputs.uri
+output WEB_URI string = web.outputs.uri
+output APPLICATIONINSIGHTS_CONNECTION_STRING string = monitoring.outputs.applicationInsightsConnectionString
