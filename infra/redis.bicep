@@ -46,4 +46,3 @@ output port int = database.properties.port
 output databaseId string = database.id
 output primaryKey string = database.listKeys().primaryKey
 output connectionString string = 'rediss://:${database.listKeys().primaryKey}@${redisEnterprise.properties.hostName}:${database.properties.port}'
-

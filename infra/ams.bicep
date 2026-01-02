@@ -7,7 +7,6 @@ param redisConnectionString string
 @secure()
 param openAiApiKey string  // LiteLLM master key
 param openAiEndpoint string  // LiteLLM proxy URI
-param tenantId string
 
 // Agent Memory Server Container App
 resource ams 'Microsoft.App/containerApps@2025-07-01' = {
@@ -47,15 +46,7 @@ resource ams 'Microsoft.App/containerApps@2025-07-01' = {
             }
             {
               name: 'AUTH_MODE'
-              value: 'oauth2'
-            }
-            {
-              name: 'OAUTH2_ISSUER_URL'
-              value: 'https://login.microsoftonline.com/${tenantId}/v2.0'
-            }
-            {
-              name: 'OAUTH2_AUDIENCE'
-              value: 'api://ca-ams-${resourceToken}'
+              value: 'disabled'
             }
           ]
         }

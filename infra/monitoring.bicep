@@ -34,4 +34,3 @@ output applicationInsightsId string = applicationInsights.id
 output applicationInsightsName string = applicationInsights.name
 output applicationInsightsConnectionString string = applicationInsights.properties.ConnectionString
 output applicationInsightsInstrumentationKey string = applicationInsights.properties.InstrumentationKey
-

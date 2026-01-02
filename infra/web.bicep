@@ -26,4 +26,3 @@ output id string = staticWebApp.id
 output name string = staticWebApp.name
 output uri string = 'https://${staticWebApp.properties.defaultHostname}'
 output defaultHostname string = staticWebApp.properties.defaultHostname
-

@@ -86,7 +86,6 @@ module ams './ams.bicep' = {
     redisConnectionString: redis.outputs.connectionString
     openAiApiKey: litellmMasterKey  // LiteLLM master key for internal auth
     openAiEndpoint: litellm.outputs.uri
-    tenantId: tenant().tenantId
   }
 }
 
@@ -149,7 +148,6 @@ resource staticWebAppBackend 'Microsoft.Web/staticSites/linkedBackends@2025-03-0
 // ==============================================================================
 
 output AZURE_LOCATION string = location
-output AZURE_TENANT_ID string = tenant().tenantId
 output AZURE_RESOURCE_GROUP string = resourceGroup().name
 
 output AZURE_OPENAI_ENDPOINT string = openAi.outputs.endpoint

@@ -85,4 +85,3 @@ output apiKey string = openAiAccount.listKeys().key1
 output gpt4oDeploymentName string = gpt4oDeployment.name
 output gpt4oMiniDeploymentName string = gpt4oMiniDeployment.name
 output embeddingDeploymentName string = embeddingDeployment.name
-
