@@ -1,4 +1,4 @@
-import type { GameLogData } from '@ana/types'
+import type { GameLogData } from '@api-types/response'
 import { fetchGameLogs } from '@services/api'
 
 export default class GameLogViewModel {
@@ -41,4 +41,3 @@ export default class GameLogViewModel {
     }
   }
 }
-

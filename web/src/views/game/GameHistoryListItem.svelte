@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { GameTurnData } from '@ana/types'
+  import type { GameTurnData } from '@api-types/response'
 
   interface Props {
     entry: GameTurnData

@@ -4,7 +4,7 @@
     "module": "nodenext",
     "lib": ["ES2022"],
     "skipLibCheck": true,
-    "verbatimModuleSyntax": true,
+    "verbatimModuleSyntax": false,
 
     /* Node.js mode */
     "moduleResolution": "nodenext",
@@ -36,7 +36,8 @@
       "@agents/*": ["./src/agents/*"],
       "@domain/*": ["./src/domain/*"],
       "@clients/*": ["./src/clients/*"],
-      "@utils/*": ["./src/utils/*"]
+      "@utils/*": ["./src/utils/*"],
+      "@api-types/*": ["./src/types/*"]
     }
   },
   "include": ["src"],

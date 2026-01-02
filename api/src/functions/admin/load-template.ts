@@ -1,5 +1,6 @@
 import type { HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions'
-import type { LoadTemplateRequest, LoadTemplateResponse } from '@ana/types'
+import type { LoadTemplateRequest } from '@api-types/request.js'
+import type { LoadTemplateResponse } from '@api-types/response.js'
 import responses from '@functions/http-responses.js'
 import templateService from '@services/template-service.js'
 

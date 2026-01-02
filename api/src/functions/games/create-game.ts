@@ -1,7 +1,8 @@
 import type { HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions'
 import { ulid } from 'ulid'
 
-import type { CreateGameRequest, CreateGameResponse } from '@ana/types'
+import type { CreateGameRequest } from '@api-types/request.js'
+import type { CreateGameResponse } from '@api-types/response.js'
 
 import responses from '@functions/http-responses.js'
 import gameService from '@services/game-service.js'

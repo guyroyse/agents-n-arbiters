@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { GameLogData } from '@ana/types'
+  import type { GameLogData } from '@api-types/response'
   import GameLogEntryHeader from './GameLogEntryHeader.svelte'
   import GameLogEntryJson from './GameLogEntryJson.svelte'
   import GameLogEntryMermaid from './GameLogEntryMermaid.svelte'
@@ -11,7 +11,9 @@
 
   let { log }: Props = $props()
 
-  const isSimpleMessage = log.contentType !== 'JSON' && log.contentType !== 'Mermaid' && !log.content.includes('\n')
+  const isSimpleMessage = $derived(
+    log.contentType !== 'JSON' && log.contentType !== 'Mermaid' && !log.content.includes('\n')
+  )
 </script>
 
 <GameLogEntryHeader

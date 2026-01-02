@@ -1,5 +1,5 @@
 import type { HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions'
-import type { FetchGameResponse } from '@ana/types'
+import type { FetchGameResponse } from '@api-types/response.js'
 
 import responses from '@functions/http-responses.js'
 import gameService from '@services/game-service.js'

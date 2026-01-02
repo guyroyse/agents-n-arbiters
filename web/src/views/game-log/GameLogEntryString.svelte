@@ -4,8 +4,8 @@
   }
 
   let { content }: Props = $props()
-  
-  const isMultiline = content.includes('\n')
+
+  const isMultiline = $derived(content.includes('\n'))
 </script>
 
 {#if isMultiline}
@@ -17,4 +17,3 @@
     <span class="text-redis-white font-mono text-sm">{content}</span>
   </div>
 {/if}
-

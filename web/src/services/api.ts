@@ -1,72 +1,57 @@
+import type { TakeGameTurnRequest, CreateGameRequest, LoadTemplateRequest } from '@api-types/request'
+
 import type {
-  VersionData,
+  ApiError,
   GameTurnData,
   GameLogData,
   SavedGameData,
-  ApiError,
-  TakeGameTurnRequest,
-  CreateGameRequest,
-  LoadTemplateRequest,
-  FetchVersionResponse,
-  TakeGameTurnResponse,
-  FetchGameTurnsResponse,
-  FetchGameLogsResponse,
-  CreateGameResponse,
-  FetchGamesResponse,
-  LoadTemplateResponse
-} from '@ana/types'
+  VersionData,
+  LoadTemplateData
+} from '@api-types/response'
 
 export async function fetchVersionInfo(): Promise<VersionData> {
-  const response: FetchVersionResponse = await apiCall('/api/version')
-  return response
+  return await apiCall<VersionData>('/api/version')
 }
 
 export async function takeTurn(gameId: string, command: string): Promise<GameTurnData> {
   const request: TakeGameTurnRequest = { command }
-  const response: TakeGameTurnResponse = await apiCall(`/api/games/${gameId}/take-turn`, {
+  return await apiCall<GameTurnData>(`/api/games/${gameId}/take-turn`, {
     method: 'POST',
     body: JSON.stringify(request)
   })
-  return response
 }
 
 export async function fetchGameTurns(gameId: string): Promise<GameTurnData[]> {
-  const response: FetchGameTurnsResponse = await apiCall(`/api/games/${gameId}/turns`)
-  return response
+  return await apiCall<GameTurnData[]>(`/api/games/${gameId}/turns`)
 }
 
 export async function fetchGameLogs(gameId: string, count: number = 1000): Promise<GameLogData[]> {
-  const response: FetchGameLogsResponse = await apiCall(`/api/games/${gameId}/logs?count=${count}`)
-  return response
+  return await apiCall<GameLogData[]>(`/api/games/${gameId}/logs?count=${count}`)
 }
 
 export async function createNewGame(gameName: string): Promise<SavedGameData> {
   const request: CreateGameRequest = { gameName }
-  const response: CreateGameResponse = await apiCall('/api/games', {
+  return await apiCall<SavedGameData>('/api/games', {
     method: 'POST',
     body: JSON.stringify(request)
   })
-  return response
 }
 
 export async function fetchSavedGames(): Promise<SavedGameData[]> {
-  const response: FetchGamesResponse = await apiCall('/api/games')
-  return response
+  return await apiCall<SavedGameData[]>('/api/games')
 }
 
 export async function deleteGame(gameId: string): Promise<void> {
-  const result: void = await apiCall(`/api/games/${gameId}`, {
+  return await apiCall<void>(`/api/games/${gameId}`, {
     method: 'DELETE'
   })
-  return result
 }
 
-export async function loadTemplate(templateData: LoadTemplateRequest): Promise<LoadTemplateResponse> {
-  const response: LoadTemplateResponse = await apiCall('/api/load-template', {
+export async function loadTemplate(templateData: LoadTemplateRequest): Promise<LoadTemplateData> {
+  return await apiCall<LoadTemplateData>('/api/load-template', {
     method: 'POST',
     body: JSON.stringify(templateData)
   })
-  return response
 }
 
 async function apiCall<T>(url: string, options?: RequestInit): Promise<T> {

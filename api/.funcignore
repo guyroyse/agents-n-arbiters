@@ -1,0 +1,4 @@
+# Exclude these from upload to Azure — they will be built by Oryx
+node_modules/
+dist/
+local.settings.json

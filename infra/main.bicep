@@ -107,6 +107,7 @@ resource staticWebApp 'Microsoft.Web/staticSites@2025-03-01' existing = {
   name: 'swa-${resourceToken}'
   dependsOn: [
     web
+    functions
   ]
 }
 
@@ -139,6 +140,7 @@ resource staticWebAppBackend 'Microsoft.Web/staticSites/linkedBackends@2025-03-0
   }
   dependsOn: [
     web
+    functions
   ]
 }
 

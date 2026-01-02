@@ -43,7 +43,6 @@ export type LoadTemplateData = {
 export type CreateGameResponse = SavedGameData | ApiError
 export type FetchGameResponse = SavedGameData | ApiError
 export type FetchGamesResponse = SavedGameData[] | ApiError
-export type DeleteGameResponse = void | ApiError
 
 // Game turn response types
 export type FetchGameTurnsResponse = GameTurnData[] | ApiError

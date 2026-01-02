@@ -11,22 +11,22 @@ hooks:
   predeploy:
     posix:
       shell: sh
-      run: npm install && npm run build
+      run: npm run build:web
+      continueOnError: false
     windows:
       shell: pwsh
-      run: npm install && npm run build
+      run: npm run build:web
+      continueOnError: false
 
 services:
-  api:
-    project: ./api
-    dist: .
-    language: ts
-    host: function
-    module: functions
   web:
     project: ./web
-    dist: dist
-    language: ts
+    language: js
     host: staticwebapp
-    module: web
+    dist: dist
 
+  api:
+    project: ./api
+    language: ts
+    host: function
+    dist: .

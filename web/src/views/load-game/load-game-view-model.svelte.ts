@@ -1,4 +1,4 @@
-import type { SavedGameData } from '@ana/types'
+import type { SavedGameData } from '@api-types/response'
 import { fetchSavedGames, deleteGame } from '@services/api'
 
 export default class LoadGameViewModel {

@@ -10,7 +10,8 @@ export default defineConfig({
       '@app': path.resolve('./src/app'),
       '@views': path.resolve('./src/views'),
       '@components': path.resolve('./src/components'),
-      '@services': path.resolve('./src/services')
+      '@services': path.resolve('./src/services'),
+      '@api-types': path.resolve('./src/types')
     }
   },
   build: {

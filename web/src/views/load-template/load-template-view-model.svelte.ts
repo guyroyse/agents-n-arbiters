@@ -1,5 +1,5 @@
 import { loadTemplate } from '@services/api'
-import type { LoadTemplateRequest, LoadTemplateResponse } from '@ana/types'
+import type { LoadTemplateRequest } from '@api-types/request'
 
 export default class LoadTemplateViewModel {
   #isLoading = $state(false)
