@@ -22,7 +22,7 @@ You can read more about multi-agent collaboration in the [LangGraph documentatio
 
 ```bash
 cp .env.example .env
-cp functions/ana-api/local.settings.example.json functions/ana-api/local.settings.json
+cp api/local.settings.example.json api/local.settings.json
 ```
 
 Then edit both `.env` and `local.settings.json` to add your OpenAI API key.
