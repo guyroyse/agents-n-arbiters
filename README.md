@@ -2,7 +2,7 @@
 
 ## Overview
 
-This multi-agent AI text adventure game—inspired by [Zork](https://en.wikipedia.org/wiki/Zork) and affectionately called _Agents & Arbiters_—demonstrates how to implement a multi-agent system with multi-channel state using LangChain's [LangGraph.js](https://github.com/langchain-ai/langgraphjs). Built on Azure using Static Web Apps, Azure Functions, Azure Manager Redis, and Azure OpenAI, this demo showcases Redis' ability to store workflow state and manage short- and long-term conversation context using [Agent Memory Server](https://redis.github.io/agent-memory-server/).
+This multi-agent AI text adventure game—inspired by [Zork](https://en.wikipedia.org/wiki/Zork) and affectionately called _Agents & Arbiters_—demonstrates how to implement a multi-agent system with multi-channel state using LangChain's [LangGraph.js](https://github.com/langchain-ai/langgraphjs). Built on Azure using Static Web Apps, Azure Functions, Azure Managed Redis, and Azure OpenAI, this demo showcases Redis' ability to store workflow state and manage short- and long-term conversation context using [Agent Memory Server](https://redis.github.io/agent-memory-server/).
 
 ## Table of Contents
 
