@@ -149,6 +149,7 @@ The custom annotation is a key feature of LangGraph.js that allows you to define
 ## Known Issues
 
 - Redis Agent Memory Server is only integrated with the narrator agent. This means that conversation history is not available to other agents in the workflow who might need them. Not a bug, but a limitation of the current implementation. A better approach would be to load the conversation from Agent Memory Server at the start of the workflow and then store it in the custom annotation.
+- There are only a few entity agents implemented—location, fixture, and exit. The game engine is designed to support many more and adding items and NPCs would be a good next step and would drive how to implement player inventory and combat.
 
 ## Resources
 
