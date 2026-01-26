@@ -54,10 +54,16 @@ If you use Node Version Manager run:
 nvm use
 ```
 
-Install Node.js dependencies:
+Install Node.js dependencies for the top level orchestration project:
 
 ```bash
 npm install
+```
+
+Install Node.js dependencies for the web and api projects:
+
+```bash
+npm run install:all
 ```
 
 **Azure Configuration:**
