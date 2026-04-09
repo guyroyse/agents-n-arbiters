@@ -4,7 +4,7 @@ export const config = {
   // - Azure deployment: LiteLLM Container App with OPENAI_BASE_URL pointing to LiteLLM service
   openaiApiKey: process.env.OPENAI_API_KEY,
   openaiBaseUrl: process.env.OPENAI_BASE_URL,
-  openaiModel: 'gpt-4o-mini',
+  openaiModel: 'primary',
   openaiTemperature: 0.7,
 
   // Agent Memory Server configuration
