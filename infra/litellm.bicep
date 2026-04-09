@@ -8,8 +8,8 @@ param litellmMasterKey string
 @secure()
 param azureOpenAiApiKey string
 param azureOpenAiEndpoint string
-param gpt4oDeploymentName string
-param gpt4oMiniDeploymentName string
+param primaryDeploymentName string
+param miniDeploymentName string
 param embeddingDeploymentName string
 
 // LiteLLM Proxy Container App
@@ -50,12 +50,12 @@ resource litellm 'Microsoft.App/containerApps@2025-07-01' = {
               value: loadTextContent('./litellm.config.yaml')
             }
             {
-              name: 'GPT4O_DEPLOYMENT_NAME'
-              value: 'azure/${gpt4oDeploymentName}'
+              name: 'PRIMARY_DEPLOYMENT_NAME'
+              value: 'azure/${primaryDeploymentName}'
             }
             {
-              name: 'GPT4O_MINI_DEPLOYMENT_NAME'
-              value: 'azure/${gpt4oMiniDeploymentName}'
+              name: 'MINI_DEPLOYMENT_NAME'
+              value: 'azure/${miniDeploymentName}'
             }
             {
               name: 'EMBEDDING_DEPLOYMENT_NAME'

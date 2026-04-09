@@ -20,40 +20,40 @@ resource openAiAccount 'Microsoft.CognitiveServices/accounts@2025-09-01' = {
   }
 }
 
-// Model Deployment: gpt-4o (for primary game generation)
-resource gpt4oDeployment 'Microsoft.CognitiveServices/accounts/deployments@2025-09-01' = {
+// Model Deployment: gpt-4.1 (for primary game generation)
+resource gpt41Deployment 'Microsoft.CognitiveServices/accounts/deployments@2025-09-01' = {
   parent: openAiAccount
-  name: 'gpt-4o'
+  name: 'gpt-4.1'
   sku: {
-    name: 'Standard'
+    name: 'DataZoneStandard'
     capacity: 30
   }
   properties: {
     model: {
       format: 'OpenAI'
-      name: 'gpt-4o'
-      version: '2024-08-06'
+      name: 'gpt-4.1'
+      version: '2025-04-14'
     }
   }
 }
 
-// Model Deployment: gpt-4o-mini (for AMS and lighter tasks)
-resource gpt4oMiniDeployment 'Microsoft.CognitiveServices/accounts/deployments@2025-09-01' = {
+// Model Deployment: gpt-4.1-mini (for AMS and lighter tasks)
+resource gpt41MiniDeployment 'Microsoft.CognitiveServices/accounts/deployments@2025-09-01' = {
   parent: openAiAccount
-  name: 'gpt-4o-mini'
+  name: 'gpt-4.1-mini'
   sku: {
-    name: 'Standard'
+    name: 'DataZoneStandard'
     capacity: 30
   }
   properties: {
     model: {
       format: 'OpenAI'
-      name: 'gpt-4o-mini'
-      version: '2024-07-18'
+      name: 'gpt-4.1-mini'
+      version: '2025-04-14'
     }
   }
   dependsOn: [
-    gpt4oDeployment
+    gpt41Deployment
   ]
 }
 
@@ -73,7 +73,7 @@ resource embeddingDeployment 'Microsoft.CognitiveServices/accounts/deployments@2
     }
   }
   dependsOn: [
-    gpt4oMiniDeployment
+    gpt41MiniDeployment
   ]
 }
 
@@ -82,6 +82,6 @@ output id string = openAiAccount.id
 output name string = openAiAccount.name
 output endpoint string = openAiAccount.properties.endpoint
 output apiKey string = openAiAccount.listKeys().key1
-output gpt4oDeploymentName string = gpt4oDeployment.name
-output gpt4oMiniDeploymentName string = gpt4oMiniDeployment.name
+output primaryDeploymentName string = gpt41Deployment.name
+output miniDeploymentName string = gpt41MiniDeployment.name
 output embeddingDeploymentName string = embeddingDeployment.name

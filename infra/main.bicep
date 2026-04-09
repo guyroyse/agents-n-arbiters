@@ -71,8 +71,8 @@ module litellm './litellm.bicep' = {
     litellmMasterKey: litellmMasterKey
     azureOpenAiApiKey: openAi.outputs.apiKey
     azureOpenAiEndpoint: openAi.outputs.endpoint
-    gpt4oDeploymentName: openAi.outputs.gpt4oDeploymentName
-    gpt4oMiniDeploymentName: openAi.outputs.gpt4oMiniDeploymentName
+    primaryDeploymentName: openAi.outputs.primaryDeploymentName
+    miniDeploymentName: openAi.outputs.miniDeploymentName
     embeddingDeploymentName: openAi.outputs.embeddingDeploymentName
   }
 }
@@ -118,7 +118,7 @@ module functions './functions.bicep' = {
     redisConnectionString: redis.outputs.connectionString
     openAiConfig: {
       endpoint: litellm.outputs.uri  // Use LiteLLM proxy instead of direct Azure OpenAI
-      deploymentName: 'gpt-4o'  // Standard OpenAI model name (LiteLLM translates)
+      deploymentName: 'primary'  // LiteLLM model alias
       apiKey: litellmMasterKey  // LiteLLM master key
     }
     amsConfig: {

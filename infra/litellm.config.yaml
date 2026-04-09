@@ -1,25 +1,24 @@
 model_list:
-  # Add GPT-4o
-  - model_name: gpt-4o
+  # Primary model
+  - model_name: primary
     litellm_params:
-      model: os.environ/GPT4O_DEPLOYMENT_NAME
+      model: os.environ/PRIMARY_DEPLOYMENT_NAME
       api_base: os.environ/AZURE_OPENAI_ENDPOINT
       api_key: os.environ/AZURE_OPENAI_API_KEY
-      api_version: "2024-10-21"
+      api_version: '2024-10-21'
 
-  # Add GPT-4o-mini
-  - model_name: gpt-4o-mini
+  # Mini model
+  - model_name: mini
     litellm_params:
-      model: os.environ/GPT4O_MINI_DEPLOYMENT_NAME
+      model: os.environ/MINI_DEPLOYMENT_NAME
       api_base: os.environ/AZURE_OPENAI_ENDPOINT
       api_key: os.environ/AZURE_OPENAI_API_KEY
-      api_version: "2024-10-21"
+      api_version: '2024-10-21'
 
-  # Add embedding model
-  - model_name: text-embedding-3-small
+  # Embedding model
+  - model_name: embedding
     litellm_params:
       model: os.environ/EMBEDDING_DEPLOYMENT_NAME
       api_base: os.environ/AZURE_OPENAI_ENDPOINT
       api_key: os.environ/AZURE_OPENAI_API_KEY
-      api_version: "2024-10-21"
-
+      api_version: '2024-10-21'
