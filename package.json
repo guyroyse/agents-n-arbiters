@@ -9,20 +9,17 @@
     "node": ">=22.0.0"
   },
   "scripts": {
-    "dev": "npm-run-all --sequential build dev:web",
+    "dev": "npm run build && npm run dev:web",
     "dev:web": "cd web && npm run dev",
     "dev:api": "cd api && npm run dev",
-    "build": "npm-run-all --parallel build:api build:web",
+    "build": "npm run build:api && npm run build:web",
     "build:web": "cd web && npm run clean && npm install && npm run build",
     "build:api": "cd api && npm run clean && npm install && npm run build",
-    "clean": "npm-run-all --parallel clean:api clean:web",
+    "clean": "npm run clean:api && npm run clean:web",
     "clean:web": "cd web && npm run clean",
     "clean:api": "cd api && npm run clean",
-    "install:all": "npm-run-all --parallel install:web install:api",
+    "install:all": "npm run install:web && npm run install:api",
     "install:web": "cd web && npm install",
     "install:api": "cd api && npm install"
-  },
-  "devDependencies": {
-    "npm-run-all": "^4.1.5"
   }
 }
